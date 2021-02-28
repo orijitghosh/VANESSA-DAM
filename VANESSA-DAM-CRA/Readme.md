@@ -18,4 +18,8 @@ VANESSA-DAM-CRA is dependent on [Quentin Geissmann](https://github.com/qgeissman
 
 6. Visual comparison among genotypes, replicates.
 
+7. Timeseries filtering with kernel smoothing and Butterworth filters
+
+8. Reproducible code report so that you can generate the figures and analysis without the shiny app from RStudio directly
+
 A short tutorial is provided (*Easy tutorial to start using VANESSA-DAM-CRA.pdf*) which is self explanatory and should help beginners start using the app right away.
