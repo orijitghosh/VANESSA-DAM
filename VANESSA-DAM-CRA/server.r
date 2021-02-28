@@ -1,8 +1,10 @@
 library(shiny)
+library(data.table)
 library(WaveletComp)
 library(ggetho)
 library(zeitgebr)
 library(ggplot2)
+library(ggridges)
 library(readr)
 library(damr)
 library(sleepr)
@@ -15,14 +17,13 @@ library(shinyWidgets)
 library(shinyhelper)
 library(shinyFiles)
 library(fs)
-
 shinyServer(function(input, output, session) {
   shinyalert(
-    title = "Shiny Wrapper for Circadian Rhythms Analysis!",
-    text = "This app requires a metadata file for your monitors, to make the metadata files, first visit the Data formatting tab. The metadata files will be created in the home folder of the app. Right now simultaneous analysis and visualization upto twelve genotypes are supported.",
+    title = "Visual ANalysis of timE SerieS dAta - Drosophila Activity Monitors (VANESSA-DAM) for circadian rhythm analysis!",
+    text = "<b>This app requires a metadata file for your monitors, to make the metadata files, first visit the Data formatting tab. The metadata files will be created in the home folder of the app. Right now simultaneous analysis and visualization upto twelve genotypes are supported. Contact <i>arijitghosh2009@gmail.com</i> for bugs, suggestions, troubleshooting and customizations.</b>",
     closeOnEsc = TRUE,
     closeOnClickOutside = FALSE,
-    html = FALSE,
+    html = TRUE,
     type = "info",
     showConfirmButton = TRUE,
     showCancelButton = FALSE,
@@ -30,7 +31,8 @@ shinyServer(function(input, output, session) {
     confirmButtonCol = "#AEDEF4",
     timer = 0,
     imageUrl = "",
-    animation = TRUE
+    animation = TRUE,
+    size = "m",
   )
   session$onSessionEnded(stopApp)
   observe_helpers(withMathJax = TRUE)
@@ -252,12 +254,12 @@ shinyServer(function(input, output, session) {
 
 
     My_Theme <- theme(
-      title = element_text(size = 8, face = "bold"),
-      axis.title.x = element_text(size = 8, face = "bold"),
-      axis.text.x = element_text(size = 7),
-      axis.title.y = element_text(size = 8, face = "bold"),
-      axis.text.y = element_text(size = 7),
-      legend.text = element_text(size = 7),
+      title = element_text(size = 10, face = "bold"),
+      axis.title.x = element_text(size = 10, face = "bold"),
+      axis.text.x = element_text(size = 8),
+      axis.title.y = element_text(size = 10, face = "bold"),
+      axis.text.y = element_text(size = 8),
+      legend.text = element_text(size = 8),
       legend.position = "right",
       panel.background = element_rect(fill = "white"),
       panel.grid.major = element_line(
@@ -330,9 +332,16 @@ shinyServer(function(input, output, session) {
         lifespan_dt <- dt_curated[, .(lifespan = max(t)), by = id]
         valid_ids <- lifespan_dt[lifespan > days(input$remove), id]
         dt_curated <- dt_curated[id %in% valid_ids]
+        dt_curated <- dt_curated[t %between% c(days(input$start), days(input$end))]
+        dt_curated <- dt_curated[, Day := (t / days(1)), by = id]
+        dt_curated$Day <- ceiling(dt_curated$Day)
+        dt_curated[, 5][dt_curated[, 5] == input$start] <- input$start + 1
+        setkey(dt_curated, Day, id)
+        dt_curated[, normact := (activity / sum(activity)) * 100, by = .(id, Day)]
+        setkey(dt_curated, id)
+        setbehavr(dt_curated, metadata_proc)
         dt_curated[, uid := 1:.N, meta = T]
         dt_curated[, .(id, uid), meta = T]
-        dt_curated <- dt_curated[t %between% c(days(input$start), days(input$end))]
         beepr::beep(sound = 10)
       })
 
@@ -435,7 +444,7 @@ shinyServer(function(input, output, session) {
             multiplot = 2,
             multiplot_period = hours(input$modtau),
             summary_time_window = mins(input$min)
-          ) + ### can change to activity if raw needed or keep it moving
+          ) + ### can change to activity if raw needed or keep it normact
             stat_ld_annotations(
               height = 1,
               alpha = 0.05,
@@ -461,11 +470,11 @@ shinyServer(function(input, output, session) {
           req(input$meta)
           ggetho(
             dt_curated,
-            aes(z = moving),
+            aes(z = normact),
             multiplot = 2,
             multiplot_period = hours(input$modtau),
             summary_time_window = mins(input$min)
-          ) + ### can change to activity if raw needed or keep it moving
+          ) + ### can change to activity if raw needed or keep it normact
             stat_ld_annotations(
               height = 1,
               alpha = 0.05,
@@ -521,7 +530,7 @@ shinyServer(function(input, output, session) {
             dt_curated,
             aes(
               x = t,
-              y = moving,
+              y = normact,
               colour = genotype
             ),
             time_wrap = hours(input$modtau),
@@ -553,7 +562,7 @@ shinyServer(function(input, output, session) {
             dt_curated,
             aes(
               x = t,
-              y = moving,
+              y = normact,
               colour = genotype
             ),
             summary_time_window = mins(input$min),
@@ -647,7 +656,7 @@ shinyServer(function(input, output, session) {
             dt_curated,
             aes(
               x = t,
-              y = moving,
+              y = normact,
               colour = genotype
             ),
             time_wrap = hours(input$modtau),
@@ -710,7 +719,7 @@ shinyServer(function(input, output, session) {
             dt_curated,
             aes(
               x = t,
-              y = moving,
+              y = normact,
               colour = genotype
             ),
             time_wrap = hours(input$modtau),
@@ -742,14 +751,14 @@ shinyServer(function(input, output, session) {
             dt_curated,
             aes(
               x = t,
-              y = moving,
+              y = normact,
               colour = genotype
             ),
             time_wrap = hours(input$modtau),
             summary_time_window = mins(input$min)
           ) +
             stat_ld_annotations(
-              height = 1,
+              height = .3,
               alpha = .1,
               x_limits = c(0, hours(24)),
               outline = NA,
@@ -810,7 +819,7 @@ shinyServer(function(input, output, session) {
             multiplot = 2,
             multiplot_period = hours(input$modtau),
             summary_time_window = mins(input$min)
-          ) + ### can change to activity if raw needed or keep it moving
+          ) + ### can change to activity if raw needed or keep it normact
             stat_ld_annotations(
               height = 1,
               alpha = 0.05,
@@ -832,11 +841,11 @@ shinyServer(function(input, output, session) {
           req(input$meta)
           ggetho(
             dt_curated,
-            aes(x = t, z = moving),
+            aes(x = t, z = normact),
             multiplot = 2,
             multiplot_period = hours(input$modtau),
             summary_time_window = mins(input$min)
-          ) + ### can change to activity if raw needed or keep it moving
+          ) + ### can change to activity if raw needed or keep it normact
             stat_ld_annotations(
               height = 1,
               alpha = 0.05,
@@ -864,7 +873,7 @@ shinyServer(function(input, output, session) {
               multiplot = 2,
               multiplot_period = hours(input$modtau),
               summary_time_window = mins(input$min)
-            ) + ### can change to activity if raw needed or keep it moving
+            ) + ### can change to activity if raw needed or keep it normact
               stat_ld_annotations(
                 height = 1,
                 alpha = 0.05,
@@ -881,11 +890,11 @@ shinyServer(function(input, output, session) {
             req(input$meta)
             ggetho(
               dt_curated[id == l[input$ind]],
-              aes(x = t, z = moving),
+              aes(x = t, z = normact),
               multiplot = 2,
               multiplot_period = hours(input$modtau),
               summary_time_window = mins(input$min)
-            ) + ### can change to activity if raw needed or keep it moving
+            ) + ### can change to activity if raw needed or keep it normact
               stat_ld_annotations(
                 height = 1,
                 alpha = 0.05,
@@ -906,11 +915,11 @@ shinyServer(function(input, output, session) {
           req(input$meta)
           ggetho(
             dt_curated[id == l[input$ind]],
-            aes(x = t, z = moving),
+            aes(x = t, z = normact),
             multiplot = 2,
             multiplot_period = hours(input$modtau),
             summary_time_window = mins(input$min)
-          ) + ### can change to activity if raw needed or keep it moving
+          ) + ### can change to activity if raw needed or keep it normact
             stat_ld_annotations(
               height = 1,
               alpha = 0.05,
@@ -930,11 +939,11 @@ shinyServer(function(input, output, session) {
           req(input$meta)
           ggetho(
             dt_curated[id == l[input$ind]],
-            aes(x = t, z = moving),
+            aes(x = t, z = normact),
             multiplot = 2,
             multiplot_period = hours(input$modtau),
             summary_time_window = mins(input$min)
-          ) + ### can change to activity if raw needed or keep it moving
+          ) + ### can change to activity if raw needed or keep it normact
             stat_ld_annotations(
               height = 1,
               alpha = 0.05,
@@ -1037,7 +1046,7 @@ shinyServer(function(input, output, session) {
             req(input$meta)
             ggperio(
               per_xsq_dt_chi_sq,
-              aes(y = power - signif_threshold, colour = genotype)
+              aes(x = period, y = power - signif_threshold, colour = genotype)
             ) +
               stat_pop_etho() +
               facet_wrap(~replicate, ncol = 1, scales = "free_y") +
@@ -1068,13 +1077,16 @@ shinyServer(function(input, output, session) {
           })
         })
 
-        output$chisqperiodplotbox <- renderPlot(
+        output$chisqperiodplotviolin <- renderPlot(
           {
             req(input$meta)
             summary_dt <- rejoin(per_xsq_dt_chi_sq[peak == 1])
             ggplot(summary_dt, aes(genotype, period, fill = genotype)) +
-              geom_boxplot(outlier.colour = NA) +
-              geom_jitter(aes(size = power - signif_threshold), alpha = .5) +
+              # geom_boxplot(outlier.colour = NA) +
+              geom_jitter(aes(size = power - signif_threshold), alpha = .5, position = position_jitter(0.15)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 3, shape = 23) +
+              stat_summary(aes(label = round((..y.. / 3600), 2), color = genotype), fun = mean, geom = "text", size = 5, vjust = -0.5) +
               facet_wrap(~replicate, ncol = 1) +
               scale_y_hours(name = "Period") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
@@ -1082,7 +1094,30 @@ shinyServer(function(input, output, session) {
               My_Theme
           },
           res = 100,
-          width = 1000,
+          width = 800,
+          height = (input$replicate * 500)
+        )
+
+        output$perioddistrib <- renderPlot(
+          {
+            req(input$meta)
+            summary_dt <- rejoin(per_xsq_dt_chi_sq[peak == 1])
+            ggplot(summary_dt, aes((period / 3600), genotype, color = genotype, fill = genotype)) +
+              geom_density_ridges(
+                scale = 1, rel_min_height = 0.01, jittered_points = TRUE,
+                position = position_points_jitter(width = 0.2, height = 0),
+                point_shape = "|", point_size = 8, point_alpha = 1, alpha = .7
+              ) +
+              scale_y_discrete(expand = c(0, 0)) + # will generally have to set the `expand` option
+              scale_x_continuous(expand = c(0, 0)) + # for both axes to remove unneeded padding
+              coord_cartesian(clip = "off") + # to avoid clipping of the very top of the top ridgeline
+              labs(x = "Period (h)", y = "Genotype") +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              My_Theme
+          },
+          res = 100,
+          width = 800,
           height = (input$replicate * 500)
         )
         ###################################################################################
@@ -1180,5 +1215,189 @@ shinyServer(function(input, output, session) {
         res = 100
       )
     })
+    ############################# For timeseries smoothing#########################
+    observeEvent(input$do_smooth, {
+      req(input$raw_smooth)
+      df <- read.delim(input$raw_smooth$datapath,
+        header = input$header,
+        sep = input$sep
+      )
+      start_date_time <- input$startdatetime_smooth
+      end_date_time <- input$enddatetime_smooth
+      bin <- input$bin_smooth ################# bin of actual data
+      bin1 <- input$bin_req_smooth #################### bin of wanted data aggregation step
+      n <- input$n_smooth ################ filter order or generic filter model
+      W <- input$W_smooth ################## critical frequencies of the filter. W must be a scalar for low-pass and high-pass filters, and W must be a two-element vector c(low, high) specifying the lower and upper bands. For digital filters, W must be between 0 and 1 where 1 is the Nyquist frequency
+      bf <- butter(n = n, W = W, type = "low", plane = "z") # order 2, 10 Hz low-pass filter
+      ag <- data.frame(timestamp = seq(as.POSIXct("2020-12-03 10:00:00"), as.POSIXct("2020-12-04 10:00:00"), by = (bin1 * 60))) ########## change start time as your data
+      all_nan <- function(x) any(!is.nan(x)) ############ define function to remove NaNs
+      b <- input$b_smooth ################ kernel smoothing bandwith
+      df$V2 <- dmy(df$V2)
+      df$V3 <- hms::as_hms(df$V3)
+      lol <- paste(df$V2, df$V3, sep = " ")
+      df_lol <- cbind(lol, df)
+      df_lol$lol <- ymd_hms(df_lol$lol)
+      df_lol_new <- df_lol %>%
+        dplyr::filter(between(df_lol$lol, ymd_hms(start_date_time), ymd_hms(end_date_time)))
+      ok1 <- as.numeric(rownames(df_lol_new))
+      df_lol_new <- cbind(ok1, df_lol_new)
+      df_lol_new1 <- df_lol_new[-nrow(df_lol_new), ]
+      lol_new <- df_lol_new1$lol
+      df_lol_new <- subset(df_lol_new, select = -c(lol, V2, V3, V8))
+      ok <- aggregate(df_lol_new, # the data frame
+        by = list(cut(df_lol_new$ok1, seq(1, nrow(df_lol_new), (bin1 / bin)))), # the bins in minutes (change to any number)
+        sum
+      )
+      df_lol_new <- ok
+      df <- df_lol_new
+      modulo_tau <- 24 ########### change modulo tau accordingly
+      s_per_day <- (60 / bin1) * modulo_tau
+      raw <- df[1:((floor(length(df[, 1]) / s_per_day)) * s_per_day), -c(1:9)]
+      # raw <- raw[,-c(1,2,3:14)] ##############uncomment and type the channels you want to remove, ONLY if you want to remove channels
+      raw_new <- cbind(lol_new, raw)
+      if (input$smooth_method == "low pass butterworth filter") {
+        for_profile_bf <- matrix(0, nrow = s_per_day, ncol = length(raw[1, ]))
+        raw_smooth_new_bf <- matrix(0, nrow = nrow(raw_new), ncol = (length(raw_new[1, ]) - 1))
+        for (i in 1:(length(raw_new[1, ])) - 1) {
+          raw_smooth <- filtfilt(bf, raw_new[, 1 + i])
+          raw_smooth_new_bf[, i] <- raw_smooth
+        }
+        raw_new_smooth_bf <- cbind(raw_new, raw_smooth_new_bf)
+        raw_new_smooth_bf <- raw_new_smooth_bf[, -c(2:33)]
+        raw_new_smooth1_bf <- raw_new_smooth_bf[, -1]
+        for (i in 1:length(raw_new_smooth1_bf[1, ])) {
+          a <- Reshape(raw_new_smooth1_bf[, i], s_per_day)
+          mean_a <- as.matrix(rowMeans(a))
+          for_profile_bf[, i] <- mean_a
+        }
+        pro_bf <<- for_profile_bf
+        pro_bf <<- rbind(pro_bf, pro_bf[1, ])
+        pro_bf <<- cbind(ag, pro_bf)
+        pro_bf <<- pro_bf %>% select_if(all_nan)
+        pro_sel_bf <- pro_bf[, colSums(pro_bf == 0) / nrow(pro_bf) < .9, drop = FALSE]
+
+        pro_sel_rowmean_bf <- rowMeans(pro_sel_bf[, -1])
+        pro_sel_rowmean_bf <- cbind(pro_sel_bf, pro_sel_rowmean_bf)
+        pro_new_bf <- pro_sel_rowmean_bf[, c(1, ncol(pro_sel_rowmean_bf))]
+        # plot(pro_new, type = "l", col = alpha("red", 0.5), lwd = 2)
+        plot_mean <- ggplot(pro_new_bf, aes(x = pro_new_bf$timestamp, y = pro_new_bf$pro_sel_rowmean_bf)) +
+          geom_line(color = "red", alpha = 0.8, size = 1) +
+          scale_x_datetime(date_labels = "%I:%M %p", date_breaks = "4 hour", expand = c(0, 0)) +
+          xlab("Time") +
+          ylab(paste0("Activity counts/", bin1, "minute", " (butterworth filter, low pass)")) +
+          ggthemes::theme_solarized() +
+          theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        pro_sel_long_bf <- pro_sel_bf %>%
+          pivot_longer(
+            2:ncol(pro_sel_bf)
+          )
+        pro_sel_long_sorted_bf <- pro_sel_long_bf[order(pro_sel_long_bf$name), ]
+
+        plot_all <- ggplot(pro_sel_long_sorted_bf, aes(x = pro_sel_long_sorted_bf$timestamp, y = pro_sel_long_sorted_bf$value)) +
+          geom_line(color = pro_sel_long_sorted_bf$name, alpha = 0.8, size = 1) +
+          facet_wrap(~ pro_sel_long_sorted_bf$name, scales = "free_y") +
+          scale_x_datetime(date_labels = "%I:%M %p", date_breaks = "4 hour", expand = c(0, 0)) +
+          xlab("Time") +
+          ylab(paste0("Activity counts/", bin1, "minute", " (butterworth filter, low pass)")) +
+          scale_color_gradientn(colours = rainbow(32)) +
+          ggthemes::theme_solarized() +
+          theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+          theme(strip.background = element_rect(
+            colour = "black",
+            fill = NA
+          ))
+      } else {
+        for_profile_ks <- matrix(0, nrow = s_per_day, ncol = length(raw[1, ]))
+        raw_smooth_new_ks <- matrix(0, nrow = nrow(raw_new), ncol = (length(raw_new[1, ]) - 1))
+        for (i in 1:(length(raw_new[1, ])) - 1) {
+          raw_smooth <- ksmooth(time(raw_new$lol_new), raw_new[, 1 + i], "normal", bandwidth = b)
+          raw_smooth_new_ks[, i] <- raw_smooth$y
+        }
+        raw_new_smooth_ks <- cbind(raw_new, raw_smooth_new_ks)
+        raw_new_smooth_ks <- raw_new_smooth_ks[, -c(2:33)]
+        raw_new_smooth1_ks <- raw_new_smooth_ks[, -1]
+        for (i in 1:length(raw_new_smooth1_ks[1, ])) {
+          a <- Reshape(raw_new_smooth1_ks[, i], s_per_day)
+          mean_a <- as.matrix(rowMeans(a))
+          for_profile_ks[, i] <- mean_a
+        }
+        pro_ks <<- for_profile_ks
+        pro_ks <<- rbind(pro_ks, pro_ks[1, ])
+        pro_ks <<- cbind(ag, pro_ks)
+        pro_ks <<- pro_ks %>% select_if(all_nan)
+        pro_sel_ks <- pro_ks[, colSums(pro_ks == 0) / nrow(pro_ks) < .9, drop = FALSE]
+
+        pro_sel_rowmean_ks <- rowMeans(pro_sel_ks[, -1])
+        pro_sel_rowmean_ks <- cbind(pro_sel_ks, pro_sel_rowmean_ks)
+        pro_new_ks <- pro_sel_rowmean_ks[, c(1, ncol(pro_sel_rowmean_ks))]
+        # plot(pro_new, type = "l", col = alpha("red", 0.5), lwd = 2)
+        plot_mean <- ggplot(pro_new_ks, aes(x = pro_new_ks$timestamp, y = pro_new_ks$pro_sel_rowmean_ks)) +
+          geom_line(color = "red", alpha = 0.8, size = 1) +
+          scale_x_datetime(date_labels = "%I:%M %p", date_breaks = "4 hour", expand = c(0, 0)) +
+          xlab("Time") +
+          ylab(paste0("Activity counts/", bin1, "minute", " (KS bandwidth = ", b, ")")) +
+          ggthemes::theme_solarized() +
+          theme(axis.text.x = element_text(angle = 45, hjust = 1))
+        pro_sel_long_ks <- pro_sel_ks %>%
+          pivot_longer(
+            2:ncol(pro_sel_ks)
+          )
+        pro_sel_long_sorted_ks <- pro_sel_long_ks[order(pro_sel_long_ks$name), ]
+
+        plot_all <- ggplot(pro_sel_long_sorted_ks, aes(x = pro_sel_long_sorted_ks$timestamp, y = pro_sel_long_sorted_ks$value)) +
+          geom_line(color = pro_sel_long_sorted_ks$name, alpha = 0.8, size = 1) +
+          facet_wrap(~ pro_sel_long_sorted_ks$name, scales = "free_y") +
+          scale_x_datetime(date_labels = "%I:%M %p", date_breaks = "4 hour", expand = c(0, 0)) +
+          xlab("Time") +
+          ylab(paste0("Activity counts/", bin1, "minute", " (KS bandwidth = ", b, ")")) +
+          scale_color_gradientn(colours = rainbow(32)) +
+          ggthemes::theme_solarized() +
+          theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+          theme(strip.background = element_rect(
+            colour = "black",
+            fill = NA
+          ))
+      }
+
+      output$plot_smooth_average <- renderPlot(
+        {
+          req(input$raw_smooth)
+          plot_mean
+        },
+        res = 100
+      )
+      output$plot_smooth_ind <- renderPlot(
+        {
+          req(input$raw_smooth)
+          plot_all
+        },
+        res = 100
+      )
+    })
   })
+  output$report <- downloadHandler(
+    # For PDF output, change this to "report.pdf"
+    filename = "report.html",
+    content = function(file) {
+      # Copy the report file to a temporary directory before processing it, in
+      # case we don't have write permissions to the current working dir (which
+      # can happen when deployed).
+      tempReport <- file.path(tempdir(), "report.Rmd")
+      file.copy("report.Rmd", tempReport, overwrite = TRUE)
+      
+      # Set up parameters to pass to Rmd document
+      params <- list(meta = input$meta, wd = getwd(), modtau = input$modtau, ldperiod = input$ldperiod,
+                     min = input$min, light = input$light, genotype = input$genotype,
+                     replicate = input$replicate, remove = input$remove, start = input$start, end = input$end,
+                     permethod = input$permethod, ul = input$ul, ll = input$ll)
+      
+      # Knit the document, passing in the `params` list, and eval it in a
+      # child of the global environment (this isolates the code in the document
+      # from the code in this app).
+      rmarkdown::render(tempReport, output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv())
+      )
+    }
+  )
 })

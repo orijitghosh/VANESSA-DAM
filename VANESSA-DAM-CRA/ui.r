@@ -1,7 +1,6 @@
 library(shiny)
-library(WaveletComp)
-library(ggplot2)
 library(shinythemes)
+library(WaveletComp)
 library(dplyr)
 library(shinydashboard)
 library(shinycustomloader)
@@ -10,12 +9,12 @@ library(colourpicker)
 library(shinyWidgets)
 library(shinyhelper)
 library(shinyFiles)
+library(ggplot2)
 source("helpers.R")
-
 shinyUI <-
   (
     navbarPage(
-      "Shiny Wrapper for Circadian Rhythms Analysis",
+      "VANESSA-DAM-Circadian",
       theme = shinytheme("sandstone"),
       collapsible = TRUE,
       fluid = TRUE,
@@ -146,6 +145,7 @@ shinyUI <-
               easyClose = TRUE,
               fade = TRUE
             ),
+          # downloadButton("report", "Generate report"),
           withBusyIndicatorUI(
             actionBttn(
               inputId = "cal",
@@ -185,7 +185,9 @@ shinyUI <-
           div(
             style = "overflow-x: scroll",
             DT::dataTableOutput("contents") %>% withLoader(type = "html", loader = "pacman")
-          )
+          ),
+          tags$hr(),
+          downloadButton("report", "Generate report")
         ))
       ),
 
@@ -294,19 +296,35 @@ shinyUI <-
               ) %>% withLoader(type = "html", loader = "pacman")
             ),
             tabPanel(
-              "Periods box plot"
+              "Periods violin plot"
               %>%
                 helper(
                   type = "inline",
                   title = "",
-                  content = c("Period values of individuals in a monitor will be plotted as boxplots. Each replicate will be plotted separately."),
+                  content = c("Period values of individuals in a monitor will be plotted as violin plots. Each replicate will be plotted separately."),
                   size = "s",
                   buttonLabel = "Okay!",
                   easyClose = TRUE,
                   fade = TRUE
                 ),
               plotOutput(
-                "chisqperiodplotbox",
+                "chisqperiodplotviolin",
+              ) %>% withLoader(type = "html", loader = "pacman")
+            ),
+            tabPanel(
+              "Periods distribution"
+              %>%
+                helper(
+                  type = "inline",
+                  title = "",
+                  content = c("Period values of individuals in a monitor will be plotted as violin plots. Each replicate will be plotted separately."),
+                  size = "s",
+                  buttonLabel = "Okay!",
+                  easyClose = TRUE,
+                  fade = TRUE
+                ),
+              plotOutput(
+                "perioddistrib",
               ) %>% withLoader(type = "html", loader = "pacman")
             ),
             tabPanel(
@@ -1081,6 +1099,180 @@ shinyUI <-
             ) %>% withLoader(type = "html", loader = "pacman")
           ),
           tabPanel("Contents_CWT", tableOutput("contents_CWT"))
+        ))
+      ),
+      tabPanel(
+        "Timeseries smoothing",
+        icon = icon("filter"),
+        sidebarPanel(
+          fileInput(
+            "raw_smooth",
+            "Choose DAM monitor File",
+            multiple = FALSE,
+            accept = c(
+              "text/csv",
+              "text/comma-separated-values,text/plain",
+              ".csv"
+            )
+          )
+          %>%
+            helper(
+              type = "inline",
+              title = "",
+              content = c("A DAM file scanned with DAMScan."),
+              size = "s",
+              buttonLabel = "Okay!",
+              easyClose = TRUE,
+              fade = TRUE
+            ),
+          checkboxInput("header", "Header", FALSE),
+          radioButtons(
+            "sep",
+            "Separator",
+            choices = c(
+              Comma = ",",
+              Semicolon = ";",
+              Tab = "\t"
+            ),
+            selected = "\t"
+          ),
+          radioButtons(
+            "disp",
+            "Display",
+            choices = c(
+              Head = "head",
+              All = "all"
+            ),
+            selected = "head"
+          ),
+          radioGroupButtons(
+            inputId = "smooth_method",
+            choices = c("low pass butterworth filter", "kernel smoothing"),
+            status = "primary",
+            size = "xs",
+            individual = TRUE,
+            direction = "vertical",
+            justified = TRUE,
+            width = "30%",
+            checkIcon = list(
+              yes = icon("ok",
+                lib = "glyphicon"
+              ),
+              no = icon("remove",
+                lib = "glyphicon"
+              )
+            )
+          )
+          %>%
+            helper(
+              type = "inline",
+              title = "",
+              content = c("Choose any one method, depending on prior experience, or take an informed decision by reading up literature. Both methods have been implemented such that phases won't change due to filtering. Currently only low pass butterworth filter is included, high pass filter may be included in the future."),
+              size = "s",
+              buttonLabel = "Okay!",
+              easyClose = TRUE,
+              fade = TRUE
+            ),
+          airDatepickerInput(
+            inputId = "startdatetime_smooth",
+            value = Sys.Date(),
+            label = "Pick start date and time:",
+            timepicker = TRUE,
+            timepickerOpts = timepickerOptions(timeFormat = "hh:ii:00"),
+            update_on = "close",
+            addon = "right"
+          )
+          %>%
+            helper(
+              type = "inline",
+              title = "",
+              content = c("Subsetting your data, use the first day you want to use for average profile."),
+              size = "s",
+              buttonLabel = "Okay!",
+              easyClose = TRUE,
+              fade = TRUE
+            ),
+          airDatepickerInput(
+            inputId = "enddatetime_smooth",
+            value = Sys.Date(),
+            label = "Pick end date and time:",
+            timepicker = TRUE,
+            timepickerOpts = timepickerOptions(timeFormat = "hh:ii:00"),
+            update_on = "close",
+            addon = "right"
+          )
+          %>%
+            helper(
+              type = "inline",
+              title = "",
+              content = c("Subsetting your data, use the last day you want to use for average profile."),
+              size = "s",
+              buttonLabel = "Okay!",
+              easyClose = TRUE,
+              fade = TRUE
+            ),
+          numericInput("bin_smooth", "binning of actual data (min)", 1, 1, 120, 1)
+          %>%
+            helper(
+              type = "inline",
+              title = "",
+              content = c("original binning of your data"),
+              size = "s",
+              buttonLabel = "Okay!",
+              easyClose = TRUE,
+              fade = TRUE
+            ),
+          numericInput("bin_req_smooth", "required binning for data (min)", 1, 1, 32, 1)
+          %>%
+            helper(
+              type = "inline",
+              title = "",
+              content = c("required binning of your data for average profile"),
+              size = "s",
+              buttonLabel = "Okay!",
+              easyClose = TRUE,
+              fade = TRUE
+            ),
+          numericInput("n_smooth", "filter order or generic filter model", 2, 1, 10, 1),
+          numericInput("W_smooth", "critical frequencies of the filter", 0.1, 0, 1, 0.01)
+          %>%
+            helper(
+              type = "inline",
+              title = "",
+              content = c("W is the critical frequency of the filter and it must be a scalar for a low-pass filter. For digital filters, W must be between 0 and 1, where 1 is the Nyquist frequency."),
+              size = "s",
+              buttonLabel = "Okay!",
+              easyClose = TRUE,
+              fade = TRUE
+            ),
+          numericInput("b_smooth", "kernel smoothing bandwith", 5, 1, 20, 1),
+          withBusyIndicatorUI(
+            actionBttn(
+              inputId = "do_smooth",
+              label = "Calculate!",
+              style = "minimal",
+              color = "primary",
+              icon = icon("calculator")
+            )
+          ),
+          width = 2
+        ),
+
+        mainPanel(tabsetPanel(
+          tabPanel(
+            "Smoothened average profile",
+            plotOutput("plot_smooth_average",
+              height = "550px",
+              width = "1200px"
+            ) %>% withLoader(type = "html", loader = "pacman")
+          ),
+          tabPanel(
+            "Smoothened individual profile",
+            plotOutput("plot_smooth_ind",
+              height = "1200px",
+              width = "2400px"
+            ) %>% withLoader(type = "html", loader = "pacman")
+          )
         ))
       )
     )

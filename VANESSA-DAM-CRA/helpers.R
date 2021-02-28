@@ -13,7 +13,7 @@ color: red;
 "
 
 withBusyIndicatorUI <- function(button) {
-  id <- button[['attribs']][['id']]
+  id <- button[["attribs"]][["id"]]
   div(
     shinyjs::useShinyjs(),
     singleton(tags$head(
@@ -29,11 +29,13 @@ withBusyIndicatorUI <- function(button) {
       )
     ),
     shinyjs::hidden(
-      div(class = "btn-err",
-          div(icon("exclamation-circle"),
-              tags$b("Error: "),
-              span(class = "btn-err-msg")
-          )
+      div(
+        class = "btn-err",
+        div(
+          icon("exclamation-circle"),
+          tags$b("Error: "),
+          span(class = "btn-err-msg")
+        )
       )
     )
   )
@@ -54,16 +56,23 @@ withBusyIndicatorServer <- function(buttonId, expr) {
     shinyjs::enable(buttonId)
     shinyjs::hide(selector = loadingEl)
   })
-  
+
   # Try to run the code when the button is clicked and show an error message if
   # an error occurs or a success message if it completes
-  tryCatch({
-    value <- expr
-    shinyjs::show(selector = doneEl)
-    shinyjs::delay(2000, shinyjs::hide(selector = doneEl, anim = TRUE, animType = "fade",
-                                       time = 0.5))
-    value
-  }, error = function(err) { errorFunc(err, buttonId) })
+  tryCatch(
+    {
+      value <- expr
+      shinyjs::show(selector = doneEl)
+      shinyjs::delay(2000, shinyjs::hide(
+        selector = doneEl, anim = TRUE, animType = "fade",
+        time = 0.5
+      ))
+      value
+    },
+    error = function(err) {
+      errorFunc(err, buttonId)
+    }
+  )
 }
 
 # When an error happens after a button click, show the error
