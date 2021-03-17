@@ -24,10 +24,15 @@ if (!require("shinyFiles")) install.packages("shinyFiles", dependencies = TRUE, 
 if (!require("fs")) install.packages("fs", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
 if (!require("data.table")) install.packages("data.table", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
 if (!require("Cairo")) install.packages("Cairo", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
+if (!require("pracma")) install.packages("pracma", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
+if (!require("lubridate")) install.packages("lubridate", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
+if (!require("signal")) install.packages("signal", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
+if (!require("ggthemes")) install.packages("ggthemes", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
 
-if (is.installed("shiny") & is.installed("WaveletComp") & is.installed("ggetho") & is.installed("ggplot2") & is.installed("zeitgebr") & is.installed("readr") & is.installed("damr") & is.installed("Cairo")
+if (is.installed("shiny") & is.installed("WaveletComp") & is.installed("ggetho") & is.installed("ggplot2") & is.installed("zeitgebr") & is.installed("readr") & is.installed("damr") & is.installed("Cairo") & is.installed("ggthemes")
 & is.installed("sleepr") & is.installed("behavr") & is.installed("dplyr") & is.installed("shinyalert") & is.installed("colourpicker") & is.installed("beepr") & is.installed("showtext") & is.installed("data.table")
-& is.installed("shinydashboard") & is.installed("shinycustomloader") & is.installed("shinythemes") & is.installed("shinyWidgets") & is.installed("shinyhelper") & is.installed("shinyFiles") & is.installed("fs")) {
+& is.installed("shinydashboard") & is.installed("shinycustomloader") & is.installed("shinythemes") & is.installed("shinyWidgets") & is.installed("shinyhelper") & is.installed("shinyFiles") & is.installed("fs")
+& is.installed("signal") & is.installed("lubridate") & is.installed("pracma")) {
   print(paste("Initialisation complete! VANESSA-DAM-CRA is now ready for use"), quote = F)
 } else {
   print(paste("Error: One or more packages may not have installed correctly"), quote = F)

@@ -1222,27 +1222,28 @@ shinyServer(function(input, output, session) {
         header = input$header,
         sep = input$sep
       )
-      start_date_time <- input$startdatetime_smooth
-      end_date_time <- input$enddatetime_smooth
+      start_date_time <- lubridate::ymd_hms(input$startdatetime_smooth)
+      end_date_time <- lubridate::ymd_hms(input$enddatetime_smooth)
       bin <- input$bin_smooth ################# bin of actual data
       bin1 <- input$bin_req_smooth #################### bin of wanted data aggregation step
       n <- input$n_smooth ################ filter order or generic filter model
       W <- input$W_smooth ################## critical frequencies of the filter. W must be a scalar for low-pass and high-pass filters, and W must be a two-element vector c(low, high) specifying the lower and upper bands. For digital filters, W must be between 0 and 1 where 1 is the Nyquist frequency
-      bf <- butter(n = n, W = W, type = "low", plane = "z") # order 2, 10 Hz low-pass filter
+      bf <- signal::butter(n = n, W = W, type = "low", plane = "z") # order 2, 10 Hz low-pass filter
       ag <- data.frame(timestamp = seq(as.POSIXct("2020-12-03 10:00:00"), as.POSIXct("2020-12-04 10:00:00"), by = (bin1 * 60))) ########## change start time as your data
       all_nan <- function(x) any(!is.nan(x)) ############ define function to remove NaNs
       b <- input$b_smooth ################ kernel smoothing bandwith
-      df$V2 <- dmy(df$V2)
+      df$V2 <- lubridate::dmy(df$V2)
       df$V3 <- hms::as_hms(df$V3)
       lol <- paste(df$V2, df$V3, sep = " ")
       df_lol <- cbind(lol, df)
-      df_lol$lol <- ymd_hms(df_lol$lol)
+      df_lol$lol <- lubridate::ymd_hms(df_lol$lol)
       df_lol_new <- df_lol %>%
-        dplyr::filter(between(df_lol$lol, ymd_hms(start_date_time), ymd_hms(end_date_time)))
+        dplyr::filter(between(df_lol$lol, start_date_time, end_date_time))
       ok1 <- as.numeric(rownames(df_lol_new))
       df_lol_new <- cbind(ok1, df_lol_new)
       df_lol_new1 <- df_lol_new[-nrow(df_lol_new), ]
-      lol_new <- df_lol_new1$lol
+      lol_new <- data.frame(timestamp = seq(as.POSIXct(start_date_time), as.POSIXct(end_date_time), by = (bin1*60)))   ##########change start time as your data
+      lol_new <- lol_new[-nrow(lol_new),]
       df_lol_new <- subset(df_lol_new, select = -c(lol, V2, V3, V8))
       ok <- aggregate(df_lol_new, # the data frame
         by = list(cut(df_lol_new$ok1, seq(1, nrow(df_lol_new), (bin1 / bin)))), # the bins in minutes (change to any number)
@@ -1259,14 +1260,14 @@ shinyServer(function(input, output, session) {
         for_profile_bf <- matrix(0, nrow = s_per_day, ncol = length(raw[1, ]))
         raw_smooth_new_bf <- matrix(0, nrow = nrow(raw_new), ncol = (length(raw_new[1, ]) - 1))
         for (i in 1:(length(raw_new[1, ])) - 1) {
-          raw_smooth <- filtfilt(bf, raw_new[, 1 + i])
+          raw_smooth <- signal::filtfilt(bf, raw_new[, 1 + i])
           raw_smooth_new_bf[, i] <- raw_smooth
         }
         raw_new_smooth_bf <- cbind(raw_new, raw_smooth_new_bf)
         raw_new_smooth_bf <- raw_new_smooth_bf[, -c(2:33)]
         raw_new_smooth1_bf <- raw_new_smooth_bf[, -1]
         for (i in 1:length(raw_new_smooth1_bf[1, ])) {
-          a <- Reshape(raw_new_smooth1_bf[, i], s_per_day)
+          a <- pracma::Reshape(raw_new_smooth1_bf[, i], s_per_day)
           mean_a <- as.matrix(rowMeans(a))
           for_profile_bf[, i] <- mean_a
         }
@@ -1288,7 +1289,7 @@ shinyServer(function(input, output, session) {
           ggthemes::theme_solarized() +
           theme(axis.text.x = element_text(angle = 45, hjust = 1))
         pro_sel_long_bf <- pro_sel_bf %>%
-          pivot_longer(
+          tidyr::pivot_longer(
             2:ncol(pro_sel_bf)
           )
         pro_sel_long_sorted_bf <- pro_sel_long_bf[order(pro_sel_long_bf$name), ]
@@ -1306,6 +1307,14 @@ shinyServer(function(input, output, session) {
             colour = "black",
             fill = NA
           ))
+        output$smoothened_bf <- downloadHandler(
+          filename = function() {
+            paste("smoothened_bf.csv", sep = "")
+          },
+          content = function(file) {
+            write.csv(raw_new_smooth_bf, file, row.names = FALSE)
+          }
+        )
       } else {
         for_profile_ks <- matrix(0, nrow = s_per_day, ncol = length(raw[1, ]))
         raw_smooth_new_ks <- matrix(0, nrow = nrow(raw_new), ncol = (length(raw_new[1, ]) - 1))
@@ -1317,7 +1326,7 @@ shinyServer(function(input, output, session) {
         raw_new_smooth_ks <- raw_new_smooth_ks[, -c(2:33)]
         raw_new_smooth1_ks <- raw_new_smooth_ks[, -1]
         for (i in 1:length(raw_new_smooth1_ks[1, ])) {
-          a <- Reshape(raw_new_smooth1_ks[, i], s_per_day)
+          a <- pracma::Reshape(raw_new_smooth1_ks[, i], s_per_day)
           mean_a <- as.matrix(rowMeans(a))
           for_profile_ks[, i] <- mean_a
         }
@@ -1339,7 +1348,7 @@ shinyServer(function(input, output, session) {
           ggthemes::theme_solarized() +
           theme(axis.text.x = element_text(angle = 45, hjust = 1))
         pro_sel_long_ks <- pro_sel_ks %>%
-          pivot_longer(
+          tidyr::pivot_longer(
             2:ncol(pro_sel_ks)
           )
         pro_sel_long_sorted_ks <- pro_sel_long_ks[order(pro_sel_long_ks$name), ]
@@ -1357,6 +1366,14 @@ shinyServer(function(input, output, session) {
             colour = "black",
             fill = NA
           ))
+        output$smoothened_ks <- downloadHandler(
+          filename = function() {
+            paste("smoothtened_ks.csv", sep = "")
+          },
+          content = function(file) {
+            write.csv(raw_new_smooth_ks, file, row.names = FALSE)
+          }
+        )
       }
 
       output$plot_smooth_average <- renderPlot(
@@ -1384,19 +1401,22 @@ shinyServer(function(input, output, session) {
       # can happen when deployed).
       tempReport <- file.path(tempdir(), "report.Rmd")
       file.copy("report.Rmd", tempReport, overwrite = TRUE)
-      
+
       # Set up parameters to pass to Rmd document
-      params <- list(meta = input$meta, wd = getwd(), modtau = input$modtau, ldperiod = input$ldperiod,
-                     min = input$min, light = input$light, genotype = input$genotype,
-                     replicate = input$replicate, remove = input$remove, start = input$start, end = input$end,
-                     permethod = input$permethod, ul = input$ul, ll = input$ll)
-      
+      params <- list(
+        meta = input$meta, wd = getwd(), modtau = input$modtau, ldperiod = input$ldperiod,
+        min = input$min, light = input$light, genotype = input$genotype,
+        replicate = input$replicate, remove = input$remove, start = input$start, end = input$end,
+        permethod = input$permethod, ul = input$ul, ll = input$ll
+      )
+
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document
       # from the code in this app).
-      rmarkdown::render(tempReport, output_file = file,
-                        params = params,
-                        envir = new.env(parent = globalenv())
+      rmarkdown::render(tempReport,
+        output_file = file,
+        params = params,
+        envir = new.env(parent = globalenv())
       )
     }
   )

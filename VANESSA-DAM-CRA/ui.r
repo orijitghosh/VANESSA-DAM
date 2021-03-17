@@ -187,7 +187,12 @@ shinyUI <-
             DT::dataTableOutput("contents") %>% withLoader(type = "html", loader = "pacman")
           ),
           tags$hr(),
-          downloadButton("report", "Generate report")
+          downloadBttn(
+            outputId = "report",
+            label = "Generate report",
+            style = "minimal",
+            color = "primary"
+          )
         ))
       ),
 
@@ -1264,7 +1269,19 @@ shinyUI <-
             plotOutput("plot_smooth_average",
               height = "550px",
               width = "1200px"
-            ) %>% withLoader(type = "html", loader = "pacman")
+            ) %>% withLoader(type = "html", loader = "pacman"),
+            downloadBttn(
+              outputId = "smoothened_bf",
+              label = "Download bf data",
+              style = "minimal",
+              color = "primary"
+            ),
+            downloadBttn(
+              outputId = "smoothened_ks",
+              label = "Download ks data",
+              style = "minimal",
+              color = "primary"
+            )
           ),
           tabPanel(
             "Smoothened individual profile",
