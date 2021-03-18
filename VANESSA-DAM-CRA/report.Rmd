@@ -277,7 +277,7 @@ p <- alletho <-
             stat_bar_tile_etho() +
             My_Theme
           alletho
-          ggsave(p, filename = "Plot all actograms", type = "cairo",height = 30,
+          ggsave(p, filename = "Plot all actograms.png", type = "cairo",height = 30,
        width = 10, dpi = 600, units = "in")    ###############height = 10*n where n is number of genotypes
 ###############and width = 10
 ```
@@ -295,7 +295,7 @@ p <- ggetho(dt_curated,
             stat_tile_etho() +
             My_Theme +
             scale_fill_distiller(palette = "Blues")
-          ggsave(p, filename = "Plot curated ethograms", type = "cairo",height = 30,
+          ggsave(p, filename = "Plot curated ethograms.png", type = "cairo",height = 30,
        width = 10, dpi = 600, units = "in")    ###############height = 10*n where n is number of genotypes
 ###############and width = 10
 ```
@@ -316,7 +316,7 @@ p <- alletho <-
             stat_bar_tile_etho() +
             My_Theme
           alletho
-          ggsave(p, filename = "Plot curated actograms", type = "cairo",height = 30,
+          ggsave(p, filename = "Plot curated actograms.png", type = "cairo",height = 30,
        width = 10, dpi = 600, units = "in")    ###############height = 10*n where n is number of genotypes
 ###############and width = 10
 ```

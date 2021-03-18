@@ -1103,7 +1103,13 @@ shinyUI <-
               width = "1200px"
             ) %>% withLoader(type = "html", loader = "pacman")
           ),
-          tabPanel("Contents_CWT", tableOutput("contents_CWT"))
+          tabPanel(
+            "CWT wavelet power for period",
+            plotOutput("plot_CWT_waveletpower",
+                       height = "550px",
+                       width = "1200px"
+            ) %>% withLoader(type = "html", loader = "pacman")
+          )
         ))
       ),
       tabPanel(

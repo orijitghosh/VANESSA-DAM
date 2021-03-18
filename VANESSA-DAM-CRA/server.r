@@ -1138,54 +1138,42 @@ shinyServer(function(input, output, session) {
     ################################### For CWT Spectogram####################################
     # observe({
     observeEvent(input$do1, {
-      output$contents_CWT <- renderTable({
-        req(input$raw)
-        raw <- read.delim(input$raw$datapath,
-          header = input$header,
-          sep = input$sep
+      req(input$raw)
+      raw <- read.delim(input$raw$datapath,
+                        header = input$header,
+                        sep = input$sep
+      )
+      proc <- as.data.frame(raw[, -c(1:10)])
+      nsim <- 10
+      
+      ind <- input$chn
+      
+      proc1 <-
+        as.data.frame((proc[, ind])) ## change your individual number
+      x <- as.data.frame(proc1)
+      colnames(x) <- NULL
+      rownames(x) <- NULL
+      my.data <- data.frame(x = x)
+      
+      wt <-
+        analyze.wavelet(
+          my.data,
+          "x",
+          loess.span = 0,
+          ## change loess.span if your data has trend and needs detrending
+          dj = 1 / 500,
+          dt = input$bin / 60,
+          lowerPeriod = input$lp,
+          upperPeriod = input$up,
+          make.pval = T,
+          method = "shuffle",
+          n.sim = nsim,
+          verbose = T
         )
-
-        if (input$disp == "head") {
-          return(head(raw))
-        } else {
-          return(raw)
-        }
-      })
 
       output$plot_CWT <- renderPlot(
         {
           req(input$raw)
-          raw <- read.delim(input$raw$datapath,
-            header = input$header,
-            sep = input$sep
-          )
-          proc <- as.data.frame(raw[, -c(1:10)])
-          nsim <- 10
-
-          ind <- input$chn
-
-          proc1 <-
-            as.data.frame((proc[, ind])) ## change your individual number
-          x <- as.data.frame(proc1)
-          colnames(x) <- NULL
-          rownames(x) <- NULL
-          my.data <- data.frame(x = x)
-
-          wt <-
-            analyze.wavelet(
-              my.data,
-              "x",
-              loess.span = 0,
-              ## change loess.span if your data has trend and needs detrending
-              dj = 1 / 500,
-              dt = input$bin / 60,
-              lowerPeriod = input$lp,
-              upperPeriod = input$up,
-              make.pval = T,
-              method = "shuffle",
-              n.sim = nsim,
-              verbose = T
-            )
           wt.image(
             wt,
             color.key = "quantile",
@@ -1210,6 +1198,16 @@ shinyServer(function(input, output, session) {
             spec.period.axis = list(at = seq(input$lp, input$up, by = 2)),
             main = paste("CWT spectogram of Individual #", ind)
           )
+          # dev.off()
+        },
+        res = 100
+      )
+      output$plot_CWT_waveletpower <- renderPlot(
+        {
+          req(input$raw)
+          maximum.level = 1.001*max(wt$Power.avg)
+          wt.avg(wt, maximum.level = maximum.level, spec.period.axis = list(at = seq(input$lp, input$up, by = 2)),
+                 periodlab = "Period (in hours)")
           # dev.off()
         },
         res = 100
@@ -1286,7 +1284,7 @@ shinyServer(function(input, output, session) {
           scale_x_datetime(date_labels = "%I:%M %p", date_breaks = "4 hour", expand = c(0, 0)) +
           xlab("Time") +
           ylab(paste0("Activity counts/", bin1, "minute", " (butterworth filter, low pass)")) +
-          ggthemes::theme_solarized() +
+          My_Theme +
           theme(axis.text.x = element_text(angle = 45, hjust = 1))
         pro_sel_long_bf <- pro_sel_bf %>%
           tidyr::pivot_longer(
@@ -1301,7 +1299,7 @@ shinyServer(function(input, output, session) {
           xlab("Time") +
           ylab(paste0("Activity counts/", bin1, "minute", " (butterworth filter, low pass)")) +
           scale_color_gradientn(colours = rainbow(32)) +
-          ggthemes::theme_solarized() +
+          My_Theme +
           theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
           theme(strip.background = element_rect(
             colour = "black",
@@ -1345,7 +1343,7 @@ shinyServer(function(input, output, session) {
           scale_x_datetime(date_labels = "%I:%M %p", date_breaks = "4 hour", expand = c(0, 0)) +
           xlab("Time") +
           ylab(paste0("Activity counts/", bin1, "minute", " (KS bandwidth = ", b, ")")) +
-          ggthemes::theme_solarized() +
+          My_Theme +
           theme(axis.text.x = element_text(angle = 45, hjust = 1))
         pro_sel_long_ks <- pro_sel_ks %>%
           tidyr::pivot_longer(
@@ -1360,7 +1358,7 @@ shinyServer(function(input, output, session) {
           xlab("Time") +
           ylab(paste0("Activity counts/", bin1, "minute", " (KS bandwidth = ", b, ")")) +
           scale_color_gradientn(colours = rainbow(32)) +
-          ggthemes::theme_solarized() +
+          My_Theme +
           theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
           theme(strip.background = element_rect(
             colour = "black",
