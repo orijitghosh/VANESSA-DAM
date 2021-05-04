@@ -213,23 +213,26 @@ shinyServer(function(input, output, session) {
       userdata
     })
 
-    if (input$genotype == 1) {
-      toscale1 <- 1
-    } else if (input$genotype == 2) {
-      toscale1 <- 2
-    } else {
-      toscale1 <- 3
-    }
+    # if (input$genotype == 1) {
+    #   toscale1 <- 1
+    # } else if (input$genotype == 2) {
+    #   toscale1 <- 2
+    # } else {
+    #   toscale1 <- 3
+    # }
+    toscale1 <- input$genotype
 
-    if (input$replicate == 1) {
-      toscale2 <- 3
-    } else if (input$replicate == 2) {
-      toscale2 <- 6
-    } else if (input$replicate == 3) {
-      toscale2 <- 9
-    } else {
-      toscale2 <- 12
-    }
+    # if (input$replicate == 1) {
+    #   toscale2 <- 3
+    # } else if (input$replicate == 2) {
+    #   toscale2 <- 6
+    # } else if (input$replicate == 3) {
+    #   toscale2 <- 9
+    # } else {
+    #   toscale2 <- 12
+    # }
+    
+    toscale2 <- input$replicate * input$genotype
 
     observeEvent(input$do, {
       withBusyIndicatorServer("do", {
@@ -435,7 +438,7 @@ shinyServer(function(input, output, session) {
           dt_curated$id
         ))))
 
-      output$curatedactoraw <- renderPlot(
+      observeEvent(input$curatedactoraw_height, {output$curatedactoraw <- renderPlot(
         {
           req(input$meta)
           ggetho(
@@ -460,12 +463,13 @@ shinyServer(function(input, output, session) {
         },
         res = 100,
         width = 1600,
-        height = (toscale * 70)
+        height = (toscale * input$curatedactoraw_height)
       )
+      })
 
 
 
-      output$curatedactoavg <- renderPlot(
+      observeEvent(input$curatedactoavg_height, {output$curatedactoavg <- renderPlot(
         {
           req(input$meta)
           ggetho(
@@ -488,10 +492,11 @@ shinyServer(function(input, output, session) {
         },
         res = 100,
         width = 1600,
-        height = (toscale * 70)
+        height = (toscale * input$curatedactoavg_height)
       )
+      })
 
-      output$rawpro <- renderPlot(
+      observeEvent(input$rawpro_height, {output$rawpro <- renderPlot(
         {
           req(input$meta)
           ggetho(
@@ -520,10 +525,11 @@ shinyServer(function(input, output, session) {
         },
         res = 100,
         width = 1600,
-        height = (toscale * 50)
+        height = (toscale * input$rawpro_height)
       )
+      })
 
-      output$avgpro <- renderPlot(
+      observeEvent(input$avgpro_height, {output$avgpro <- renderPlot(
         {
           req(input$meta)
           ggetho(
@@ -552,10 +558,11 @@ shinyServer(function(input, output, session) {
         },
         res = 100,
         width = 1600,
-        height = (toscale * 50)
+        height = (toscale * input$avgpro_height)
       )
+      })
 
-      output$avgdaywisepro1 <- renderPlot(
+      observeEvent(input$avgdaywisepro1_height, {output$avgdaywisepro1 <- renderPlot(
         {
           req(input$meta)
           ggetho(
@@ -583,10 +590,11 @@ shinyServer(function(input, output, session) {
         },
         res = 100,
         width = 1500,
-        height = (input$replicate * 500)
+        height = (input$replicate * input$avgdaywisepro1_height)
       )
+      })
 
-      output$avgdaywisepro1_raw <- renderPlot(
+      observeEvent(input$avgdaywisepro1_raw_height, {output$avgdaywisepro1_raw <- renderPlot(
         {
           req(input$meta)
           ggetho(
@@ -614,10 +622,11 @@ shinyServer(function(input, output, session) {
         },
         res = 100,
         width = 1500,
-        height = (input$replicate * 500)
+        height = (input$replicate * input$avgdaywisepro1_raw_height)
       )
+      })
 
-      output$rawpro1 <- renderPlot(
+      observeEvent(input$rawpro1_height, {output$rawpro1 <- renderPlot(
         {
           req(input$meta)
           ggetho(
@@ -646,10 +655,11 @@ shinyServer(function(input, output, session) {
         },
         res = 100,
         width = 1500,
-        height = (input$replicate * 500)
+        height = (input$replicate * input$rawpro1_height)
       )
+      })
 
-      output$avgpro1 <- renderPlot(
+      observeEvent(input$avgpro1_height, {output$avgpro1 <- renderPlot(
         {
           req(input$meta)
           ggetho(
@@ -678,8 +688,9 @@ shinyServer(function(input, output, session) {
         },
         res = 100,
         width = 1500,
-        height = (input$replicate * 500)
+        height = (input$replicate * input$avgpro1_height)
       )
+      })
 
       output$rawpro1all <- renderPlot(
         {
@@ -810,7 +821,7 @@ shinyServer(function(input, output, session) {
         height = (input$replicate * 1000)
       )
 
-      output$indiv_raw <- renderPlot(
+      observeEvent(input$indiv_raw_height, {output$indiv_raw <- renderPlot(
         {
           req(input$meta)
           ggetho(
@@ -833,10 +844,11 @@ shinyServer(function(input, output, session) {
         },
         res = 300,
         width = 1000,
-        height = (toscale2 * 600)
+        height = (toscale2 * input$indiv_raw_height)
       )
+      })
 
-      output$indiv_avg <- renderPlot(
+      observeEvent(input$indiv_avg_height, {output$indiv_avg <- renderPlot(
         {
           req(input$meta)
           ggetho(
@@ -859,8 +871,9 @@ shinyServer(function(input, output, session) {
         },
         res = 300,
         width = 1000,
-        height = (toscale2 * 600)
+        height = (toscale2 * input$indiv_avg_height)
       )
+      })
 
       observeEvent(input$show, {
         l <- as.matrix(as.character(unique(dt_curated$id)))
@@ -1012,7 +1025,7 @@ shinyServer(function(input, output, session) {
           })
         })
 
-        output$chisqperiodplotallwithpeaks <- renderPlot(
+        observeEvent(input$chisqperiodplotallwithpeaks_height, {output$chisqperiodplotallwithpeaks <- renderPlot(
           {
             req(input$meta)
             req(input$permethod)
@@ -1027,8 +1040,9 @@ shinyServer(function(input, output, session) {
           },
           res = 100,
           width = 1400,
-          height = (toscale * 50)
+          height = (toscale * input$chisqperiodplotallwithpeaks_height)
         )
+      })
 
         ###################################
 
@@ -1108,6 +1122,7 @@ shinyServer(function(input, output, session) {
                 position = position_points_jitter(width = 0.2, height = 0),
                 point_shape = "|", point_size = 8, point_alpha = 1, alpha = .7
               ) +
+              facet_wrap(~replicate, ncol = 1) +
               scale_y_discrete(expand = c(0, 0)) + # will generally have to set the `expand` option
               scale_x_continuous(expand = c(0, 0)) + # for both axes to remove unneeded padding
               coord_cartesian(clip = "off") + # to avoid clipping of the very top of the top ridgeline

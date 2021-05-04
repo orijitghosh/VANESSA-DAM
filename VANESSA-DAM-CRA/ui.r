@@ -195,7 +195,7 @@ shinyUI <-
           )
         ))
       ),
-
+      
       tabPanel(
         "Periodograms",
         icon = icon("chart-area"),
@@ -1112,6 +1112,7 @@ shinyUI <-
           )
         ))
       ),
+
       tabPanel(
         "Timeseries smoothing",
         icon = icon("filter"),
@@ -1297,6 +1298,77 @@ shinyUI <-
             ) %>% withLoader(type = "html", loader = "pacman")
           )
         ))
+      ),
+      
+      tabPanel(
+        "Plot height Customization",
+        icon = icon("hammer"),
+        useShinyalert(),
+        sidebarPanel(
+          width = 4,
+          numericInput(
+            "curatedactoraw_height",
+            "Height of individual actograms raw",
+            70, 50, 100
+          ),
+          numericInput(
+            "curatedactoavg_height",
+            "Height of individual actograms normalized",
+            70, 50, 100
+          ),
+          numericInput(
+            "rawpro_height",
+            "Height of individual profiles raw",
+            50, 30, 100
+          ),
+          numericInput(
+            "avgpro_height",
+            "Height of individual profiles normalized",
+            50, 30, 100
+          ),
+          numericInput(
+            "avgdaywisepro1_height",
+            "Height of daywise profile normalized",
+            500, 100, 1000
+          )
+        ),
+        sidebarPanel(
+          width = 4,
+          
+          numericInput(
+            "avgdaywisepro1_raw_height",
+            "Height of daywise profile raw",
+            500, 100, 1000
+          ),
+          numericInput(
+            "indiv_raw_height",
+            "Height of batch actogram raw",
+            600, 100, 1500
+          ),
+          numericInput(
+            "indiv_avg_height",
+            "Height of batch actogram normalized",
+            600, 100, 1500
+          )
+        ),
+        sidebarPanel(
+          width = 4,
+          numericInput(
+            "rawpro1_height",
+            "Height of average profile raw",
+            600, 100, 1500
+          ),
+          numericInput(
+            "avgpro1_height",
+            "Height of average profile normalized",
+            600, 100, 1500
+          ),
+          numericInput(
+            "chisqperiodplotallwithpeaks_height",
+            "Height of all period power",
+            50, 30, 100
+          )
+        )
       )
     )
   )
