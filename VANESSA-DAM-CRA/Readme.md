@@ -22,4 +22,8 @@ VANESSA-DAM-CRA is dependent on [Quentin Geissmann](https://github.com/qgeissman
 
 8. Reproducible code report so that you can generate the figures and analysis without the shiny app from RStudio directly.
 
+9. Minimizing human errors – no need to tinker with raw data to accommodate analysis tools.
+
+10. Creating metadata files for information about experiment and better reproducibility.
+
 A short tutorial is provided (*Easy tutorial to start using VANESSA-DAM-CRA.pdf*) which is self explanatory and should help beginners start using the app right away.
