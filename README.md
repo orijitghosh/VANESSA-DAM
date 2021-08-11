@@ -1,5 +1,5 @@
-# VANESSA-DAM&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="VANESSA-DAM-CRA/VANESSA hex.png" alt="VANESSA hex" width="150" />
-[![DOI](https://zenodo.org/badge/326950938.svg)](https://zenodo.org/badge/latestdoi/326950938)
+# VANESSA-DAM [![DOI](https://zenodo.org/badge/326950938.svg)](https://zenodo.org/badge/latestdoi/326950938)&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<img src="VANESSA-DAM-CRA/VANESSA hex.png" alt="VANESSA hex" width="150" />
+
 Visual ANalysis of timE SerieS dAta - Drosophila Activity Monitors (VANESSA-DAM) is a collection of useful tools to visualize and analyze Time series data obtained from Drosophila Activity Monitors (https://www.trikinetics.com/). The first in the series of tools are two shiny apps for circadian rhythm and sleep analysis and visualization - VANESSA-DAM for circadian rhythm analysis (**VANESSA-DAM-CRA**) and sleep analysis (**VANESSA-DAM-SA**). For any suggestions, questions, troubleshooting or customization, please contact arijitghosh2009@gmail.com.
 
 ### **VANESSA-DAM-CRA**
