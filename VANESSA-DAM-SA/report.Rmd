@@ -1,0 +1,442 @@
+---
+title: "Reproducible code report - VANESSA-DAM-SA"
+author: "Produced with [VANESSA-DAM](https://github.com/orijitghosh/VANESSA-DAM) on `r Sys.Date()`"
+github: {user: orijitghosh, repo: VANESSA-DAM}
+output:
+  html_document:
+    theme: journal
+    highlight: haddock
+params:
+  meta: NA
+  wd: NA
+  modtau: NA
+  ldperiod: NA
+  min: NA
+  light: NA
+  genotype: NA
+  replicate: NA
+  remove: NA
+  start: NA
+  end: NA
+  permethod: NA
+  ul: NA
+  ll: NA
+# Reproducible code report - VANESSA-DAM-CRA   
+---
+
+### All parameters used in the shiny app for analysis.
+```{r}
+params$meta
+params$wd
+params$modtau
+params$ldperiod
+params$min
+params$light
+params$genotype
+params$replicate
+params$remove
+params$start
+params$end
+```
+
+### **Set working directory of R to where your Metadata file and Monitor files are (in this case they have to be in the same directory). Replace all params$XXXX with the values mentioned above (values you have used in the shiny app).**
+
+### Load all needed libraries:
+```
+library(data.table)
+library(ggetho)
+library(zeitgebr)
+library(ggplot2)
+library(ggridges)
+library(readr)
+library(damr)
+library(sleepr)
+library(behavr)
+library(dplyr)
+```
+
+### Do data pre-processing:
+```
+setwd(params$wd)
+metadata <- fread("params$meta")
+    metadata <- na.omit(metadata)
+    metadata_proc <- link_dam_metadata(metadata, result_dir = params$wd)
+    dt <- load_dam(metadata_proc, FUN = sleepr::sleep_dam_annotation)
+        dt[, moving := activity > 0]
+        dt_curated <- curate_dead_animals(dt)
+        lifespan_dt <- dt_curated[, .(lifespan = max(t)), by = id]
+        valid_ids <- lifespan_dt[lifespan > days(params$remove), id]
+        dt_curated <- dt_curated[id %in% valid_ids]
+        dt_curated <- dt_curated[t %between% c(days(params$start), days(params$end))]
+        setbehavr(dt_curated, metadata_proc)
+        dt_curated[, uid := 1:.N, meta = T]
+        dt_curated[, .(id, uid), meta = T]
+        summary_dt <- rejoin(dt_curated[, .(sleep_fraction = mean(asleep)), by = id])
+        dt_curated[, phase := ifelse(t %% hours(params$ldperiod) < hours(params$light), "L", "D")]
+        summary_dt <- rejoin(dt_curated[, .(
+          sleep_fraction_all = mean(asleep),
+          sleep_fraction_l = mean(asleep[phase == "L"]),
+          sleep_fraction_d = mean(asleep[phase == "D"])
+        ), by = id])
+        summary_dt_melted <- melt(summary_dt,
+          measure.vars = patterns("sleep_fraction_"),
+          variable.name = "phase", value.name = "sleep_fraction"
+        )
+        bout_dt <- bout_analysis(asleep, dt_curated)
+        bout_dt <- bout_dt[asleep == TRUE, -"asleep"]
+        bout_dt[, .(n_bouts = .N, mean_bout_length = mean(duration)), by = id]
+        bout_summary <- bout_dt[, .(
+          latency = t[1], first_bout_length = duration[1],
+          latency_to_longest_bout = t[which.max(duration)], length_longest_bout = max(duration),
+          n_bouts = .N, mean_bout_length = mean(duration)
+        ), by = id]
+        bout_dt_new <- bout_dt[, phase_day := ifelse(t %% hours(params$ldperiod) < hours(params$light), "L", "D")]
+        bout_summary_phase <- bout_dt_new[, .(n_bouts = .N, mean_bout_length = mean(duration)),
+          by = c("id", "phase_day")
+        ]
+        overall_summary <- summary_dt[bout_summary]
+        overall_summary_new <- summary_dt[bout_summary_phase]
+```
+
+### Theme configuration for figures:
+```
+       My_Theme <- theme(
+      title = element_text(size = 10, face = "bold"),
+      axis.title.x = element_text(size = 10, face = "bold"),
+      axis.text.x = element_text(size = 8),
+      axis.title.y = element_text(size = 10, face = "bold"),
+      axis.text.y = element_text(size = 8),
+      legend.text = element_text(size = 8),
+      legend.position = "right",
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(
+        size = 0.125,
+        linetype = "solid",
+        colour = "grey"
+      ),
+      panel.grid.minor = element_line(
+        size = 0.0625,
+        linetype = "solid",
+        colour = "grey"
+      ),
+      strip.background = element_rect(fill = "white"),
+      strip.text = element_text(
+        colour = "black",
+        size = 8,
+        color = "black",
+        face = "bold"
+      )
+    )
+
+    My_Theme_1 <- theme(
+      title = element_text(size = 6, face = "bold"),
+      axis.title.x = element_text(size = 4, face = "bold"),
+      axis.text.x = element_text(size = 3),
+      axis.title.y = element_text(size = 3, face = "bold"),
+      axis.text.y = element_text(size = 3),
+      legend.text = element_text(size = 3),
+      legend.position = "right",
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(
+        size = 0.025,
+        linetype = "solid",
+        colour = "grey"
+      ),
+      panel.grid.minor = element_line(
+        size = 0.0125,
+        linetype = "solid",
+        colour = "grey"
+      ),
+      strip.background = element_rect(fill = "white"),
+      strip.text = element_text(
+        colour = "black",
+        size = 3,
+        color = "black",
+        face = "bold"
+      )
+    )
+
+    My_Theme_2 <- theme(
+      title = element_text(size = 20, face = "bold"),
+      axis.title.x = element_text(size = 16, face = "bold"),
+      axis.text.x = element_text(size = 14),
+      axis.title.y = element_text(size = 16, face = "bold"),
+      axis.text.y = element_text(size = 14),
+      legend.text = element_text(size = 14),
+      # aspect.ratio = 1,
+      legend.position = "right",
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(
+        size = 0.125, linetype = "solid",
+        colour = "grey"
+      ),
+      panel.grid.minor = element_line(
+        size = 0.0625, linetype = "solid",
+        colour = "grey"
+      )
+    )
+
+    My_Theme_3 <- theme(
+      title = element_text(size = 20, face = "bold"),
+      axis.title.x = element_text(size = 16, face = "bold"),
+      axis.text.x = element_text(size = 14),
+      axis.title.y = element_text(size = 16, face = "bold"),
+      axis.text.y = element_text(size = 14),
+      legend.text = element_text(size = 14),
+      # aspect.ratio = .2,
+      legend.position = "right",
+      panel.background = element_rect(fill = "white"),
+      panel.grid.major = element_line(
+        size = 0.125, linetype = "solid",
+        colour = "grey"
+      ),
+      panel.grid.minor = element_line(
+        size = 0.0625, linetype = "solid",
+        colour = "grey"
+      )
+    )
+```
+### Plot all ethograms:
+```
+p <- ggetho(dt, aes(z = asleep)) +
+            stat_ld_annotations(height = 0.03, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+            stat_tile_etho() +
+            scale_fill_distiller(palette = "Blues") +
+            My_Theme
+              ggsave(p, filename = "Plot all ethograms.png", type = "cairo",height = 30,
+       width = 10, dpi = 600, units = "in")    ###############height = 10*n where n is number of genotypes
+###############and width = 10
+```
+### Plot curated ethograms:
+```
+p <- ggetho(dt_curated, aes(z = asleep)) +
+            stat_ld_annotations(height = 0.03, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+            stat_tile_etho() +
+            scale_fill_distiller(palette = "Blues") +
+            My_Theme
+              ggsave(p, filename = "Plot curated ethograms.png", type = "cairo",height = 5,
+       width = 10, dpi = 600, units = "in")    ###############height = 5*n where n is number of genotypes
+###############and width = 10
+```
+### Plot Average plots over days individual:
+```
+p <- ggetho(dt_curated, aes(y = asleep, colour = genotype), summary_time_window = mins(input$min)) +
+              stat_pop_etho() +
+              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3)) +
+              My_Theme +
+              facet_wrap(~ genotype + id + replicate, ncol = 1, scales = "free_y")
+              ggsave(p, filename = "Plot Average plots over days individual.png", type = "cairo",height = 40,
+       width = 10, dpi = 600, units = "in")    ###############height = 40*n where n is number of genotypes
+###############and width = 10
+```
+### Plot Average plot wrapped individual:
+```
+p <- ggetho(dt_curated, aes(y = asleep, colour = genotype),
+              time_wrap = hours(input$modtau), summary_time_window = mins(input$min)
+            ) +
+              stat_pop_etho() +
+              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              My_Theme +
+              facet_wrap(~ genotype + id + replicate, ncol = 4, scales = "free_y")
+              ggsave(p, filename = "Plot Average plot wrapped individual.png", type = "cairo",height = 10,
+       width = 10, dpi = 600, units = "in")    ###############height = 10*n where n is number of genotypes
+###############and width = 10
+```
+### Plot Average plots over days:
+```
+p <- ggetho(dt_curated, aes(y = asleep, colour = genotype), summary_time_window = mins(input$min)) +
+              stat_pop_etho() +
+              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              My_Theme +
+              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+              ggsave(p, filename = "Plot Average plots over days.png", type = "cairo",height = 2.5,
+       width = 10, dpi = 600, units = "in")    ###############height = 2.5*n where n is number of replicates
+###############and width = 10
+```
+### Plot Average plot wrapped:
+```
+p <- ggetho(dt_curated, aes(y = asleep, colour = genotype),
+              time_wrap = hours(input$modtau), summary_time_window = mins(input$min)
+            ) +
+              stat_pop_etho() +
+              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              My_Theme +
+              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+          ggsave(p, filename = "Plot Average plot wrapped.png", type = "cairo",height = 3,
+       width = 10, dpi = 600, units = "in")    ###############height = 3*n where n is number of replicates
+###############and width = 10
+```
+### Plot Average plot wrapped polar:
+```
+p <- ggetho(dt_curated, aes(y = asleep, colour = genotype),
+            time_wrap = hours(input$modtau), summary_time_window = mins(input$min)
+          ) +
+            stat_pop_etho(geom = "bar", alpha = 0.4) +
+            stat_ld_annotations(height = 1, alpha = .1, x_limits = c(0, hours(24)), outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+            scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+            My_Theme +
+            facet_wrap(~replicate, ncol = 1) +
+            coord_polar(clip = "off")
+          ggsave(p, filename = "Plot Average plot wrapped polar.png", type = "cairo",height = 10,
+       width = 10, dpi = 600, units = "in")    ###############height = 10*n where n is number of replicates
+###############and width = 10
+```
+### Plot Sleep fraction:
+```
+p <- ggplot(summary_dt_melted, aes(x = genotype, y = sleep_fraction, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              # geom_point(aes(color = genotype, fill = genotype), position = "jitter", alpha = 0.5, size =2) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 3, shape = 23) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype),
+                fun = mean, geom = "text",
+                size = 5, vjust = -0.5
+              ) +
+              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              My_Theme_2 +
+              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+          ggsave(p, filename = "Plot Sleep fraction.png", type = "cairo",height = 7,
+       width = 10, dpi = 600, units = "in")    ###############height = 7*n where n is number of replicates
+###############and width = 10
+```
+### Plot Sleep fraction summary:
+```
+p <- ggplot(summary_dt_melted, aes(x = phase, y = sleep_fraction, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +
+              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              # geom_point(aes(color = genotype, fill = genotype), position = "jitter", alpha = 0.5, size =2) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 3, shape = 23) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype),
+                fun = mean, geom = "text",
+                size = 5, vjust = -0.5
+              ) +
+              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              My_Theme_2 +
+              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+            ggsave(p, filename = "Plot Sleep fraction summary.png", type = "cairo",height = 7,
+       width = 10, dpi = 600, units = "in")    ###############height = 7*n where n is number of replicates
+###############and width = 10
+```
+### Plot Bouts:
+```
+p <- ggetho(bout_dt, aes(y = duration / 60, colour = genotype), time_wrap = hours(input$modtau), summary_time_window = mins(input$min)) +
+              stat_pop_etho() +
+              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              scale_y_continuous(name = "Bout length (min)") +
+              My_Theme_3 +
+              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+            ggsave(p, filename = "Plot Bouts.png", type = "cairo",height = 3,
+       width = 10, dpi = 600, units = "in")    ###############height = 3*n where n is number of replicates
+###############and width = 10
+```
+### Plot Bout summary:
+```
+p <- ggplot(rejoin(bout_summary), aes(n_bouts, mean_bout_length, colour = genotype)) +
+              geom_point(size = 4, alpha = 0.5) +
+              scale_x_continuous(name = "Number of bouts") +
+              scale_y_continuous(name = "Average bout duration (s)") +
+              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+            ggsave(p, filename = "Plot Bout summary.png", type = "cairo",height = 3,
+       width = 10, dpi = 600, units = "in")    ###############height = 3*n where n is number of replicates
+###############and width = 10
+```
+### Plot Mean bout length:
+```
+p <- ggplot(rejoin(bout_summary), aes(genotype, mean_bout_length/60, colour = genotype)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              stat_summary(fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                           position=position_dodge(.9), size = 3, shape = 23) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                           fun = mean, geom = "text",
+                           size = 5, vjust = -0.5, position=position_dodge(.9)
+              ) +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Mean bout length (m)") +
+              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+            ggsave(p, filename = "Plot Mean bout length", type = "cairo",height = 6,
+       width = 10, dpi = 600, units = "in")    ###############height = 6*n where n is number of replicates
+###############and width = 10
+```
+### Plot Number of bouts:
+```
+p <- ggplot(rejoin(bout_summary), aes(genotype, n_bouts, colour = genotype)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              stat_summary(fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                           position=position_dodge(.9), size = 3, shape = 23) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                           fun = mean, geom = "text",
+                           size = 5, vjust = -0.5, position=position_dodge(.9)
+              ) +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Number of bouts") +
+              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+              ggsave(p, filename = "Plot Number of bouts.png", type = "cairo",height = 6,
+       width = 10, dpi = 600, units = "in")    ###############height = 6*n where n is number of replicates
+###############and width = 10
+```
+### Plot Mean bout length in light and dark:
+```
+p <- ggplot(rejoin(bout_summary), aes(genotype, mean_bout_length/60, colour = genotype)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              stat_summary(fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                           position=position_dodge(.9), size = 3, shape = 23) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                           fun = mean, geom = "text",
+                           size = 5, vjust = -0.5, position=position_dodge(.9)
+              ) +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Mean bout length (m)") +
+              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+            ggsave(p, filename = "Plot Mean bout length in light and dark.png", type = "cairo",height = 6,
+       width = 10, dpi = 600, units = "in")    ###############height = 6*n where n is number of replicates
+###############and width = 10
+```
+### Plot Number of bouts in light and dark:
+```
+p <- ggplot(overall_summary_new, aes(x = phase_day, y = n_bouts, fill = genotype)) +
+             # geom_boxplot(outlier.colour = "red") +
+             geom_jitter(aes(colour = genotype), alpha = .5, position=position_dodge(.9)) +
+             # geom_point(aes(color = genotype, fill = genotype), position = "jitter", alpha = 0.5, size =2) +
+             geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+             stat_summary(fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                                 position=position_dodge(.9), size = 3, shape = 23) +
+             stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                                 fun = mean, geom = "text",
+                                 size = 5, vjust = -0.5, position=position_dodge(.9)
+                                 ) +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Number of bouts") +
+              facet_wrap(~replicate, ncol = 1, scales = "free_y") +
+              My_Theme_2
+              ggsave(p, filename = "Plot Number of bouts in light and dark.png", type = "cairo",height = 7,
+       width = 10, dpi = 600, units = "in")    ###############height = 7*n where n is number of replicates
+###############and width = 10
+```
+### Plot Mean bout length distribution:
+```
+p <- ggplot(overall_summary, aes((mean_bout_length / 60), genotype, color = genotype, fill = genotype)) +
+              geom_density_ridges(
+              scale = 1, rel_min_height = 0.01, jittered_points = TRUE,
+              position = position_points_jitter(width = 0.2, height = 0),
+              point_shape = "|", point_size = 8, point_alpha = 1, alpha = .7
+              ) +
+              facet_wrap(~replicate, ncol = 1) +
+              scale_y_discrete(expand = c(0, 0)) + # will generally have to set the `expand` option
+              scale_x_continuous(expand = c(0, 0)) + # for both axes to remove unneeded padding
+              coord_cartesian(clip = "off") + # to avoid clipping of the very top of the top ridgeline
+              labs(x = "Period (h)", y = "Genotype") +
+              facet_wrap(~replicate, ncol = 1, scales = "free_y") +
+              My_Theme_2
+            ggsave(p, filename = "Plot Mean bout length distribution.png", type = "cairo",height = 6,
+       width = 10, dpi = 600, units = "in")    ###############height = 6*n where n is number of replicates
+###############and width = 10
+```
