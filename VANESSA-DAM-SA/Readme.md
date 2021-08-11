@@ -2,9 +2,9 @@
 
 Visual ANalysis of timE SerieS dAta - Drosophila Activity Monitors (VANESSA-DAM) is a collection of useful tools to visualize and analyze Time series data obtained from Drosophila Activity Monitors (https://www.trikinetics.com/). The first in the series of tools is a shiny app for sleep analysis and visualization - VANESSA-DAM for sleep analysis (**VANESSA-DAM-SA**). For any suggestions, questions, troubleshooting or customization, please contact arijitghosh2009@gmail.com.
 
-### **VANESSA-DAM-CRA**
+### **VANESSA-DAM-SA**
 
-VANESSA-DAM-CRA is dependent on [Quentin Geissmann](https://github.com/qgeissmann)'s [rethomics](https://github.com/rethomics) family of packages - [behavr](https://github.com/rethomics/behavr), [damr](https://github.com/rethomics/damr), [ggetho](https://github.com/rethomics/ggetho), [sleepr](https://github.com/rethomics/sleepr), for some analysis and visualization options. It offers several advantages over existing tools for sleep analysis from DAM systems, some mentionable ones are - 
+VANESSA-DAM-SA is dependent on [Quentin Geissmann](https://github.com/qgeissmann)'s [rethomics](https://github.com/rethomics) family of packages - [behavr](https://github.com/rethomics/behavr), [damr](https://github.com/rethomics/damr), [ggetho](https://github.com/rethomics/ggetho), [sleepr](https://github.com/rethomics/sleepr), for some analysis and visualization options. It offers several advantages over existing tools for sleep analysis from DAM systems, some mentionable ones are - 
 
 1. Analysis and visualization of multiple monitor files, genotypes, replicates together in a high-throughput manner.
 
