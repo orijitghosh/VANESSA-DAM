@@ -2,7 +2,7 @@
 
 Visual ANalysis of timE SerieS dAta - Drosophila Activity Monitors (VANESSA-DAM) is a collection of useful tools to visualize and analyze Time series data obtained from Drosophila Activity Monitors (https://www.trikinetics.com/). The first in the series of tools is a shiny app for circadian rhythm analysis and visualization - VANESSA-DAM for circadian rhythm analysis (**VANESSA-DAM-CRA**). For any suggestions, questions, troubleshooting or customization, please contact arijitghosh2009@gmail.com.
 
-## **VANESSA-DAM-CRA**
+### **VANESSA-DAM-CRA**
 
 VANESSA-DAM-CRA is dependent on [Quentin Geissmann](https://github.com/qgeissmann)'s [rethomics](https://github.com/rethomics) family of packages - [behavr](https://github.com/rethomics/behavr), [damr](https://github.com/rethomics/damr), [ggetho](https://github.com/rethomics/ggetho), [zeitgebr](https://github.com/rethomics/zeitgebr), for some analysis and visualization options. It offers several advantages over existing tools for circadian rhythm analysis from DAM systems, some mentionable ones are - 
 
@@ -21,5 +21,9 @@ VANESSA-DAM-CRA is dependent on [Quentin Geissmann](https://github.com/qgeissman
 7. Timeseries filtering with kernel smoothing and Butterworth filters.
 
 8. Reproducible code report so that you can generate the figures and analysis without the shiny app from RStudio directly.
+
+9. Minimizing human errors – no need to tinker with raw data to accommodate analysis tools.
+
+10. Creating metadata files for information about experiment and better reproducibility.
 
 A short tutorial is provided (*Easy tutorial to start using VANESSA-DAM-CRA.pdf*) which is self explanatory and should help beginners start using the app right away.
