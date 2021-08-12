@@ -52,5 +52,5 @@ VANESSA-DAM-SA is dependent on [Quentin Geissmann](https://github.com/qgeissmann
 
 A short tutorial is provided (*Easy tutorial to start using VANESSA-DAM-SA.pdf*) which is self explanatory and should help beginners start using the app right away.
 
-## Known issues
-1. After pressing "Start Calculations!" button, error appears "Incompatible classes". - Solution: For VANESSA-DAM-CRA, change line no. 383 of "server.r" from "metadata <- fread(input$meta$datapath)" to "metadata <- read.csv(input$meta$datapath)" and for VANESSA-DAM-SA, change line no. 423 of "server.r" from "metadata <- fread(input$meta$datapath)" to "metadata <- read.csv(input$meta$datapath)". This error occurs sometimes for data.table version mismatch and throws error while binding the metadata to monitor files.
+#### Known issues
+1. After pressing **Start Calculations!** button, error appears _Incompatible classes_. - Solution: For VANESSA-DAM-CRA, change _line no. 383 of **server.r**_ from ``` metadata <- fread(input$meta$datapath) ``` to ``` metadata <- read.csv(input$meta$datapath) ``` and for VANESSA-DAM-SA, change _line no. 423 of **server.r**_ from ``` metadata <- fread(input$meta$datapath) ``` to ``` metadata <- read.csv(input$meta$datapath) ```. This error occurs sometimes for ``` data.table ``` version mismatch and throws error while binding the metadata to monitor files.
