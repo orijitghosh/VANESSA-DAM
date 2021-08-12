@@ -24,13 +24,15 @@ shinyServer(function(input, output, session) {
     closeOnEsc = TRUE,
     closeOnClickOutside = FALSE,
     html = TRUE,
-    type = "info",
+    # type = "info",
     showConfirmButton = TRUE,
     showCancelButton = FALSE,
     confirmButtonText = "Understood!",
     confirmButtonCol = "#AEDEF4",
     timer = 0,
-    imageUrl = "",
+    imageUrl = "./VANESSA_hex.png",
+    imageWidth = 200,
+    imageHeight = 200,
     animation = TRUE,
     size = "m"
   )
