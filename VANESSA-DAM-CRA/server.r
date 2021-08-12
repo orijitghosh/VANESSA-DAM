@@ -24,13 +24,15 @@ shinyServer(function(input, output, session) {
     closeOnEsc = TRUE,
     closeOnClickOutside = FALSE,
     html = TRUE,
-    type = "info",
+    # type = "info",
     showConfirmButton = TRUE,
     showCancelButton = FALSE,
     confirmButtonText = "Understood!",
     confirmButtonCol = "#AEDEF4",
     timer = 0,
-    imageUrl = "",
+    imageUrl = "./VANESSA_hex.png",
+    imageWidth = 200,
+    imageHeight = 200,
     animation = TRUE,
     size = "m",
   )
@@ -39,111 +41,171 @@ shinyServer(function(input, output, session) {
   observe({
     userdata1 <- matrix(nrow = 32, ncol = 6)
     userdata1[, 1] <- input$monitorname1 ### change monitor name
-    userdata1[, 2] <-
-      as.character(input$startdatetime1) ### start date of recording time is ZT0
+    userdata1[, 2] <- as.character(input$startdatetime1) ### start date of recording time is ZT0
     userdata1[, 3] <- as.character(input$enddatetime1) ### stop date
-    userdata1[, 5] <- input$genotype1 ### name of your genotype
+    userdata1[(input$chnl_1_1_s:input$chnl_1_1_e), 5] <- input$genotype1_1 ### name of your genotype
+    userdata1[(input$chnl_1_2_s:input$chnl_1_2_e), 5] <- input$genotype1_2 ### name of your genotype
+    userdata1[(input$chnl_1_3_s:input$chnl_1_3_e), 5] <- input$genotype1_3 ### name of your genotype
+    userdata1[(input$chnl_1_4_s:input$chnl_1_4_e), 5] <- input$genotype1_4 ### name of your genotype
     userdata1[, 4] <- seq(1, 32, by = 1)
-    userdata1[, 6] <- input$replicate1
+    userdata1[(input$chnl_1_1_s:input$chnl_1_1_e), 6] <- input$replicate1_1
+    userdata1[(input$chnl_1_2_s:input$chnl_1_2_e), 6] <- input$replicate1_2
+    userdata1[(input$chnl_1_3_s:input$chnl_1_3_e), 6] <- input$replicate1_3
+    userdata1[(input$chnl_1_4_s:input$chnl_1_4_e), 6] <- input$replicate1_4
 
     userdata2 <- matrix(nrow = 32, ncol = 6)
     userdata2[, 1] <- input$monitorname2 ### change monitor name
-    userdata2[, 2] <-
-      as.character(input$startdatetime2) ### start date of recording time is ZT0
+    userdata2[, 2] <- as.character(input$startdatetime2) ### start date of recording time is ZT0
     userdata2[, 3] <- as.character(input$enddatetime2) ### stop date
-    userdata2[, 5] <- input$genotype2 ### name of your genotype
+    userdata2[(input$chnl_2_1_s:input$chnl_2_1_e), 5] <- input$genotype2_1 ### name of your genotype
+    userdata2[(input$chnl_2_2_s:input$chnl_2_2_e), 5] <- input$genotype2_2 ### name of your genotype
+    userdata2[(input$chnl_2_3_s:input$chnl_2_3_e), 5] <- input$genotype2_3 ### name of your genotype
+    userdata2[(input$chnl_2_4_s:input$chnl_2_4_e), 5] <- input$genotype2_4 ### name of your genotype
     userdata2[, 4] <- seq(1, 32, by = 1)
-    userdata2[, 6] <- input$replicate2
+    userdata2[(input$chnl_2_1_s:input$chnl_2_1_e), 6] <- input$replicate2_1
+    userdata2[(input$chnl_2_2_s:input$chnl_2_2_e), 6] <- input$replicate2_2
+    userdata2[(input$chnl_2_3_s:input$chnl_2_3_e), 6] <- input$replicate2_3
+    userdata2[(input$chnl_2_4_s:input$chnl_2_4_e), 6] <- input$replicate2_4
 
     userdata3 <- matrix(nrow = 32, ncol = 6)
     userdata3[, 1] <- input$monitorname3 ### change monitor name
-    userdata3[, 2] <-
-      as.character(input$startdatetime3) ### start date of recording time is ZT0
+    userdata3[, 2] <- as.character(input$startdatetime3) ### start date of recording time is ZT0
     userdata3[, 3] <- as.character(input$enddatetime3) ### stop date
-    userdata3[, 5] <- input$genotype3 ### name of your genotype
+    userdata3[(input$chnl_3_1_s:input$chnl_3_1_e), 5] <- input$genotype3_1 ### name of your genotype
+    userdata3[(input$chnl_3_2_s:input$chnl_3_2_e), 5] <- input$genotype3_2 ### name of your genotype
+    userdata3[(input$chnl_3_3_s:input$chnl_3_3_e), 5] <- input$genotype3_3 ### name of your genotype
+    userdata3[(input$chnl_3_4_s:input$chnl_3_4_e), 5] <- input$genotype3_4 ### name of your genotype
     userdata3[, 4] <- seq(1, 32, by = 1)
-    userdata3[, 6] <- input$replicate3
+    userdata3[(input$chnl_3_1_s:input$chnl_3_1_e), 6] <- input$replicate3_1
+    userdata3[(input$chnl_3_2_s:input$chnl_3_2_e), 6] <- input$replicate3_2
+    userdata3[(input$chnl_3_3_s:input$chnl_3_3_e), 6] <- input$replicate3_3
+    userdata3[(input$chnl_3_4_s:input$chnl_3_4_e), 6] <- input$replicate3_4
 
     userdata4 <- matrix(nrow = 32, ncol = 6)
     userdata4[, 1] <- input$monitorname4 ### change monitor name
-    userdata4[, 2] <-
-      as.character(input$startdatetime4) ### start date of recording time is ZT0
+    userdata4[, 2] <- as.character(input$startdatetime4) ### start date of recording time is ZT0
     userdata4[, 3] <- as.character(input$enddatetime4) ### stop date
-    userdata4[, 5] <- input$genotype4 ### name of your genotype
+    userdata4[(input$chnl_4_1_s:input$chnl_4_1_e), 5] <- input$genotype4_1 ### name of your genotype
+    userdata4[(input$chnl_4_2_s:input$chnl_4_2_e), 5] <- input$genotype4_2 ### name of your genotype
+    userdata4[(input$chnl_4_3_s:input$chnl_4_3_e), 5] <- input$genotype4_3 ### name of your genotype
+    userdata4[(input$chnl_4_4_s:input$chnl_4_4_e), 5] <- input$genotype4_4 ### name of your genotype
     userdata4[, 4] <- seq(1, 32, by = 1)
-    userdata4[, 6] <- input$replicate4
+    userdata4[(input$chnl_4_1_s:input$chnl_4_1_e), 6] <- input$replicate4_1
+    userdata4[(input$chnl_4_2_s:input$chnl_4_2_e), 6] <- input$replicate4_2
+    userdata4[(input$chnl_4_3_s:input$chnl_4_3_e), 6] <- input$replicate4_3
+    userdata4[(input$chnl_4_4_s:input$chnl_4_4_e), 6] <- input$replicate4_4
 
     userdata5 <- matrix(nrow = 32, ncol = 6)
     userdata5[, 1] <- input$monitorname5 ### change monitor name
-    userdata5[, 2] <-
-      as.character(input$startdatetime5) ### start date of recording time is ZT0
+    userdata5[, 2] <- as.character(input$startdatetime5) ### start date of recording time is ZT0
     userdata5[, 3] <- as.character(input$enddatetime5) ### stop date
-    userdata5[, 5] <- input$genotype5 ### name of your genotype
+    userdata5[(input$chnl_5_1_s:input$chnl_5_1_e), 5] <- input$genotype5_1 ### name of your genotype
+    userdata5[(input$chnl_5_2_s:input$chnl_5_2_e), 5] <- input$genotype5_2 ### name of your genotype
+    userdata5[(input$chnl_5_3_s:input$chnl_5_3_e), 5] <- input$genotype5_3 ### name of your genotype
+    userdata5[(input$chnl_5_4_s:input$chnl_5_4_e), 5] <- input$genotype5_4 ### name of your genotype
     userdata5[, 4] <- seq(1, 32, by = 1)
-    userdata5[, 6] <- input$replicate5
+    userdata5[(input$chnl_5_1_s:input$chnl_5_1_e), 6] <- input$replicate5_1
+    userdata5[(input$chnl_5_2_s:input$chnl_5_2_e), 6] <- input$replicate5_2
+    userdata5[(input$chnl_5_3_s:input$chnl_5_3_e), 6] <- input$replicate5_3
+    userdata5[(input$chnl_5_4_s:input$chnl_5_4_e), 6] <- input$replicate5_4
 
     userdata6 <- matrix(nrow = 32, ncol = 6)
     userdata6[, 1] <- input$monitorname6 ### change monitor name
-    userdata6[, 2] <-
-      as.character(input$startdatetime6) ### start date of recording time is ZT0
+    userdata6[, 2] <- as.character(input$startdatetime6) ### start date of recording time is ZT0
     userdata6[, 3] <- as.character(input$enddatetime6) ### stop date
-    userdata6[, 5] <- input$genotype6 ### name of your genotype
+    userdata6[(input$chnl_6_1_s:input$chnl_6_1_e), 5] <- input$genotype6_1 ### name of your genotype
+    userdata6[(input$chnl_6_2_s:input$chnl_6_2_e), 5] <- input$genotype6_2 ### name of your genotype
+    userdata6[(input$chnl_6_3_s:input$chnl_6_3_e), 5] <- input$genotype6_3 ### name of your genotype
+    userdata6[(input$chnl_6_4_s:input$chnl_6_4_e), 5] <- input$genotype6_4 ### name of your genotype
     userdata6[, 4] <- seq(1, 32, by = 1)
-    userdata6[, 6] <- input$replicate6
+    userdata6[(input$chnl_6_1_s:input$chnl_6_1_e), 6] <- input$replicate6_1
+    userdata6[(input$chnl_6_2_s:input$chnl_6_2_e), 6] <- input$replicate6_2
+    userdata6[(input$chnl_6_3_s:input$chnl_6_3_e), 6] <- input$replicate6_3
+    userdata6[(input$chnl_6_4_s:input$chnl_6_4_e), 6] <- input$replicate6_4
 
     userdata7 <- matrix(nrow = 32, ncol = 6)
     userdata7[, 1] <- input$monitorname7 ### change monitor name
-    userdata7[, 2] <-
-      as.character(input$startdatetime7) ### start date of recording time is ZT0
+    userdata7[, 2] <- as.character(input$startdatetime7) ### start date of recording time is ZT0
     userdata7[, 3] <- as.character(input$enddatetime7) ### stop date
-    userdata7[, 5] <- input$genotype7 ### name of your genotype
+    userdata7[(input$chnl_7_1_s:input$chnl_7_1_e), 5] <- input$genotype7_1 ### name of your genotype
+    userdata7[(input$chnl_7_2_s:input$chnl_7_2_e), 5] <- input$genotype7_2 ### name of your genotype
+    userdata7[(input$chnl_7_3_s:input$chnl_7_3_e), 5] <- input$genotype7_3 ### name of your genotype
+    userdata7[(input$chnl_7_4_s:input$chnl_7_4_e), 5] <- input$genotype7_4 ### name of your genotype
     userdata7[, 4] <- seq(1, 32, by = 1)
-    userdata7[, 6] <- input$replicate7
+    userdata7[(input$chnl_7_1_s:input$chnl_7_1_e), 6] <- input$replicate7_1
+    userdata7[(input$chnl_7_2_s:input$chnl_7_2_e), 6] <- input$replicate7_2
+    userdata7[(input$chnl_7_3_s:input$chnl_7_3_e), 6] <- input$replicate7_3
+    userdata7[(input$chnl_7_4_s:input$chnl_7_4_e), 6] <- input$replicate7_4
 
     userdata8 <- matrix(nrow = 32, ncol = 6)
     userdata8[, 1] <- input$monitorname8 ### change monitor name
-    userdata8[, 2] <-
-      as.character(input$startdatetime8) ### start date of recording time is ZT0
+    userdata8[, 2] <- as.character(input$startdatetime8) ### start date of recording time is ZT0
     userdata8[, 3] <- as.character(input$enddatetime8) ### stop date
-    userdata8[, 5] <- input$genotype8 ### name of your genotype
+    userdata8[(input$chnl_8_1_s:input$chnl_8_1_e), 5] <- input$genotype8_1 ### name of your genotype
+    userdata8[(input$chnl_8_2_s:input$chnl_8_2_e), 5] <- input$genotype8_2 ### name of your genotype
+    userdata8[(input$chnl_8_3_s:input$chnl_8_3_e), 5] <- input$genotype8_3 ### name of your genotype
+    userdata8[(input$chnl_8_4_s:input$chnl_8_4_e), 5] <- input$genotype8_4 ### name of your genotype
     userdata8[, 4] <- seq(1, 32, by = 1)
-    userdata8[, 6] <- input$replicate8
+    userdata8[(input$chnl_8_1_s:input$chnl_8_1_e), 6] <- input$replicate8_1
+    userdata8[(input$chnl_8_2_s:input$chnl_8_2_e), 6] <- input$replicate8_2
+    userdata8[(input$chnl_8_3_s:input$chnl_8_3_e), 6] <- input$replicate8_3
+    userdata8[(input$chnl_8_4_s:input$chnl_8_4_e), 6] <- input$replicate8_4
 
     userdata9 <- matrix(nrow = 32, ncol = 6)
     userdata9[, 1] <- input$monitorname9 ### change monitor name
-    userdata9[, 2] <-
-      as.character(input$startdatetime9) ### start date of recording time is ZT0
+    userdata9[, 2] <- as.character(input$startdatetime9) ### start date of recording time is ZT0
     userdata9[, 3] <- as.character(input$enddatetime9) ### stop date
-    userdata9[, 5] <- input$genotype9 ### name of your genotype
+    userdata9[(input$chnl_9_1_s:input$chnl_9_1_e), 5] <- input$genotype9_1 ### name of your genotype
+    userdata9[(input$chnl_9_2_s:input$chnl_9_2_e), 5] <- input$genotype9_2 ### name of your genotype
+    userdata9[(input$chnl_9_3_s:input$chnl_9_3_e), 5] <- input$genotype9_3 ### name of your genotype
+    userdata9[(input$chnl_9_4_s:input$chnl_9_4_e), 5] <- input$genotype9_4 ### name of your genotype
     userdata9[, 4] <- seq(1, 32, by = 1)
-    userdata9[, 6] <- input$replicate9
+    userdata9[(input$chnl_9_1_s:input$chnl_9_1_e), 6] <- input$replicate9_1
+    userdata9[(input$chnl_9_2_s:input$chnl_9_2_e), 6] <- input$replicate9_2
+    userdata9[(input$chnl_9_3_s:input$chnl_9_3_e), 6] <- input$replicate9_3
+    userdata9[(input$chnl_9_4_s:input$chnl_9_4_e), 6] <- input$replicate9_4
 
     userdata10 <- matrix(nrow = 32, ncol = 6)
     userdata10[, 1] <- input$monitorname10 ### change monitor name
-    userdata10[, 2] <-
-      as.character(input$startdatetime10) ### start date of recording time is ZT0
+    userdata10[, 2] <- as.character(input$startdatetime10) ### start date of recording time is ZT0
     userdata10[, 3] <- as.character(input$enddatetime10) ### stop date
-    userdata10[, 5] <- input$genotype10 ### name of your genotype
+    userdata10[(input$chnl_10_1_s:input$chnl_10_1_e), 5] <- input$genotype10_1 ### name of your genotype
+    userdata10[(input$chnl_10_2_s:input$chnl_10_2_e), 5] <- input$genotype10_2 ### name of your genotype
+    userdata10[(input$chnl_10_3_s:input$chnl_10_3_e), 5] <- input$genotype10_3 ### name of your genotype
+    userdata10[(input$chnl_10_4_s:input$chnl_10_4_e), 5] <- input$genotype10_4 ### name of your genotype
     userdata10[, 4] <- seq(1, 32, by = 1)
-    userdata10[, 6] <- input$replicate10
+    userdata10[(input$chnl_10_1_s:input$chnl_10_1_e), 6] <- input$replicate10_1
+    userdata10[(input$chnl_10_2_s:input$chnl_10_2_e), 6] <- input$replicate10_2
+    userdata10[(input$chnl_10_3_s:input$chnl_10_3_e), 6] <- input$replicate10_3
+    userdata10[(input$chnl_10_4_s:input$chnl_10_4_e), 6] <- input$replicate10_4
 
     userdata11 <- matrix(nrow = 32, ncol = 6)
     userdata11[, 1] <- input$monitorname11 ### change monitor name
-    userdata11[, 2] <-
-      as.character(input$startdatetime11) ### start date of recording time is ZT0
+    userdata11[, 2] <- as.character(input$startdatetime11) ### start date of recording time is ZT0
     userdata11[, 3] <- as.character(input$enddatetime11) ### stop date
-    userdata11[, 5] <- input$genotype11 ### name of your genotype
+    userdata11[(input$chnl_11_1_s:input$chnl_11_1_e), 5] <- input$genotype11_1 ### name of your genotype
+    userdata11[(input$chnl_11_2_s:input$chnl_11_2_e), 5] <- input$genotype11_2 ### name of your genotype
+    userdata11[(input$chnl_11_3_s:input$chnl_11_3_e), 5] <- input$genotype11_3 ### name of your genotype
+    userdata11[(input$chnl_11_4_s:input$chnl_11_4_e), 5] <- input$genotype11_4 ### name of your genotype
     userdata11[, 4] <- seq(1, 32, by = 1)
-    userdata11[, 6] <- input$replicate11
+    userdata11[(input$chnl_11_1_s:input$chnl_11_1_e), 6] <- input$replicate11_1
+    userdata11[(input$chnl_11_2_s:input$chnl_11_2_e), 6] <- input$replicate11_2
+    userdata11[(input$chnl_11_3_s:input$chnl_11_3_e), 6] <- input$replicate11_3
+    userdata11[(input$chnl_11_4_s:input$chnl_11_4_e), 6] <- input$replicate11_4
 
     userdata12 <- matrix(nrow = 32, ncol = 6)
     userdata12[, 1] <- input$monitorname12 ### change monitor name
-    userdata12[, 2] <-
-      as.character(input$startdatetime12) ### start date of recording time is ZT0
+    userdata12[, 2] <- as.character(input$startdatetime12) ### start date of recording time is ZT0
     userdata12[, 3] <- as.character(input$enddatetime12) ### stop date
-    userdata12[, 5] <- input$genotype12 ### name of your genotype
+    userdata12[(input$chnl_12_1_s:input$chnl_12_1_e), 5] <- input$genotype12_1 ### name of your genotype
+    userdata12[(input$chnl_12_2_s:input$chnl_12_2_e), 5] <- input$genotype12_2 ### name of your genotype
+    userdata12[(input$chnl_12_3_s:input$chnl_12_3_e), 5] <- input$genotype12_3 ### name of your genotype
+    userdata12[(input$chnl_12_4_s:input$chnl_12_4_e), 5] <- input$genotype12_4 ### name of your genotype
     userdata12[, 4] <- seq(1, 32, by = 1)
-    userdata12[, 6] <- input$replicate12
+    userdata12[(input$chnl_12_1_s:input$chnl_12_1_e), 6] <- input$replicate12_1
+    userdata12[(input$chnl_12_2_s:input$chnl_12_2_e), 6] <- input$replicate12_2
+    userdata12[(input$chnl_12_3_s:input$chnl_12_3_e), 6] <- input$replicate12_3
+    userdata12[(input$chnl_12_4_s:input$chnl_12_4_e), 6] <- input$replicate12_4
 
     userdata <- matrix(nrow = 384, ncol = 6)
     if (input$genotype == 1) {
@@ -980,6 +1042,7 @@ shinyServer(function(input, output, session) {
             per_xsq_dt_chi_sq <- periodogram(activity,
               dt_curated,
               period_range = c(hours(input$ll), hours(input$ul)),
+              alpha = input$alphasig,
               FUN = chi_sq_periodogram
             )
             per_xsq_dt_chi_sq <- find_peaks(per_xsq_dt_chi_sq)
@@ -989,6 +1052,7 @@ shinyServer(function(input, output, session) {
             per_xsq_dt_chi_sq <- periodogram(activity,
               dt_curated,
               period_range = c(hours(input$ll), hours(input$ul)),
+              alpha = input$alphasig,
               FUN = ac_periodogram
             )
             per_xsq_dt_chi_sq <- find_peaks(per_xsq_dt_chi_sq)
@@ -998,6 +1062,7 @@ shinyServer(function(input, output, session) {
             per_xsq_dt_chi_sq <- periodogram(activity,
               dt_curated,
               period_range = c(hours(input$ll), hours(input$ul)),
+              alpha = input$alphasig,
               FUN = ls_periodogram
             )
             per_xsq_dt_chi_sq <- find_peaks(per_xsq_dt_chi_sq)
@@ -1007,6 +1072,7 @@ shinyServer(function(input, output, session) {
             per_xsq_dt_chi_sq <- periodogram(activity,
               dt_curated,
               period_range = c(hours(input$ll), hours(input$ul)),
+              alpha = input$alphasig,
               FUN = cwt_periodogram
             )
             per_xsq_dt_chi_sq <- find_peaks(per_xsq_dt_chi_sq)
@@ -1420,7 +1486,7 @@ shinyServer(function(input, output, session) {
         meta = input$meta, wd = getwd(), modtau = input$modtau, ldperiod = input$ldperiod,
         min = input$min, light = input$light, genotype = input$genotype,
         replicate = input$replicate, remove = input$remove, start = input$start, end = input$end,
-        permethod = input$permethod, ul = input$ul, ll = input$ll
+        permethod = input$permethod, ul = input$ul, ll = input$ll, alphasig = input$alphasig
       )
 
       # Knit the document, passing in the `params` list, and eval it in a
