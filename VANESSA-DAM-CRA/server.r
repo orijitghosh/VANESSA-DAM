@@ -30,11 +30,66 @@ shinyServer(function(input, output, session) {
     confirmButtonText = "Understood!",
     confirmButtonCol = "#AEDEF4",
     timer = 0,
-    imageUrl = "./VANESSA_hex.png",
+    imageUrl = "/VANESSA_hex.png",
     imageWidth = 200,
     imageHeight = 200,
     animation = TRUE,
     size = "m",
+  )
+  My_Theme <- theme(
+    title = element_text(size = 10, face = "bold"),
+    axis.title.x = element_text(size = 10, face = "bold"),
+    axis.text.x = element_text(size = 8),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    axis.text.y = element_text(size = 8),
+    legend.text = element_text(size = 8),
+    legend.position = "right",
+    panel.background = element_rect(fill = "white"),
+    panel.grid.major = element_line(
+      size = 0.125,
+      linetype = "solid",
+      colour = "grey"
+    ),
+    panel.grid.minor = element_line(
+      size = 0.0625,
+      linetype = "solid",
+      colour = "grey"
+    ),
+    strip.background = element_rect(fill = "white"),
+    strip.text = element_text(
+      colour = "black",
+      size = 8,
+      color = "black",
+      face = "bold"
+    ),
+  )
+  
+  My_Theme1 <- theme(
+    title = element_text(size = 6, face = "bold"),
+    axis.title.x = element_text(size = 4, face = "bold"),
+    axis.text.x = element_text(size = 3),
+    axis.title.y = element_text(size = 3, face = "bold"),
+    axis.text.y = element_text(size = 3),
+    legend.text = element_text(size = 3),
+    legend.position = "right",
+    panel.background = element_rect(fill = "white"),
+    panel.grid.major = element_line(
+      size = 0.025,
+      linetype = "solid",
+      colour = "grey"
+    ),
+    panel.grid.minor = element_line(
+      size = 0.0125,
+      linetype = "solid",
+      colour = "grey"
+    ),
+    strip.background = element_rect(fill = "white"),
+    strip.text = element_text(
+      colour = "black",
+      size = 3,
+      color = "black",
+      face = "bold"
+    ),
   )
   session$onSessionEnded(stopApp)
   observe_helpers(withMathJax = TRUE)
@@ -316,63 +371,6 @@ shinyServer(function(input, output, session) {
         )
       })
     })
-
-
-    My_Theme <- theme(
-      title = element_text(size = 10, face = "bold"),
-      axis.title.x = element_text(size = 10, face = "bold"),
-      axis.text.x = element_text(size = 8),
-      axis.title.y = element_text(size = 10, face = "bold"),
-      axis.text.y = element_text(size = 8),
-      legend.text = element_text(size = 8),
-      legend.position = "right",
-      panel.background = element_rect(fill = "white"),
-      panel.grid.major = element_line(
-        size = 0.125,
-        linetype = "solid",
-        colour = "grey"
-      ),
-      panel.grid.minor = element_line(
-        size = 0.0625,
-        linetype = "solid",
-        colour = "grey"
-      ),
-      strip.background = element_rect(fill = "white"),
-      strip.text = element_text(
-        colour = "black",
-        size = 8,
-        color = "black",
-        face = "bold"
-      ),
-    )
-
-    My_Theme1 <- theme(
-      title = element_text(size = 6, face = "bold"),
-      axis.title.x = element_text(size = 4, face = "bold"),
-      axis.text.x = element_text(size = 3),
-      axis.title.y = element_text(size = 3, face = "bold"),
-      axis.text.y = element_text(size = 3),
-      legend.text = element_text(size = 3),
-      legend.position = "right",
-      panel.background = element_rect(fill = "white"),
-      panel.grid.major = element_line(
-        size = 0.025,
-        linetype = "solid",
-        colour = "grey"
-      ),
-      panel.grid.minor = element_line(
-        size = 0.0125,
-        linetype = "solid",
-        colour = "grey"
-      ),
-      strip.background = element_rect(fill = "white"),
-      strip.text = element_text(
-        colour = "black",
-        size = 3,
-        color = "black",
-        face = "bold"
-      ),
-    )
 
     volumes <- c(Home = fs::path_home(), "R Installation" = R.home(), getVolumes()())
     observe({
@@ -1215,7 +1213,7 @@ shinyServer(function(input, output, session) {
         ##################
       })
     })
-    # })
+    })
     ################################### For CWT Spectogram####################################
     # observe({
     observeEvent(input$do1, {
@@ -1294,6 +1292,7 @@ shinyServer(function(input, output, session) {
         res = 100
       )
     })
+  # })
     ############################# For timeseries smoothing#########################
     observeEvent(input$do_smooth, {
       req(input$raw_smooth)
@@ -1344,6 +1343,7 @@ shinyServer(function(input, output, session) {
         }
         raw_new_smooth_bf <- cbind(raw_new, raw_smooth_new_bf)
         raw_new_smooth_bf <- raw_new_smooth_bf[, -c(2:33)]
+        colnames(raw_new_smooth_bf) <- c("local time (arbitrary date)")
         raw_new_smooth1_bf <- raw_new_smooth_bf[, -1]
         for (i in 1:length(raw_new_smooth1_bf[1, ])) {
           a <- pracma::Reshape(raw_new_smooth1_bf[, i], s_per_day)
@@ -1403,6 +1403,7 @@ shinyServer(function(input, output, session) {
         }
         raw_new_smooth_ks <- cbind(raw_new, raw_smooth_new_ks)
         raw_new_smooth_ks <- raw_new_smooth_ks[, -c(2:33)]
+        colnames(raw_new_smooth_ks) <- c("local time (arbitrary date)")
         raw_new_smooth1_ks <- raw_new_smooth_ks[, -1]
         for (i in 1:length(raw_new_smooth1_ks[1, ])) {
           a <- pracma::Reshape(raw_new_smooth1_ks[, i], s_per_day)
@@ -1470,7 +1471,7 @@ shinyServer(function(input, output, session) {
         res = 100
       )
     })
-  })
+  # })
   output$report <- downloadHandler(
     # For PDF output, change this to "report.pdf"
     filename = "report.html",
