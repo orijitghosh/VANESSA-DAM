@@ -827,7 +827,7 @@ shinyServer(function(input, output, session) {
               scale_y_discrete(expand = c(0, 0)) + # will generally have to set the `expand` option
               scale_x_continuous(expand = c(0, 0)) + # for both axes to remove unneeded padding
               coord_cartesian(clip = "off") + # to avoid clipping of the very top of the top ridgeline
-              labs(x = "Period (h)", y = "Genotype") +
+              labs(x = "Mean bout length (m)", y = "Genotype") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               facet_wrap(~replicate, ncol = 1, scales = "free_y") +
