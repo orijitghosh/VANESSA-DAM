@@ -1317,12 +1317,17 @@ shinyServer(function(input, output, session) {
     )
     start_date_time <- lubridate::ymd_hms(input$startdatetime_smooth)
     end_date_time <- lubridate::ymd_hms(input$enddatetime_smooth)
+    result_date_time_start <- lubridate::ymd_hms(input$resultdatetime_smooth)
+    result_date_time_end <- result_date_time_start + lubridate::days(1)
+    # result_date_time_start_formatted <- format(round(result_date_time_start, units = "day"), '%Y-%m-%d %H:%M:%S')
+    # result_date_time_end_formatted <- format(round(result_date_time_end, units = "day"), '%Y-%m-%d %H:%M:%S')
     bin <- input$bin_smooth ################# bin of actual data
     bin1 <- input$bin_req_smooth #################### bin of wanted data aggregation step
     n <- input$n_smooth ################ filter order or generic filter model
     W <- input$W_smooth ################## critical frequencies of the filter. W must be a scalar for low-pass and high-pass filters, and W must be a two-element vector c(low, high) specifying the lower and upper bands. For digital filters, W must be between 0 and 1 where 1 is the Nyquist frequency
     bf <- signal::butter(n = n, W = W, type = "low", plane = "z") # order 2, 10 Hz low-pass filter
-    ag <- data.frame(timestamp = seq(as.POSIXct("2020-12-03 10:00:00"), as.POSIXct("2020-12-04 10:00:00"), by = (bin1 * 60))) ########## change start time as your data
+    # ag <- data.frame(timestamp = seq(lubridate::ymd_hms(result_date_time_start_formatted), lubridate::ymd_hms(result_date_time_end_formatted), by = (bin1 * 60))) ########## change start time as your data
+    ag <- data.frame(timestamp = seq(as.POSIXct(result_date_time_start), as.POSIXct(result_date_time_end), by = (bin1 * 60))) ########## change start time as your data
     all_nan <- function(x) any(!is.nan(x)) ############ define function to remove NaNs
     b <- input$b_smooth ################ kernel smoothing bandwith
     df$V2 <- lubridate::dmy(df$V2)
@@ -1512,6 +1517,34 @@ shinyServer(function(input, output, session) {
         output_file = file,
         params = params,
         envir = new.env(parent = globalenv())
+      )
+    }
+  )
+  output$report_smooth <- downloadHandler(
+    # For PDF output, change this to "report.pdf"
+    filename = "report_smooth.html",
+    content = function(file) {
+      # Copy the report file to a temporary directory before processing it, in
+      # case we don't have write permissions to the current working dir (which
+      # can happen when deployed).
+      tempReport <- file.path(tempdir(), "report.Rmd")
+      file.copy("report_smoothing.Rmd", tempReport, overwrite = TRUE)
+      
+      # Set up parameters to pass to Rmd document
+      params <- list(
+        raw_smooth = input$raw_smooth, startdatetime_smooth = input$startdatetime_smooth,
+        enddatetime_smooth = input$enddatetime_smooth, resultdatetime_smooth = input$resultdatetime_smooth,
+        bin_smooth = input$bin_smooth, bin_req_smooth = input$bin_req_smooth, n_smooth = input$n_smooth,
+        W_smooth = input$W_smooth, b_smooth = input$b_smooth
+      )
+      
+      # Knit the document, passing in the `params` list, and eval it in a
+      # child of the global environment (this isolates the code in the document
+      # from the code in this app).
+      rmarkdown::render(tempReport,
+                        output_file = file,
+                        params = params,
+                        envir = new.env(parent = globalenv())
       )
     }
   )

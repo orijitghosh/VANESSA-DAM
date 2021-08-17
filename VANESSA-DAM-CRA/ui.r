@@ -1257,7 +1257,7 @@ shinyUI <-
             helper(
               type = "inline",
               title = "",
-              content = c("Subsetting your data, use the first day you want to use for average profile."),
+              content = c("Subsetting your data, use the first day you want to use for average profile. DO NOT USE 00:00:00 as time, else an error will be thrown."),
               size = "s",
               buttonLabel = "Okay!",
               easyClose = TRUE,
@@ -1276,7 +1276,26 @@ shinyUI <-
             helper(
               type = "inline",
               title = "",
-              content = c("Subsetting your data, use the last day you want to use for average profile."),
+              content = c("Subsetting your data, use the last day you want to use for average profile. Please ensure you are choosing full cycles, i.e., in multiple of 24 hours (12 AM to 12 AM or 10 AM to 10 AM etc.). DO NOT USE 00:00:00 as time, else an error will be thrown."),
+              size = "s",
+              buttonLabel = "Okay!",
+              easyClose = TRUE,
+              fade = TRUE
+            ),
+          airDatepickerInput(
+            inputId = "resultdatetime_smooth",
+            value = Sys.Date(),
+            label = "Pick an arbitrary date for average profile, keep the time same as of start and end time of your data when subsetting:",
+            timepicker = TRUE,
+            timepickerOpts = timepickerOptions(timeFormat = "hh:ii:00"),
+            update_on = "close",
+            addon = "right"
+          )
+          %>%
+            helper(
+              type = "inline",
+              title = "",
+              content = c("Pick an arbitrary date for average profile, keep the time same as of start and end time of your data when subsetting.  DO NOT USE 00:00:00 as time, else an error will be thrown."),
               size = "s",
               buttonLabel = "Okay!",
               easyClose = TRUE,
@@ -1345,6 +1364,12 @@ shinyUI <-
             downloadBttn(
               outputId = "smoothened_ks",
               label = "Download ks data",
+              style = "minimal",
+              color = "primary"
+            ),
+            downloadBttn(
+              outputId = "report_smooth",
+              label = "Generate report",
               style = "minimal",
               color = "primary"
             )
