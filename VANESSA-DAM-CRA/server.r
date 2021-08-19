@@ -1527,7 +1527,7 @@ shinyServer(function(input, output, session) {
       # Copy the report file to a temporary directory before processing it, in
       # case we don't have write permissions to the current working dir (which
       # can happen when deployed).
-      tempReport <- file.path(tempdir(), "report.Rmd")
+      tempReport <- file.path(tempdir(), "report_smoothing.Rmd")
       file.copy("report_smoothing.Rmd", tempReport, overwrite = TRUE)
       
       # Set up parameters to pass to Rmd document
@@ -1535,7 +1535,7 @@ shinyServer(function(input, output, session) {
         raw_smooth = input$raw_smooth, startdatetime_smooth = input$startdatetime_smooth,
         enddatetime_smooth = input$enddatetime_smooth, resultdatetime_smooth = input$resultdatetime_smooth,
         bin_smooth = input$bin_smooth, bin_req_smooth = input$bin_req_smooth, n_smooth = input$n_smooth,
-        W_smooth = input$W_smooth, b_smooth = input$b_smooth
+        W_smooth = input$W_smooth, b_smooth = input$b_smooth, alphasig = input$alphasig
       )
       
       # Knit the document, passing in the `params` list, and eval it in a

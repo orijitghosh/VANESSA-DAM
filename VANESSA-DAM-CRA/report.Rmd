@@ -21,6 +21,7 @@ params:
   permethod: NA
   ul: NA
   ll: NA
+  alphasig: NA
 # Reproducible code report - VANESSA-DAM-CRA   
 ---
 
@@ -40,6 +41,7 @@ params$end
 params$permethod
 params$ul
 params$ll
+params$alphasig
 ```
 
 ### **Set working directory of R to where your Metadata file and Monitor files are (in this case they have to be in the same directory). Replace all params$XXXX with the values mentioned above (values you have used in the shiny app).**
@@ -147,6 +149,7 @@ metadata <- fread("params$meta")
 per_xsq_dt_chi_sq <- periodogram(activity,
               dt_curated,
               period_range = c(hours(params$ll), hours(params$ul)),
+              alpha = input$alphasig,
               FUN = chi_sq_periodogram
             )
             per_xsq_dt_chi_sq <- find_peaks(per_xsq_dt_chi_sq)
@@ -156,6 +159,7 @@ per_xsq_dt_chi_sq <- periodogram(activity,
 per_xsq_dt_chi_sq <- periodogram(activity,
               dt_curated,
               period_range = c(hours(params$ll), hours(params$ul)),
+              alpha = input$alphasig,
               FUN = ac_periodogram
             )
             per_xsq_dt_chi_sq <- find_peaks(per_xsq_dt_chi_sq)
@@ -165,6 +169,7 @@ per_xsq_dt_chi_sq <- periodogram(activity,
 per_xsq_dt_chi_sq <- periodogram(activity,
               dt_curated,
               period_range = c(hours(params$ll), hours(params$ul)),
+              alpha = input$alphasig,
               FUN = ls_periodogram
             )
             per_xsq_dt_chi_sq <- find_peaks(per_xsq_dt_chi_sq)
@@ -174,6 +179,7 @@ per_xsq_dt_chi_sq <- periodogram(activity,
 per_xsq_dt_chi_sq <- periodogram(activity,
               dt_curated,
               period_range = c(hours(params$ll), hours(params$ul)),
+              alpha = input$alphasig,
               FUN = cwt_periodogram
             )
             per_xsq_dt_chi_sq <- find_peaks(per_xsq_dt_chi_sq)
