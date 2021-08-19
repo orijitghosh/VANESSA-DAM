@@ -1535,7 +1535,7 @@ shinyServer(function(input, output, session) {
         raw_smooth = input$raw_smooth, startdatetime_smooth = input$startdatetime_smooth,
         enddatetime_smooth = input$enddatetime_smooth, resultdatetime_smooth = input$resultdatetime_smooth,
         bin_smooth = input$bin_smooth, bin_req_smooth = input$bin_req_smooth, n_smooth = input$n_smooth,
-        W_smooth = input$W_smooth, b_smooth = input$b_smooth, alphasig = input$alphasig
+        W_smooth = input$W_smooth, b_smooth = input$b_smooth
       )
       
       # Knit the document, passing in the `params` list, and eval it in a
