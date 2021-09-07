@@ -172,7 +172,6 @@ shinyUI <-
               easyClose = TRUE,
               fade = TRUE
             ),
-          # downloadButton("report", "Generate report"),
           withBusyIndicatorUI(
             actionBttn(
               inputId = "cal",
@@ -242,11 +241,16 @@ shinyUI <-
                   easyClose = TRUE,
                   fade = TRUE
                 ),
-              plotOutput(
-                "alletho",
-                height = "2500px",
-                width = "1500px"
-              ) %>% withLoader(type = "html", loader = "pacman")
+              mainPanel(
+                splitLayout(
+                  numericInput("alletho_height", "height", 2500, 500, 10000, 50),
+                  numericInput("alletho_width", "width", 1500, 500, 10000, 50)
+                ),
+                tags$hr(),
+                plotOutput(
+                  "alletho"
+                ) %>% withLoader(type = "html", loader = "pacman")
+              )
             ),
             tabPanel(
               "Curated ethograms"
@@ -260,11 +264,16 @@ shinyUI <-
                   easyClose = TRUE,
                   fade = TRUE
                 ),
-              plotOutput(
-                "curatedetho",
-                height = "2500px",
-                width = "1500px"
-              ) %>% withLoader(type = "html", loader = "pacman")
+              mainPanel(
+                splitLayout(
+                  numericInput("curatedtho_height", "height", 2500, 500, 10000, 50),
+                  numericInput("curatedetho_width", "width", 1500, 500, 10000, 50)
+                ),
+                tags$hr(),
+                plotOutput(
+                  "curatedetho"
+                ) %>% withLoader(type = "html", loader = "pacman")
+              )
             ),
             tabPanel(
               "Average plots over days individual"
@@ -278,9 +287,16 @@ shinyUI <-
                   easyClose = TRUE,
                   fade = TRUE
                 ),
-              plotOutput(
-                "popplot",
-              ) %>% withLoader(type = "html", loader = "pacman")
+              mainPanel(
+                splitLayout(
+                  numericInput("popplot_height", "height", 6000, 3000, 10000, 50),
+                  numericInput("popplot_width", "width", 1500, 500, 10000, 50)
+                ),
+                tags$hr(),
+                plotOutput(
+                  "popplot",
+                ) %>% withLoader(type = "html", loader = "pacman")
+              )
             ),
             tabPanel(
               "Average plot wrapped individual"
@@ -294,9 +310,16 @@ shinyUI <-
                   easyClose = TRUE,
                   fade = TRUE
                 ),
-              plotOutput(
-                "popplotwrap",
-              ) %>% withLoader(type = "html", loader = "pacman")
+              mainPanel(
+                splitLayout(
+                  numericInput("popplotwrap_height", "height", 1400, 800, 3000, 50),
+                  numericInput("popplotwrap_width", "width", 1500, 500, 10000, 50)
+                ),
+                tags$hr(),
+                plotOutput(
+                  "popplotwrap",
+                ) %>% withLoader(type = "html", loader = "pacman")
+              )
             ),
             tabPanel(
               "Average plots over days"
@@ -310,9 +333,16 @@ shinyUI <-
                   easyClose = TRUE,
                   fade = TRUE
                 ),
-              plotOutput(
-                "popplot1",
-              ) %>% withLoader(type = "html", loader = "pacman")
+              mainPanel(
+                splitLayout(
+                  numericInput("popplot1_height", "height", 300, 100, 1000, 50),
+                  numericInput("popplot1_width", "width", 1200, 500, 10000, 50)
+                ),
+                tags$hr(),
+                plotOutput(
+                  "popplot1",
+                ) %>% withLoader(type = "html", loader = "pacman")
+              )
             ),
             tabPanel(
               "Average plot wrapped"
@@ -326,9 +356,16 @@ shinyUI <-
                   easyClose = TRUE,
                   fade = TRUE
                 ),
-              plotOutput(
-                "popplotwrap1",
-              ) %>% withLoader(type = "html", loader = "pacman")
+              mainPanel(
+                splitLayout(
+                  numericInput("popplotwrap1_height", "height", 300, 100, 1000, 50),
+                  numericInput("popplotwrap1_width", "width", 1000, 500, 10000, 50)
+                ),
+                tags$hr(),
+                plotOutput(
+                  "popplotwrap1",
+                ) %>% withLoader(type = "html", loader = "pacman")
+              )
             ),
             tabPanel(
               "Average plot wrapped polar"
@@ -342,9 +379,16 @@ shinyUI <-
                   easyClose = TRUE,
                   fade = TRUE
                 ),
-              plotOutput(
-                "popplotwrap1polar",
-              ) %>% withLoader(type = "html", loader = "pacman")
+              mainPanel(
+                splitLayout(
+                  numericInput("popplotwrap1polar_height", "height", 700, 300, 1500, 50),
+                  numericInput("popplotwrap1polar_width", "width", 700, 300, 1500, 50)
+                ),
+                tags$hr(),
+                plotOutput(
+                  "popplotwrap1polar",
+                ) %>% withLoader(type = "html", loader = "pacman")
+              )
             ),
             tabPanel(
               "Download data"
@@ -394,7 +438,14 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput("popplotwrapbox") %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("popplotwrapbox_height", "height", 700, 300, 2000, 50),
+                numericInput("popplotwrapbox_width", "width", 1000, 500, 10000, 50)
+              ),
+              tags$hr(),
+              plotOutput("popplotwrapbox") %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Sleep fraction summary"
@@ -408,10 +459,15 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput("popplotwrapboxmelt") %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("popplotwrapboxmelt_height", "height", 700, 300, 2000, 50),
+                numericInput("popplotwrapboxmelt_width", "width", 1000, 500, 10000, 50)
+              ),
+              tags$hr(),
+              plotOutput("popplotwrapboxmelt") %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
-          # )
-          # ,
           widths = c(3, 9)
         )
       ),
@@ -431,7 +487,14 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput("bout") %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("bout_height", "height", 300, 100, 1000, 50),
+                numericInput("bout_width", "width", 1000, 500, 10000, 50)
+              ),
+              tags$hr(),
+              plotOutput("bout") %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Number of bouts"
@@ -445,7 +508,14 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput("numbouts") %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("numbouts_height", "height", 500, 300, 1000, 50),
+                numericInput("numbouts_width", "width", 700, 500, 10000, 50)
+              ),
+              tags$hr(),
+              plotOutput("numbouts") %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Mean bout length"
@@ -459,7 +529,14 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput("meanboutlength") %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("meanboutlength_height", "height", 500, 300, 2000, 50),
+                numericInput("meanboutlength_width", "width", 700, 500, 10000, 50)
+              ),
+              tags$hr(),
+              plotOutput("meanboutlength") %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Number of bouts in light and dark phase"
@@ -473,7 +550,14 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput("numbouts_ld") %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("numbouts_ld_height", "height", 500, 300, 2000, 50),
+                numericInput("numbouts_ld_width", "width", 700, 500, 10000, 50)
+              ),
+              tags$hr(),
+              plotOutput("numbouts_ld") %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Mean bout length in light and dark phase"
@@ -487,7 +571,14 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput("meanboutlength_ld") %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("meanboutlength_ld_height", "height", 500, 300, 2000, 50),
+                numericInput("meanboutlength_ld_width", "width", 700, 500, 10000, 50)
+              ),
+              tags$hr(),
+              plotOutput("meanboutlength_ld") %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Mean bout length distribution"
@@ -501,7 +592,14 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput("meanboutlength_distrib") %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("meanboutlength_distrib_height", "height", 500, 300, 2000, 50),
+                numericInput("meanboutlength_distrib_width", "width", 700, 500, 10000, 50)
+              ),
+              tags$hr(),
+              plotOutput("meanboutlength_distrib") %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Bout summary"
@@ -515,10 +613,15 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput("boutsummary") %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("boutsummary_height", "height", 300, 100, 1000, 50),
+                numericInput("boutsummary_width", "width", 1000, 500, 10000, 50)
+              ),
+              tags$hr(),
+              plotOutput("boutsummary") %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
-          # )
-          # ,
           widths = c(3, 9)
         )
       ),
@@ -889,86 +992,6 @@ shinyUI <-
             tableOutput("userdata") %>% withLoader(type = "html", loader = "pacman")
           )
         ))
-      ),
-      tabPanel(
-        "Plot height Customization",
-        icon = icon("hammer"),
-        useShinyalert(),
-        sidebarPanel(
-          width = 4,
-          numericInput(
-            "popplot_height",
-            "Average plots over days individual",
-            6000, 3000, 10000
-          ),
-          numericInput(
-            "popplotwrap_height",
-            "Average plot wrapped individual",
-            1400, 800, 3000
-          ),
-          numericInput(
-            "popplot1_height",
-            "Average plots over days",
-            300, 100, 1000
-          ),
-          numericInput(
-            "popplotwrap1_height",
-            "Average plot wrapped",
-            300, 100, 1000
-          )
-        ),
-        sidebarPanel(
-          width = 4,
-
-          numericInput(
-            "popplotwrapbox_height",
-            "Sleep fraction",
-            700, 300, 2000
-          ),
-          numericInput(
-            "popplotwrapboxmelt_height",
-            "Sleep fraction summary",
-            700, 300, 2000
-          )
-        ),
-        sidebarPanel(
-          width = 4,
-          numericInput(
-            "numbouts_height",
-            "Number of bouts",
-            500, 300, 1000
-          ),
-          numericInput(
-            "meanboutlength_height",
-            "Mean bout length",
-            500, 300, 2000
-          ),
-          numericInput(
-            "bout_height",
-            "Bouts",
-            300, 100, 1000
-          ),
-          numericInput(
-            "boutsummary_height",
-            "Bout summary",
-            300, 100, 1000
-          ),
-          numericInput(
-            "numbouts_ld_height",
-            "Number of bouts in light and dark",
-            500, 300, 2000
-          ),
-          numericInput(
-            "meanboutlength_ld_height",
-            "Mean bout length in light and dark",
-            500, 300, 2000
-          ),
-          numericInput(
-            "meanboutlength_distrib_height",
-            "Mean bout length distribution",
-            500, 300, 2000
-          )
-        )
       )
     )
   )

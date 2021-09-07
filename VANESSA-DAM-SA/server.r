@@ -19,7 +19,7 @@ library(shinyFiles)
 library(fs)
 shinyServer(function(input, output, session) {
   shinyalert(
-    title = "Visual ANalysis of timE SerieS dAta - Drosophila Activity Monitors (VANESSA-DAM) for sleep analysis!",
+    title = "Visualization and ANalysis of timE SerieS dAta - Drosophila Activity Monitors (VANESSA-DAM) for sleep analysis!",
     text = "<b>This app requires a metadata file for your monitors, to make the metadata files, first visit the Data formatting tab. The metadata files will be created in the home folder of the app. Right now simultaneous analysis and visualization upto twelve genotypes are supported. Contact <i>arijitghosh2009@gmail.com</i> for bugs, suggestions, troubleshooting and customizations.</b>",
     closeOnEsc = TRUE,
     closeOnClickOutside = FALSE,
@@ -52,7 +52,7 @@ shinyServer(function(input, output, session) {
     userdata1[(9:16), 6] <- input$replicate1_2
     userdata1[(17:24), 6] <- input$replicate1_3
     userdata1[(25:32), 6] <- input$replicate1_4
-    
+
     userdata2 <- matrix(nrow = 32, ncol = 6)
     userdata2[, 1] <- input$monitorname2 ### change monitor name
     userdata2[, 2] <- as.character(input$startdatetime2) ### start date of recording time is ZT0
@@ -66,7 +66,7 @@ shinyServer(function(input, output, session) {
     userdata2[(9:16), 6] <- input$replicate2_2
     userdata2[(17:24), 6] <- input$replicate2_3
     userdata2[(25:32), 6] <- input$replicate2_4
-    
+
     userdata3 <- matrix(nrow = 32, ncol = 6)
     userdata3[, 1] <- input$monitorname3 ### change monitor name
     userdata3[, 2] <- as.character(input$startdatetime3) ### start date of recording time is ZT0
@@ -80,7 +80,7 @@ shinyServer(function(input, output, session) {
     userdata3[(9:16), 6] <- input$replicate3_2
     userdata3[(17:24), 6] <- input$replicate3_3
     userdata3[(25:32), 6] <- input$replicate3_4
-    
+
     userdata4 <- matrix(nrow = 32, ncol = 6)
     userdata4[, 1] <- input$monitorname4 ### change monitor name
     userdata4[, 2] <- as.character(input$startdatetime4) ### start date of recording time is ZT0
@@ -94,7 +94,7 @@ shinyServer(function(input, output, session) {
     userdata4[(9:16), 6] <- input$replicate4_2
     userdata4[(17:24), 6] <- input$replicate4_3
     userdata4[(25:32), 6] <- input$replicate4_4
-    
+
     userdata5 <- matrix(nrow = 32, ncol = 6)
     userdata5[, 1] <- input$monitorname5 ### change monitor name
     userdata5[, 2] <- as.character(input$startdatetime5) ### start date of recording time is ZT0
@@ -108,7 +108,7 @@ shinyServer(function(input, output, session) {
     userdata5[(9:16), 6] <- input$replicate5_2
     userdata5[(17:24), 6] <- input$replicate5_3
     userdata5[(25:32), 6] <- input$replicate5_4
-    
+
     userdata6 <- matrix(nrow = 32, ncol = 6)
     userdata6[, 1] <- input$monitorname6 ### change monitor name
     userdata6[, 2] <- as.character(input$startdatetime6) ### start date of recording time is ZT0
@@ -122,7 +122,7 @@ shinyServer(function(input, output, session) {
     userdata6[(9:16), 6] <- input$replicate6_2
     userdata6[(17:24), 6] <- input$replicate6_3
     userdata6[(25:32), 6] <- input$replicate6_4
-    
+
     userdata7 <- matrix(nrow = 32, ncol = 6)
     userdata7[, 1] <- input$monitorname7 ### change monitor name
     userdata7[, 2] <- as.character(input$startdatetime7) ### start date of recording time is ZT0
@@ -136,7 +136,7 @@ shinyServer(function(input, output, session) {
     userdata7[(9:16), 6] <- input$replicate7_2
     userdata7[(17:24), 6] <- input$replicate7_3
     userdata7[(25:32), 6] <- input$replicate7_4
-    
+
     userdata8 <- matrix(nrow = 32, ncol = 6)
     userdata8[, 1] <- input$monitorname8 ### change monitor name
     userdata8[, 2] <- as.character(input$startdatetime8) ### start date of recording time is ZT0
@@ -150,7 +150,7 @@ shinyServer(function(input, output, session) {
     userdata8[(9:16), 6] <- input$replicate8_2
     userdata8[(17:24), 6] <- input$replicate8_3
     userdata8[(25:32), 6] <- input$replicate8_4
-    
+
     userdata9 <- matrix(nrow = 32, ncol = 6)
     userdata9[, 1] <- input$monitorname9 ### change monitor name
     userdata9[, 2] <- as.character(input$startdatetime9) ### start date of recording time is ZT0
@@ -164,7 +164,7 @@ shinyServer(function(input, output, session) {
     userdata9[(9:16), 6] <- input$replicate9_2
     userdata9[(17:24), 6] <- input$replicate9_3
     userdata9[(25:32), 6] <- input$replicate9_4
-    
+
     userdata10 <- matrix(nrow = 32, ncol = 6)
     userdata10[, 1] <- input$monitorname10 ### change monitor name
     userdata10[, 2] <- as.character(input$startdatetime10) ### start date of recording time is ZT0
@@ -178,7 +178,7 @@ shinyServer(function(input, output, session) {
     userdata10[(9:16), 6] <- input$replicate10_2
     userdata10[(17:24), 6] <- input$replicate10_3
     userdata10[(25:32), 6] <- input$replicate10_4
-    
+
     userdata11 <- matrix(nrow = 32, ncol = 6)
     userdata11[, 1] <- input$monitorname11 ### change monitor name
     userdata11[, 2] <- as.character(input$startdatetime11) ### start date of recording time is ZT0
@@ -192,7 +192,7 @@ shinyServer(function(input, output, session) {
     userdata11[(9:16), 6] <- input$replicate11_2
     userdata11[(17:24), 6] <- input$replicate11_3
     userdata11[(25:32), 6] <- input$replicate11_4
-    
+
     userdata12 <- matrix(nrow = 32, ncol = 6)
     userdata12[, 1] <- input$monitorname12 ### change monitor name
     userdata12[, 2] <- as.character(input$startdatetime12) ### start date of recording time is ZT0
@@ -274,27 +274,6 @@ shinyServer(function(input, output, session) {
     output$userdata <- renderTable({
       userdata
     })
-
-    # if (input$genotype == 1) {
-    #   toscale1 <- 1
-    # } else if (input$genotype == 2) {
-    #   toscale1 <- 2
-    # } else {
-    #   toscale1 <- 3
-    # }
-    # toscale1 <- input$genotype
-
-    # if (input$replicate == 1) {
-    #   toscale2 <- 3
-    # } else if (input$replicate == 2) {
-    #   toscale2 <- 6
-    # } else if (input$replicate == 3) {
-    #   toscale2 <- 9
-    # } else {
-    #   toscale2 <- 12
-    # }
-
-    # toscale2 <- input$replicate * input$genotype
 
     observeEvent(input$do, {
       withBusyIndicatorServer("do", {
@@ -438,12 +417,6 @@ shinyServer(function(input, output, session) {
         valid_ids <- lifespan_dt[lifespan > days(input$remove), id]
         dt_curated <- dt_curated[id %in% valid_ids]
         dt_curated <- dt_curated[t %between% c(days(input$start), days(input$end))]
-        # dt_curated <- dt_curated[, Day := (t / days(1)), by = id]
-        # dt_curated$Day <- ceiling(dt_curated$Day)
-        # dt_curated[, 5][dt_curated[, 5] == input$start] <- input$start + 1
-        # setkey(dt_curated, Day, id)
-        # # dt_curated[, normact := (activity / sum(activity)) * 100, by = .(id, Day)]
-        # setkey(dt_curated, id)
         setbehavr(dt_curated, metadata_proc)
         dt_curated[, uid := 1:.N, meta = T]
         dt_curated[, .(id, uid), meta = T]
@@ -460,7 +433,6 @@ shinyServer(function(input, output, session) {
         )
         bout_dt <- bout_analysis(asleep, dt_curated)
         bout_dt <- bout_dt[asleep == TRUE, -"asleep"]
-        # bout_dt[, .(n_bouts = .N, mean_bout_length = mean(duration)), by = id]
         bout_summary <- bout_dt[, .(
           latency = t[1], first_bout_length = duration[1],
           latency_to_longest_bout = t[which.max(duration)], length_longest_bout = max(duration),
@@ -475,36 +447,40 @@ shinyServer(function(input, output, session) {
         beepr::beep(sound = 10)
       })
 
-      # observeEvent(input$do6, {
-      # withBusyIndicatorServer("do6", {
-      output$alletho <- renderPlot(
-        {
-          req(input$meta)
-          alletho <- ggetho(dt, aes(z = asleep)) +
-            stat_ld_annotations(height = 0.03, l_duration = hours(input$light), period = hours(input$ldperiod)) +
-            stat_tile_etho() +
-            scale_fill_distiller(palette = "Blues") +
-            My_Theme
-          alletho
-        },
-        res = 100
-      )
-      # })
-      # })
+      observeEvent(input$alletho_height | input$alletho_width, {
+        output$alletho <- renderPlot(
+          {
+            req(input$meta)
+            alletho <- ggetho(dt, aes(z = asleep)) +
+              stat_ld_annotations(height = 0.03, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              stat_tile_etho() +
+              scale_fill_distiller(palette = "Blues") +
+              My_Theme
+            alletho
+          },
+          res = 100,
+          width = input$alletho_width,
+          height = input$alletho_height
+        )
+      })
 
-      output$curatedetho <- renderPlot(
-        {
-          req(input$meta)
-          ggetho(dt_curated, aes(z = asleep)) +
-            stat_ld_annotations(height = 0.03, l_duration = hours(input$light), period = hours(input$ldperiod)) +
-            stat_tile_etho() +
-            scale_fill_distiller(palette = "Blues") +
-            My_Theme
-        },
-        res = 100
-      )
+      observeEvent(input$curatedetho_width | input$curatedtho_height, {
+        output$curatedetho <- renderPlot(
+          {
+            req(input$meta)
+            ggetho(dt_curated, aes(z = asleep)) +
+              stat_ld_annotations(height = 0.03, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              stat_tile_etho() +
+              scale_fill_distiller(palette = "Blues") +
+              My_Theme
+          },
+          res = 100,
+          width = input$curatedetho_width,
+          height = input$curatedtho_height
+        )
+      })
 
-      observeEvent(input$popplot_height, {
+      observeEvent(input$popplot_height | input$popplot_width, {
         output$popplot <- renderPlot(
           {
             req(input$meta)
@@ -517,12 +493,12 @@ shinyServer(function(input, output, session) {
               facet_wrap(~ genotype + id + replicate, ncol = 1, scales = "free_y")
           },
           res = 70,
-          width = 1500,
+          width = input$popplot_width,
           height = input$genotype * input$popplot_height
         )
       })
 
-      observeEvent(input$popplotwrap_height, {
+      observeEvent(input$popplotwrap_height | input$popplotwrap_width, {
         output$popplotwrap <- renderPlot(
           {
             req(input$meta)
@@ -538,12 +514,12 @@ shinyServer(function(input, output, session) {
               facet_wrap(~ genotype + id + replicate, ncol = 4, scales = "free_y")
           },
           res = 70,
-          width = 1500,
+          width = input$popplotwrap_width,
           height = input$genotype * input$popplotwrap_height
         )
       })
 
-      observeEvent(input$popplot1_height, {
+      observeEvent(input$popplot1_height | input$popplot1_width, {
         output$popplot1 <- renderPlot(
           {
             req(input$meta)
@@ -554,15 +530,14 @@ shinyServer(function(input, output, session) {
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               My_Theme +
               facet_wrap(~replicate, ncol = 1, scales = "free_y")
-            # + theme(aspect.ratio = 0.2)
           },
           res = 70,
-          width = 1200,
+          width = input$popplot1_width,
           height = input$replicate * input$popplot1_height
         )
       })
 
-      observeEvent(input$popplotwrap1_height, {
+      observeEvent(input$popplotwrap1_height | input$popplotwrap1_width, {
         output$popplotwrap1 <- renderPlot(
           {
             req(input$meta)
@@ -576,42 +551,42 @@ shinyServer(function(input, output, session) {
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               My_Theme +
               facet_wrap(~replicate, ncol = 1, scales = "free_y")
-            # + theme(aspect.ratio = 0.2)
           },
           res = 70,
-          width = 1000,
+          width = input$popplotwrap1_width,
           height = input$replicate * input$popplotwrap1_height
         )
       })
 
-      output$popplotwrap1polar <- renderPlot(
-        {
-          req(input$meta)
-          ggetho(dt_curated, aes(y = asleep, colour = genotype),
-            time_wrap = hours(input$modtau), summary_time_window = mins(input$min)
-          ) +
-            stat_pop_etho(geom = "bar", alpha = 0.4) +
-            stat_ld_annotations(height = 1, alpha = .1, x_limits = c(0, hours(24)), outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
-            scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
-            scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-            scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-            My_Theme +
-            facet_wrap(~replicate, ncol = 1) +
-            coord_polar(clip = "off")
-        },
-        res = 70,
-        width = 700,
-        height = input$replicate * 700
-      )
+      observeEvent(input$popplotwrap1polar_height | input$popplotwrap1polar_width, {
+        output$popplotwrap1polar <- renderPlot(
+          {
+            req(input$meta)
+            ggetho(dt_curated, aes(y = asleep, colour = genotype),
+              time_wrap = hours(input$modtau), summary_time_window = mins(input$min)
+            ) +
+              stat_pop_etho(geom = "bar", alpha = 0.4) +
+              stat_ld_annotations(height = 1, alpha = .1, x_limits = c(0, hours(24)), outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              My_Theme +
+              facet_wrap(~replicate, ncol = 1) +
+              coord_polar(clip = "off")
+          },
+          res = 70,
+          width = input$popplotwrap1polar_width,
+          height = input$replicate * input$popplotwrap1polar_height
+        )
+      })
 
-      observeEvent(input$popplotwrapbox_height, {
+      observeEvent(input$popplotwrapbox_height | input$popplotwrapbox_width, {
         output$popplotwrapbox <- renderPlot(
           {
             req(input$meta)
-            ggplot(summary_dt_melted, aes(x = genotype, y = sleep_fraction, fill = genotype)) +
-              # geom_boxplot(outlier.colour = "red") +
-              geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
-              # geom_point(aes(color = genotype, fill = genotype), position = "jitter", alpha = 0.5, size =2) +
+            ggplot(summary_dt, aes(x = genotype, y = sleep_fraction_all, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +    ######if boxplot needed
+              geom_jitter(aes(colour = genotype, size = 2), alpha = .5, position = position_jitter(height = .1, width = .1)) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
               stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 3, shape = 23) +
               stat_summary(aes(label = round((..y..), 2), color = genotype),
@@ -625,19 +600,18 @@ shinyServer(function(input, output, session) {
               facet_wrap(~replicate, ncol = 1, scales = "free_y")
           },
           res = 70,
-          width = 1000,
+          width = input$popplotwrapbox_width,
           height = input$replicate * input$popplotwrapbox_height
         )
       })
 
-      observeEvent(input$popplotwrapboxmelt_height, {
+      observeEvent(input$popplotwrapboxmelt_height | input$popplotwrapboxmelt_width, {
         output$popplotwrapboxmelt <- renderPlot(
           {
             req(input$meta)
             ggplot(summary_dt_melted, aes(x = phase, y = sleep_fraction, fill = genotype)) +
-              # geom_boxplot(outlier.colour = "red") +
+              # geom_boxplot(outlier.colour = "red") +  ##########if boxplot needed
               geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
-              # geom_point(aes(color = genotype, fill = genotype), position = "jitter", alpha = 0.5, size =2) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
               stat_summary(
                 fun = mean, geom = "point", aes(color = genotype, group = genotype),
@@ -654,12 +628,12 @@ shinyServer(function(input, output, session) {
               facet_wrap(~replicate, ncol = 1, scales = "free_y")
           },
           res = 70,
-          width = 1000,
+          width = input$popplotwrapboxmelt_width,
           height = input$replicate * input$popplotwrapboxmelt_height
         )
       })
 
-      observeEvent(input$bout_height, {
+      observeEvent(input$bout_height | input$bout_width, {
         output$bout <- renderPlot(
           {
             req(input$meta)
@@ -673,12 +647,12 @@ shinyServer(function(input, output, session) {
               facet_wrap(~replicate, ncol = 1, scales = "free_y")
           },
           res = 70,
-          width = 1000,
+          width = input$bout_width,
           height = input$replicate * input$bout_height
         )
       })
 
-      observeEvent(input$boutsummary_height, {
+      observeEvent(input$boutsummary_height | input$boutsummary_width, {
         output$boutsummary <- renderPlot(
           {
             req(input$meta)
@@ -692,12 +666,12 @@ shinyServer(function(input, output, session) {
               My_Theme_2
           },
           res = 70,
-          width = 1000,
+          width = input$boutsummary_width,
           height = input$replicate * input$boutsummary_height
         )
       })
 
-      observeEvent(input$numbouts_height, {
+      observeEvent(input$numbouts_height | input$numbouts_width, {
         output$numbouts <- renderPlot(
           {
             req(input$meta)
@@ -720,12 +694,12 @@ shinyServer(function(input, output, session) {
               My_Theme_2
           },
           res = 70,
-          width = 700,
+          width = input$numbouts_width,
           height = input$replicate * input$numbouts_height
         )
       })
 
-      observeEvent(input$meanboutlength_height, {
+      observeEvent(input$meanboutlength_height | input$meanboutlength_width, {
         output$meanboutlength <- renderPlot(
           {
             req(input$meta)
@@ -748,19 +722,18 @@ shinyServer(function(input, output, session) {
               My_Theme_2
           },
           res = 70,
-          width = 700,
+          width = input$meanboutlength_width,
           height = input$replicate * input$meanboutlength_height
         )
       })
 
-      observeEvent(input$numbouts_ld_height, {
+      observeEvent(input$numbouts_ld_height | input$numbouts_ld_width, {
         output$numbouts_ld <- renderPlot(
           {
             req(input$meta)
             ggplot(overall_summary_new, aes(x = phase_day, y = n_bouts, fill = genotype)) +
-              # geom_boxplot(outlier.colour = "red") +
+              # geom_boxplot(outlier.colour = "red") +   #########if boxplots needed
               geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
-              # geom_point(aes(color = genotype, fill = genotype), position = "jitter", alpha = 0.5, size =2) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
               stat_summary(
                 fun = mean, geom = "point", aes(color = genotype, group = genotype),
@@ -778,19 +751,18 @@ shinyServer(function(input, output, session) {
               My_Theme_2
           },
           res = 70,
-          width = 700,
+          width = input$numbouts_ld_width,
           height = input$replicate * input$numbouts_ld_height
         )
       })
 
-      observeEvent(input$meanboutlength_ld_height, {
+      observeEvent(input$meanboutlength_ld_height | input$meanboutlength_ld_width, {
         output$meanboutlength_ld <- renderPlot(
           {
             req(input$meta)
             ggplot(overall_summary_new, aes(x = phase_day, y = mean_bout_length / 60, fill = genotype)) +
-              # geom_boxplot(outlier.colour = "red") +
+              # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
               geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
-              # geom_point(aes(color = genotype, fill = genotype), position = "jitter", alpha = 0.5, size =2) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
               stat_summary(
                 fun = mean, geom = "point", aes(color = genotype, group = genotype),
@@ -808,12 +780,12 @@ shinyServer(function(input, output, session) {
               My_Theme_2
           },
           res = 70,
-          width = 700,
+          width = input$meanboutlength_ld_width,
           height = input$replicate * input$meanboutlength_ld_height
         )
       })
 
-      observeEvent(input$meanboutlength_distrib_height, {
+      observeEvent(input$meanboutlength_distrib_height | input$meanboutlength_distrib_width, {
         output$meanboutlength_distrib <- renderPlot(
           {
             req(input$meta)
@@ -834,7 +806,7 @@ shinyServer(function(input, output, session) {
               My_Theme_2
           },
           res = 70,
-          width = 700,
+          width = input$meanboutlength_distrib_width,
           height = input$replicate * input$meanboutlength_distrib_height
         )
       })
