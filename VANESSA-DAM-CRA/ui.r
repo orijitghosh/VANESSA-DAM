@@ -195,7 +195,7 @@ shinyUI <-
           )
         ))
       ),
-      
+
       tabPanel(
         "Periodograms",
         icon = icon("chart-area"),
@@ -286,9 +286,16 @@ shinyUI <-
                   easyClose = TRUE,
                   fade = TRUE
                 ),
-              plotOutput(
-                "chisqperiodplotallwithpeaks"
-              ) %>% withLoader(type = "html", loader = "pacman")
+              mainPanel(
+                splitLayout(
+                  numericInput("chisqperiodplotallwithpeaks_height", "height", 50, 30, 100, 10),
+                  numericInput("chisqperiodplotallwithpeaks_width", "width", 1400, 900, 3000, 50)
+                ),
+                tags$hr(),
+                plotOutput(
+                  "chisqperiodplotallwithpeaks"
+                ) %>% withLoader(type = "html", loader = "pacman")
+              )
             ),
             tabPanel(
               "Periodogram average"
@@ -302,9 +309,16 @@ shinyUI <-
                   easyClose = TRUE,
                   fade = TRUE
                 ),
-              plotOutput(
-                "chisqperiodplotaverage"
-              ) %>% withLoader(type = "html", loader = "pacman")
+              mainPanel(
+                splitLayout(
+                  numericInput("chisqperiodplotaverage_height", "height", 500, 300, 1500, 50),
+                  numericInput("chisqperiodplotaverage_width", "width", 1400, 900, 3000, 50)
+                ),
+                tags$hr(),
+                plotOutput(
+                  "chisqperiodplotaverage"
+                ) %>% withLoader(type = "html", loader = "pacman")
+              )
             ),
             tabPanel(
               "Periods violin plot"
@@ -318,9 +332,16 @@ shinyUI <-
                   easyClose = TRUE,
                   fade = TRUE
                 ),
-              plotOutput(
-                "chisqperiodplotviolin",
-              ) %>% withLoader(type = "html", loader = "pacman")
+              mainPanel(
+                splitLayout(
+                  numericInput("chisqperiodplotviolin_height", "height", 500, 300, 1500, 50),
+                  numericInput("chisqperiodplotviolin_width", "width", 800, 400, 3000, 50)
+                ),
+                tags$hr(),
+                plotOutput(
+                  "chisqperiodplotviolin",
+                ) %>% withLoader(type = "html", loader = "pacman")
+              )
             ),
             tabPanel(
               "Periods distribution"
@@ -334,9 +355,16 @@ shinyUI <-
                   easyClose = TRUE,
                   fade = TRUE
                 ),
-              plotOutput(
-                "perioddistrib",
-              ) %>% withLoader(type = "html", loader = "pacman")
+              mainPanel(
+                splitLayout(
+                  numericInput("perioddistrib_height", "height", 500, 300, 1500, 50),
+                  numericInput("perioddistrib_width", "width", 800, 400, 3000, 50)
+                ),
+                tags$hr(),
+                plotOutput(
+                  "perioddistrib",
+                ) %>% withLoader(type = "html", loader = "pacman")
+              )
             ),
             tabPanel(
               "Download data"
@@ -380,19 +408,14 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            withBusyIndicatorUI(
-              actionBttn(
-                inputId = "do6",
-                label = "Show plot!",
-                style = "minimal",
-                color = "primary",
-                icon = icon("chart-bar")
-              )
-            ),
-            plotOutput("alletho",
-              height = "2500px",
-              width = "1500px"
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("alletho_height", "height", 2500, 1000, 10000, 50),
+                numericInput("alletho_width", "width", 1500, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput("alletho") %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "All actograms"
@@ -406,10 +429,14 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput("allacto",
-              height = "2500px",
-              width = "1500px"
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("allacto_height", "height", 2500, 1000, 10000, 50),
+                numericInput("allacto_width", "width", 1500, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput("allacto") %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Curated ethograms"
@@ -423,10 +450,14 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput("curatedetho",
-              height = "2500px",
-              width = "1500px"
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("curatedetho_height", "height", 2500, 1000, 10000, 50),
+                numericInput("curatedetho_width", "width", 1500, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput("curatedetho") %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Curated actograms"
@@ -440,10 +471,14 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput("curatedacto",
-              height = "2500px",
-              width = "1500px"
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("curatedacto_height", "height", 2500, 1000, 10000, 50),
+                numericInput("curatedacto_width", "width", 1500, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput("curatedacto") %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           "Batch actograms",
           tabPanel(
@@ -459,6 +494,10 @@ shinyUI <-
                 fade = TRUE
               ),
             mainPanel(
+              splitLayout(
+                numericInput("indiv_raw_height", "height", 600, 100, 1500, 50),
+                numericInput("indiv_raw_width", "width", 1000, 500, 5000, 50)
+              ),
               plotOutput(
                 "indiv_raw",
               ) %>% withLoader(type = "html", loader = "pacman")
@@ -477,6 +516,10 @@ shinyUI <-
                 fade = TRUE
               ),
             mainPanel(
+              splitLayout(
+                numericInput("indiv_avg_height", "height", 600, 100, 1500, 50),
+                numericInput("indiv_avg_width", "width", 1000, 500, 5000, 50)
+              ),
               plotOutput(
                 "indiv_avg",
               ) %>% withLoader(type = "html", loader = "pacman")
@@ -495,9 +538,16 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput(
-              "curatedactoraw"
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("curatedactoraw_height", "height", 70, 50, 100, 10),
+                numericInput("curatedactoraw_width", "width", 1600, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput(
+                "curatedactoraw"
+              ) %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "All actograms normalized"
@@ -511,9 +561,16 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput(
-              "curatedactoavg"
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("curatedactoavg_height", "height", 70, 50, 100, 10),
+                numericInput("curatedactoavg_width", "width", 1600, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput(
+                "curatedactoavg"
+              ) %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           "Profile panel for all individuals",
           tabPanel(
@@ -528,9 +585,16 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput(
-              "rawpro",
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("rawpro_height", "height", 50, 30, 100, 10),
+                numericInput("rawpro_width", "width", 1600, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput(
+                "rawpro",
+              ) %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Normalized profile individual"
@@ -544,9 +608,16 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput(
-              "avgpro",
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("avgpro_height", "height", 50, 30, 100, 10),
+                numericInput("avgpro_width", "width", 1600, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput(
+                "avgpro",
+              ) %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           "Day wise average profiles",
           tabPanel(
@@ -561,9 +632,16 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput(
-              "avgdaywisepro1_raw",
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("avgdaywisepro1_raw_height", "height", 500, 100, 1000, 50),
+                numericInput("avgdaywisepro1_raw_width", "width", 1500, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput(
+                "avgdaywisepro1_raw",
+              ) %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Average profile day wise normalized"
@@ -577,9 +655,16 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput(
-              "avgdaywisepro1",
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("avgdaywisepro1_height", "height", 500, 100, 1000, 50),
+                numericInput("avgdaywisepro1_width", "width", 1500, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput(
+                "avgdaywisepro1",
+              ) %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           "Average profiles",
           tabPanel(
@@ -594,9 +679,16 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput(
-              "rawpro1",
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("rawpro1_height", "height", 600, 100, 1500, 50),
+                numericInput("rawpro1_width", "width", 1500, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput(
+                "rawpro1",
+              ) %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Normalized profile"
@@ -610,9 +702,16 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput(
-              "avgpro1",
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("avgpro1_height", "height", 600, 100, 1500, 50),
+                numericInput("avgpro1_width", "width", 1500, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput(
+                "avgpro1",
+              ) %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Raw profile all replicate average"
@@ -626,9 +725,16 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput(
-              "rawpro1all",
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("rawpro1all_height", "height", 500, 100, 1500, 50),
+                numericInput("rawpro1all_width", "width", 1500, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput(
+                "rawpro1all",
+              ) %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Normalized profile all replicate average"
@@ -642,9 +748,16 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput(
-              "avgpro1all",
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("avgpro1all_height", "height", 500, 100, 1500, 50),
+                numericInput("avgpro1all_width", "width", 1500, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput(
+                "avgpro1all",
+              ) %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           "Circular average profiles",
           tabPanel(
@@ -659,9 +772,16 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput(
-              "avgprocircular",
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("avgprocircular_height", "height", 700, 500, 5000, 50),
+                numericInput("avgprocircular_width", "width", 700, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput(
+                "avgprocircular",
+              ) %>% withLoader(type = "html", loader = "pacman")
+            )
           ),
           tabPanel(
             "Average profile circular raw"
@@ -675,9 +795,16 @@ shinyUI <-
                 easyClose = TRUE,
                 fade = TRUE
               ),
-            plotOutput(
-              "avgprocircular_raw",
-            ) %>% withLoader(type = "html", loader = "pacman")
+            mainPanel(
+              splitLayout(
+                numericInput("avgprocircular_raw_height", "height", 700, 500, 5000, 50),
+                numericInput("avgprocircular_raw_width", "width", 700, 500, 5000, 50)
+              ),
+              tags$hr(),
+              plotOutput(
+                "avgprocircular_raw",
+              ) %>% withLoader(type = "html", loader = "pacman")
+            )
           )
           # )
           ,
@@ -714,18 +841,23 @@ shinyUI <-
             )
         ),
         mainPanel(
-          plotOutput("indiv1",
-            height = "600px",
-            width = "1200px"
-          ) %>% withLoader(type = "html", loader = "pacman"),
+          splitLayout(
+            numericInput("indiv1_height", "height", 600, 300, 5000, 50),
+            numericInput("indiv1_width", "width", 1200, 500, 5000, 50)
+          ),
+          tags$hr(),
+          plotOutput("indiv1") %>% withLoader(type = "html", loader = "pacman"),
+          tags$hr(),
+          splitLayout(
+            numericInput("chisqperiodplotallwithpeaks1_height", "height", 350, 200, 5000, 50),
+            numericInput("chisqperiodplotallwithpeaks1_width", "width", 900, 300, 5000, 50)
+          ),
           plotOutput(
-            "chisqperiodplotallwithpeaks1",
-            height = "350px",
-            width = "900px"
+            "chisqperiodplotallwithpeaks1"
           ) %>% withLoader(type = "html", loader = "pacman")
         )
       ),
-            tabPanel(
+      tabPanel(
         "Data formatting",
         icon = icon("database"),
         sidebarPanel(
@@ -1089,15 +1221,6 @@ shinyUI <-
           width = 12,
           div(
             style = "overflow-x: scroll",
-            # withBusyIndicatorUI(
-            #   actionBttn(
-            #     inputId = "update_metadata",
-            #     label = "Update metadata!",
-            #     style = "minimal",
-            #     color = "primary",
-            #     icon = icon("calculator")
-            #   )
-            # ),
             tableOutput("userdata") %>% withLoader(type = "html", loader = "pacman")
           )
         ))
@@ -1165,8 +1288,8 @@ shinyUI <-
           tabPanel(
             "CWT wavelet power for period",
             plotOutput("plot_CWT_waveletpower",
-                       height = "550px",
-                       width = "1200px"
+              height = "550px",
+              width = "1200px"
             ) %>% withLoader(type = "html", loader = "pacman")
           )
         ))
@@ -1382,77 +1505,6 @@ shinyUI <-
             ) %>% withLoader(type = "html", loader = "pacman")
           )
         ))
-      ),
-      
-      tabPanel(
-        "Plot height Customization",
-        icon = icon("hammer"),
-        useShinyalert(),
-        sidebarPanel(
-          width = 4,
-          numericInput(
-            "curatedactoraw_height",
-            "Height of individual actograms raw",
-            70, 50, 100
-          ),
-          numericInput(
-            "curatedactoavg_height",
-            "Height of individual actograms normalized",
-            70, 50, 100
-          ),
-          numericInput(
-            "rawpro_height",
-            "Height of individual profiles raw",
-            50, 30, 100
-          ),
-          numericInput(
-            "avgpro_height",
-            "Height of individual profiles normalized",
-            50, 30, 100
-          ),
-          numericInput(
-            "avgdaywisepro1_height",
-            "Height of daywise profile normalized",
-            500, 100, 1000
-          )
-        ),
-        sidebarPanel(
-          width = 4,
-          
-          numericInput(
-            "avgdaywisepro1_raw_height",
-            "Height of daywise profile raw",
-            500, 100, 1000
-          ),
-          numericInput(
-            "indiv_raw_height",
-            "Height of batch actogram raw",
-            600, 100, 1500
-          ),
-          numericInput(
-            "indiv_avg_height",
-            "Height of batch actogram normalized",
-            600, 100, 1500
-          )
-        ),
-        sidebarPanel(
-          width = 4,
-          numericInput(
-            "rawpro1_height",
-            "Height of average profile raw",
-            600, 100, 1500
-          ),
-          numericInput(
-            "avgpro1_height",
-            "Height of average profile normalized",
-            600, 100, 1500
-          ),
-          numericInput(
-            "chisqperiodplotallwithpeaks_height",
-            "Height of all period power",
-            50, 30, 100
-          )
-        )
       )
     )
   )

@@ -19,7 +19,7 @@ library(shinyFiles)
 library(fs)
 shinyServer(function(input, output, session) {
   shinyalert(
-    title = "Visual ANalysis of timE SerieS dAta - Drosophila Activity Monitors (VANESSA-DAM) for circadian rhythm analysis!",
+    title = "Visualization and ANalysis of timE SerieS dAta - Drosophila Activity Monitors (VANESSA-DAM) for circadian rhythm analysis!",
     text = "<b>This app requires a metadata file for your monitors, to make the metadata files, first visit the Data formatting tab. The metadata files will be created in the home folder of the app. Right now simultaneous analysis and visualization upto twelve genotypes are supported. Contact <i>arijitghosh2009@gmail.com</i> for bugs, suggestions, troubleshooting and customizations.</b>",
     closeOnEsc = TRUE,
     closeOnClickOutside = FALSE,
@@ -163,7 +163,7 @@ shinyServer(function(input, output, session) {
     userdata5[(9:16), 6] <- input$replicate5_2
     userdata5[(17:24), 6] <- input$replicate5_3
     userdata5[(25:32), 6] <- input$replicate5_4
-    
+
     userdata6 <- matrix(nrow = 32, ncol = 6)
     userdata6[, 1] <- input$monitorname6 ### change monitor name
     userdata6[, 2] <- as.character(input$startdatetime6) ### start date of recording time is ZT0
@@ -177,7 +177,7 @@ shinyServer(function(input, output, session) {
     userdata6[(9:16), 6] <- input$replicate6_2
     userdata6[(17:24), 6] <- input$replicate6_3
     userdata6[(25:32), 6] <- input$replicate6_4
-    
+
     userdata7 <- matrix(nrow = 32, ncol = 6)
     userdata7[, 1] <- input$monitorname7 ### change monitor name
     userdata7[, 2] <- as.character(input$startdatetime7) ### start date of recording time is ZT0
@@ -191,7 +191,7 @@ shinyServer(function(input, output, session) {
     userdata7[(9:16), 6] <- input$replicate7_2
     userdata7[(17:24), 6] <- input$replicate7_3
     userdata7[(25:32), 6] <- input$replicate7_4
-    
+
     userdata8 <- matrix(nrow = 32, ncol = 6)
     userdata8[, 1] <- input$monitorname8 ### change monitor name
     userdata8[, 2] <- as.character(input$startdatetime8) ### start date of recording time is ZT0
@@ -205,7 +205,7 @@ shinyServer(function(input, output, session) {
     userdata8[(9:16), 6] <- input$replicate8_2
     userdata8[(17:24), 6] <- input$replicate8_3
     userdata8[(25:32), 6] <- input$replicate8_4
-    
+
     userdata9 <- matrix(nrow = 32, ncol = 6)
     userdata9[, 1] <- input$monitorname9 ### change monitor name
     userdata9[, 2] <- as.character(input$startdatetime9) ### start date of recording time is ZT0
@@ -219,7 +219,7 @@ shinyServer(function(input, output, session) {
     userdata9[(9:16), 6] <- input$replicate9_2
     userdata9[(17:24), 6] <- input$replicate9_3
     userdata9[(25:32), 6] <- input$replicate9_4
-    
+
     userdata10 <- matrix(nrow = 32, ncol = 6)
     userdata10[, 1] <- input$monitorname10 ### change monitor name
     userdata10[, 2] <- as.character(input$startdatetime10) ### start date of recording time is ZT0
@@ -233,7 +233,7 @@ shinyServer(function(input, output, session) {
     userdata10[(9:16), 6] <- input$replicate10_2
     userdata10[(17:24), 6] <- input$replicate10_3
     userdata10[(25:32), 6] <- input$replicate10_4
-    
+
     userdata11 <- matrix(nrow = 32, ncol = 6)
     userdata11[, 1] <- input$monitorname11 ### change monitor name
     userdata11[, 2] <- as.character(input$startdatetime11) ### start date of recording time is ZT0
@@ -247,7 +247,7 @@ shinyServer(function(input, output, session) {
     userdata11[(9:16), 6] <- input$replicate11_2
     userdata11[(17:24), 6] <- input$replicate11_3
     userdata11[(25:32), 6] <- input$replicate11_4
-    
+
     userdata12 <- matrix(nrow = 32, ncol = 6)
     userdata12[, 1] <- input$monitorname12 ### change monitor name
     userdata12[, 2] <- as.character(input$startdatetime12) ### start date of recording time is ZT0
@@ -329,31 +329,12 @@ shinyServer(function(input, output, session) {
     output$userdata <- renderTable({
       userdata
     })
-  # })
 
-    # if (input$genotype == 1) {
-    #   toscale1 <- 1
-    # } else if (input$genotype == 2) {
-    #   toscale1 <- 2
-    # } else {
-    #   toscale1 <- 3
-    # }
     toscale1 <- input$genotype
-
-    # if (input$replicate == 1) {
-    #   toscale2 <- 3
-    # } else if (input$replicate == 2) {
-    #   toscale2 <- 6
-    # } else if (input$replicate == 3) {
-    #   toscale2 <- 9
-    # } else {
-    #   toscale2 <- 12
-    # }
 
     toscale2 <- input$replicate * input$genotype
 
     observeEvent(input$do, {
-      # userdata <<- userdata
       withBusyIndicatorServer("do", {
         write.csv(
           userdata,
@@ -410,97 +391,109 @@ shinyServer(function(input, output, session) {
         beepr::beep(sound = 10)
       })
 
-      observeEvent(input$do6, {
-        withBusyIndicatorServer("do6", {
-          output$alletho <- renderPlot(
-            {
-              req(input$meta)
-              alletho <-
-                ggetho(dt,
-                  aes(z = activity),
-                  summary_time_window = mins(input$min)
-                ) +
-                stat_ld_annotations(
-                  height = 0.01,
-                  l_duration = hours(input$light),
-                  period = hours(input$ldperiod)
-                ) +
-                stat_tile_etho() +
-                My_Theme +
-                scale_fill_distiller(palette = "Blues")
-              alletho
-            },
-            res = 100
-          )
-        })
+      observeEvent(input$alletho_height | input$alletho_width, {
+        output$alletho <- renderPlot(
+          {
+            req(input$meta)
+            alletho <-
+              ggetho(dt,
+                aes(z = activity),
+                summary_time_window = mins(input$min)
+              ) +
+              stat_ld_annotations(
+                height = 0.01,
+                l_duration = hours(input$light),
+                period = hours(input$ldperiod)
+              ) +
+              stat_tile_etho() +
+              My_Theme +
+              scale_fill_distiller(palette = "Blues")
+            alletho
+          },
+          res = 100,
+          width = input$alletho_width,
+          height = input$alletho_height
+        )
       })
 
-      output$allacto <- renderPlot(
-        {
-          req(input$meta)
-          alletho <-
-            ggetho(dt, aes(z = activity), summary_time_window = mins(input$min)) +
-            stat_ld_annotations(
-              height = 0.005,
-              alpha = 0.05,
-              outline = NA,
-              l_duration = hours(input$light),
-              period = hours(input$ldperiod)
-            ) +
-            stat_bar_tile_etho() +
-            My_Theme
-          alletho
-        },
-        res = 100
-      )
+      observeEvent(input$allacto_height | input$allacto_width, {
+        output$allacto <- renderPlot(
+          {
+            req(input$meta)
+            alletho <-
+              ggetho(dt, aes(z = activity), summary_time_window = mins(input$min)) +
+              stat_ld_annotations(
+                height = 0.005,
+                alpha = 0.05,
+                outline = NA,
+                l_duration = hours(input$light),
+                period = hours(input$ldperiod)
+              ) +
+              stat_bar_tile_etho() +
+              My_Theme
+            alletho
+          },
+          res = 100,
+          width = input$allacto_width,
+          height = input$allacto_height
+        )
+      })
 
-      output$curatedetho <- renderPlot(
-        {
-          req(input$meta)
-          ggetho(dt_curated,
-            aes(z = activity),
-            summary_time_window = mins(input$min)
-          ) +
-            stat_ld_annotations(
-              height = 0.01,
-              l_duration = hours(input$light),
-              period = hours(input$ldperiod)
-            ) +
-            stat_tile_etho() +
-            My_Theme +
-            scale_fill_distiller(palette = "Blues")
-        },
-        res = 100
-      )
-
-      output$curatedacto <- renderPlot(
-        {
-          req(input$meta)
-          alletho <-
+      observeEvent(input$curatedetho_height | input$curatedetho_width, {
+        output$curatedetho <- renderPlot(
+          {
+            req(input$meta)
             ggetho(dt_curated,
               aes(z = activity),
               summary_time_window = mins(input$min)
             ) +
-            stat_ld_annotations(
-              height = 0.005,
-              alpha = 0.05,
-              outline = NA,
-              l_duration = hours(input$light),
-              period = hours(input$ldperiod)
-            ) +
-            stat_bar_tile_etho() +
-            My_Theme
-          alletho
-        },
-        res = 100
-      )
+              stat_ld_annotations(
+                height = 0.01,
+                l_duration = hours(input$light),
+                period = hours(input$ldperiod)
+              ) +
+              stat_tile_etho() +
+              My_Theme +
+              scale_fill_distiller(palette = "Blues")
+          },
+          res = 100,
+          width = input$curatedetho_width,
+          height = input$curatedetho_height
+        )
+      })
+
+      observeEvent(input$curatedacto_height | input$curatedacto_width, {
+        output$curatedacto <- renderPlot(
+          {
+            req(input$meta)
+            alletho <-
+              ggetho(dt_curated,
+                aes(z = activity),
+                summary_time_window = mins(input$min)
+              ) +
+              stat_ld_annotations(
+                height = 0.005,
+                alpha = 0.05,
+                outline = NA,
+                l_duration = hours(input$light),
+                period = hours(input$ldperiod)
+              ) +
+              stat_bar_tile_etho() +
+              My_Theme
+            alletho
+          },
+          res = 100,
+          width = input$curatedacto_width,
+          height = input$curatedacto_height
+        )
+      })
 
       toscale <-
         nrow(as.matrix(as.character(unique(
           dt_curated$id
         ))))
 
-      observeEvent(input$curatedactoraw_height, {
+      observeEvent(input$curatedactoraw_height | input$curatedactoraw_width, {
         output$curatedactoraw <- renderPlot(
           {
             req(input$meta)
@@ -525,14 +518,14 @@ shinyServer(function(input, output, session) {
               My_Theme
           },
           res = 100,
-          width = 1600,
+          width = input$curatedactoraw_width,
           height = (toscale * input$curatedactoraw_height)
         )
       })
 
 
 
-      observeEvent(input$curatedactoavg_height, {
+      observeEvent(input$curatedactoavg_height | input$curatedactoavg_width, {
         output$curatedactoavg <- renderPlot(
           {
             req(input$meta)
@@ -555,12 +548,12 @@ shinyServer(function(input, output, session) {
               My_Theme
           },
           res = 100,
-          width = 1600,
+          width = input$curatedactoavg_width,
           height = (toscale * input$curatedactoavg_height)
         )
       })
 
-      observeEvent(input$rawpro_height, {
+      observeEvent(input$rawpro_height | input$rawpro_width, {
         output$rawpro <- renderPlot(
           {
             req(input$meta)
@@ -589,12 +582,12 @@ shinyServer(function(input, output, session) {
               My_Theme
           },
           res = 100,
-          width = 1600,
+          width = input$rawpro_width,
           height = (toscale * input$rawpro_height)
         )
       })
 
-      observeEvent(input$avgpro_height, {
+      observeEvent(input$avgpro_height | input$avgpro_width, {
         output$avgpro <- renderPlot(
           {
             req(input$meta)
@@ -623,12 +616,12 @@ shinyServer(function(input, output, session) {
               My_Theme
           },
           res = 100,
-          width = 1600,
+          width = input$avgpro_width,
           height = (toscale * input$avgpro_height)
         )
       })
 
-      observeEvent(input$avgdaywisepro1_height, {
+      observeEvent(input$avgdaywisepro1_height | input$avgdaywisepro1_width, {
         output$avgdaywisepro1 <- renderPlot(
           {
             req(input$meta)
@@ -656,12 +649,12 @@ shinyServer(function(input, output, session) {
               My_Theme
           },
           res = 100,
-          width = 1500,
+          width = input$avgdaywisepro1_width,
           height = (input$replicate * input$avgdaywisepro1_height)
         )
       })
 
-      observeEvent(input$avgdaywisepro1_raw_height, {
+      observeEvent(input$avgdaywisepro1_raw_height | input$avgdaywisepro1_raw_width, {
         output$avgdaywisepro1_raw <- renderPlot(
           {
             req(input$meta)
@@ -689,12 +682,12 @@ shinyServer(function(input, output, session) {
               My_Theme
           },
           res = 100,
-          width = 1500,
+          width = input$avgdaywisepro1_raw_width,
           height = (input$replicate * input$avgdaywisepro1_raw_height)
         )
       })
 
-      observeEvent(input$rawpro1_height, {
+      observeEvent(input$rawpro1_height | input$rawpro1_width, {
         output$rawpro1 <- renderPlot(
           {
             req(input$meta)
@@ -723,12 +716,12 @@ shinyServer(function(input, output, session) {
               My_Theme
           },
           res = 100,
-          width = 1500,
+          width = input$rawpro1_width,
           height = (input$replicate * input$rawpro1_height)
         )
       })
 
-      observeEvent(input$avgpro1_height, {
+      observeEvent(input$avgpro1_height | input$avgpro1_width, {
         output$avgpro1 <- renderPlot(
           {
             req(input$meta)
@@ -757,141 +750,149 @@ shinyServer(function(input, output, session) {
               My_Theme
           },
           res = 100,
-          width = 1500,
+          width = input$avgpro1_width,
           height = (input$replicate * input$avgpro1_height)
         )
       })
 
-      output$rawpro1all <- renderPlot(
-        {
-          req(input$meta)
-          ggetho(
-            dt_curated,
-            aes(
-              x = t,
-              y = activity,
-              colour = genotype
-            ),
-            time_wrap = hours(input$modtau),
-            summary_time_window = mins(input$min),
-            time_offset = hours(6)
-          ) +
-            stat_ld_annotations(
-              height = 1,
-              alpha = 0.1,
-              outline = NA,
-              l_duration = hours(input$light),
-              period = hours(input$ldperiod)
+      observeEvent(input$rawpro1all_height | input$rawpro1all_width, {
+        output$rawpro1all <- renderPlot(
+          {
+            req(input$meta)
+            ggetho(
+              dt_curated,
+              aes(
+                x = t,
+                y = activity,
+                colour = genotype
+              ),
+              time_wrap = hours(input$modtau),
+              summary_time_window = mins(input$min),
+              time_offset = hours(6)
             ) +
-            stat_pop_etho() +
-            scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-            scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-            My_Theme
-        },
-        res = 100,
-        width = 1500,
-        height = 500
-      )
+              stat_ld_annotations(
+                height = 1,
+                alpha = 0.1,
+                outline = NA,
+                l_duration = hours(input$light),
+                period = hours(input$ldperiod)
+              ) +
+              stat_pop_etho() +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              My_Theme
+          },
+          res = 100,
+          width = input$rawpro1all_width,
+          height = input$rawpro1all_height
+        )
+      })
 
-      output$avgpro1all <- renderPlot(
-        {
-          req(input$meta)
-          ggetho(
-            dt_curated,
-            aes(
-              x = t,
-              y = normact,
-              colour = genotype
-            ),
-            time_wrap = hours(input$modtau),
-            summary_time_window = mins(input$min),
-            time_offset = hours(6)
-          ) +
-            stat_ld_annotations(
-              height = 1,
-              alpha = 0.1,
-              outline = NA,
-              l_duration = hours(input$light),
-              period = hours(input$ldperiod)
+      observeEvent(input$avgpro1all_height | input$avgpro1all_width, {
+        output$avgpro1all <- renderPlot(
+          {
+            req(input$meta)
+            ggetho(
+              dt_curated,
+              aes(
+                x = t,
+                y = normact,
+                colour = genotype
+              ),
+              time_wrap = hours(input$modtau),
+              summary_time_window = mins(input$min),
+              time_offset = hours(6)
             ) +
-            stat_pop_etho() +
-            scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-            scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-            My_Theme
-        },
-        res = 100,
-        width = 1500,
-        height = 500
-      )
+              stat_ld_annotations(
+                height = 1,
+                alpha = 0.1,
+                outline = NA,
+                l_duration = hours(input$light),
+                period = hours(input$ldperiod)
+              ) +
+              stat_pop_etho() +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              My_Theme
+          },
+          res = 100,
+          width = input$avgpro1all_width,
+          height = input$avgpro1all_height
+        )
+      })
 
 
-      output$avgprocircular <- renderPlot(
-        {
-          req(input$meta)
-          ggetho(
-            dt_curated,
-            aes(
-              x = t,
-              y = normact,
-              colour = genotype
-            ),
-            time_wrap = hours(input$modtau),
-            summary_time_window = mins(input$min)
-          ) +
-            stat_ld_annotations(
-              height = .3,
-              alpha = .1,
-              x_limits = c(0, hours(24)),
-              outline = NA,
-              l_duration = hours(input$light),
-              period = hours(input$ldperiod)
+      observeEvent(input$avgprocircular_height | input$avgprocircular_width, {
+        output$avgprocircular <- renderPlot(
+          {
+            req(input$meta)
+            ggetho(
+              dt_curated,
+              aes(
+                x = t,
+                y = normact,
+                colour = genotype
+              ),
+              time_wrap = hours(input$modtau),
+              summary_time_window = mins(input$min)
             ) +
-            stat_pop_etho(geom = "bar", alpha = 0.4) +
-            facet_wrap(~replicate, ncol = 1) +
-            scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-            scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-            My_Theme +
-            coord_polar(clip = "off")
-        },
-        res = 100,
-        width = 1500,
-        height = (input$replicate * 1000)
-      )
+              stat_ld_annotations(
+                height = .3,
+                alpha = .1,
+                x_limits = c(0, hours(24)),
+                outline = NA,
+                l_duration = hours(input$light),
+                period = hours(input$ldperiod)
+              ) +
+              stat_pop_etho(geom = "bar", alpha = 0.4) +
+              facet_wrap(~replicate, ncol = 1) +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              My_Theme +
+              coord_polar(clip = "off")
+          },
+          res = 100,
+          width = input$avgprocircular_width,
+          height = (input$replicate * input$avgprocircular_height)
+        )
+      })
 
-      output$avgprocircular_raw <- renderPlot(
-        {
-          req(input$meta)
-          ggetho(
-            dt_curated,
-            aes(
-              x = t,
-              y = activity,
-              colour = genotype
-            ),
-            time_wrap = hours(input$modtau),
-            summary_time_window = mins(input$min)
-          ) +
-            stat_ld_annotations(
-              height = 3,
-              alpha = .1,
-              x_limits = c(0, hours(24)),
-              outline = NA,
-              l_duration = hours(input$light),
-              period = hours(input$ldperiod)
+      observeEvent(input$avgprocircular_raw_height | input$avgprocircular_raw_width, {
+        output$avgprocircular_raw <- renderPlot(
+          {
+            req(input$meta)
+            ggetho(
+              dt_curated,
+              aes(
+                x = t,
+                y = activity,
+                colour = genotype
+              ),
+              time_wrap = hours(input$modtau),
+              summary_time_window = mins(input$min)
             ) +
-            stat_pop_etho(geom = "bar", alpha = 0.4) +
-            facet_wrap(~replicate, ncol = 1) +
-            scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-            scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-            My_Theme +
-            coord_polar(clip = "off")
-        },
-        res = 100,
-        width = 1500,
-        height = (input$replicate * 1000)
-      )
+              stat_ld_annotations(
+                height = 3,
+                alpha = .1,
+                x_limits = c(0, hours(24)),
+                outline = NA,
+                l_duration = hours(input$light),
+                period = hours(input$ldperiod)
+              ) +
+              stat_pop_etho(geom = "bar", alpha = 0.4) +
+              facet_wrap(~replicate, ncol = 1) +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              My_Theme +
+              coord_polar(clip = "off")
+          },
+          res = 100,
+          width = input$avgprocircular_raw_width,
+          height = (input$replicate * input$avgprocircular_raw_height)
+        )
+      })
 
-      observeEvent(input$indiv_raw_height, {
+      observeEvent(input$indiv_raw_height | input$indiv_raw_width, {
         output$indiv_raw <- renderPlot(
           {
             req(input$meta)
@@ -914,12 +915,12 @@ shinyServer(function(input, output, session) {
               My_Theme1
           },
           res = 300,
-          width = 1000,
+          width = input$indiv_raw_width,
           height = (toscale2 * input$indiv_raw_height)
         )
       })
 
-      observeEvent(input$indiv_avg_height, {
+      observeEvent(input$indiv_avg_height | input$indiv_avg_width, {
         output$indiv_avg <- renderPlot(
           {
             req(input$meta)
@@ -942,55 +943,65 @@ shinyServer(function(input, output, session) {
               My_Theme1
           },
           res = 300,
-          width = 1000,
+          width = input$indiv_avg_width,
           height = (toscale2 * input$indiv_avg_height)
         )
       })
 
-      observeEvent(input$show, {
+      observeEvent(input$show | input$indiv1_height | input$indiv1_width, {
         l <- as.matrix(as.character(unique(dt_curated$id)))
         if (input$ind_act_met == 1) {
-          output$indiv1 <- renderPlot({
-            req(input$meta)
-            ggetho(
-              dt_curated[id == l[input$ind]],
-              aes(x = t, z = activity),
-              multiplot = 2,
-              multiplot_period = hours(input$modtau),
-              summary_time_window = mins(input$min)
-            ) + ### can change to activity if raw needed or keep it normact
-              stat_ld_annotations(
-                height = 1,
-                alpha = 0.05,
-                outline = NA,
-                l_duration = hours(input$light),
-                period = hours(input$ldperiod)
-              ) +
-              stat_bar_tile_etho() +
-              facet_wrap(~ genotype + uid, ncol = 1, scales = "free_y") +
-              My_Theme
-          })
+          output$indiv1 <- renderPlot(
+            {
+              req(input$meta)
+              ggetho(
+                dt_curated[id == l[input$ind]],
+                aes(x = t, z = activity),
+                multiplot = 2,
+                multiplot_period = hours(input$modtau),
+                summary_time_window = mins(input$min)
+              ) + ### can change to activity if raw needed or keep it normact
+                stat_ld_annotations(
+                  height = 1,
+                  alpha = 0.05,
+                  outline = NA,
+                  l_duration = hours(input$light),
+                  period = hours(input$ldperiod)
+                ) +
+                stat_bar_tile_etho() +
+                facet_wrap(~ genotype + uid, ncol = 1, scales = "free_y") +
+                My_Theme
+            },
+            res = 100,
+            width = input$indiv1_width,
+            height = input$indiv1_height
+          )
         } else {
-          output$indiv1 <- renderPlot({
-            req(input$meta)
-            ggetho(
-              dt_curated[id == l[input$ind]],
-              aes(x = t, z = normact),
-              multiplot = 2,
-              multiplot_period = hours(input$modtau),
-              summary_time_window = mins(input$min)
-            ) + ### can change to activity if raw needed or keep it normact
-              stat_ld_annotations(
-                height = 1,
-                alpha = 0.05,
-                outline = NA,
-                l_duration = hours(input$light),
-                period = hours(input$ldperiod)
-              ) +
-              stat_bar_tile_etho() +
-              facet_wrap(~ genotype + uid, ncol = 1, scales = "free_y") +
-              My_Theme
-          })
+          output$indiv1 <- renderPlot(
+            {
+              req(input$meta)
+              ggetho(
+                dt_curated[id == l[input$ind]],
+                aes(x = t, z = normact),
+                multiplot = 2,
+                multiplot_period = hours(input$modtau),
+                summary_time_window = mins(input$min)
+              ) + ### can change to activity if raw needed or keep it normact
+                stat_ld_annotations(
+                  height = 1,
+                  alpha = 0.05,
+                  outline = NA,
+                  l_duration = hours(input$light),
+                  period = hours(input$ldperiod)
+                ) +
+                stat_bar_tile_etho() +
+                facet_wrap(~ genotype + uid, ncol = 1, scales = "free_y") +
+                My_Theme
+            },
+            res = 100,
+            width = input$indiv1_width,
+            height = input$indiv1_height
+          )
         }
       })
 
@@ -1101,7 +1112,7 @@ shinyServer(function(input, output, session) {
           })
         })
 
-        observeEvent(input$chisqperiodplotallwithpeaks_height, {
+        observeEvent(input$chisqperiodplotallwithpeaks_height | input$chisqperiodplotallwithpeaks_width, {
           output$chisqperiodplotallwithpeaks <- renderPlot(
             {
               req(input$meta)
@@ -1116,7 +1127,7 @@ shinyServer(function(input, output, session) {
                 My_Theme
             },
             res = 100,
-            width = 1400,
+            width = input$chisqperiodplotallwithpeaks_width,
             height = (toscale * input$chisqperiodplotallwithpeaks_height)
           )
         })
@@ -1132,86 +1143,97 @@ shinyServer(function(input, output, session) {
           filter = list(position = "top", clear = FALSE, plain = TRUE)
         )
         ###########################
-        output$chisqperiodplotaverage <- renderPlot(
-          {
-            req(input$meta)
-            ggperio(
-              per_xsq_dt_chi_sq,
-              aes(x = period, y = power - signif_threshold, colour = genotype)
-            ) +
-              stat_pop_etho() +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y") +
-              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-              My_Theme
-          },
-          res = 100,
-          width = 1000,
-          height = (input$replicate * 500)
-        )
-
-
-        observeEvent(input$show, {
-          withBusyIndicatorServer("show", {
-            l1 <- as.matrix(as.character(unique(per_xsq_dt_chi_sq$id)))
-            output$chisqperiodplotallwithpeaks1 <- renderPlot({
+        observeEvent(input$chisqperiodplotaverage_height | input$chisqperiodplotaverage_width, {
+          output$chisqperiodplotaverage <- renderPlot(
+            {
               req(input$meta)
-              ggperio(per_xsq_dt_chi_sq[id == l1[input$ind]]) +
-                geom_line(aes(group = id, colour = genotype), size = 1) +
-                geom_peak(peak_rank = 1:2, col = "blue") +
-                geom_line(aes(y = signif_threshold), colour = "red") +
-                facet_wrap(~ genotype + uid, scales = "free_y") +
+              ggperio(
+                per_xsq_dt_chi_sq,
+                aes(x = period, y = power - signif_threshold, colour = genotype)
+              ) +
+                stat_pop_etho() +
+                facet_wrap(~replicate, ncol = 1, scales = "free_y") +
                 scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
                 scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
                 My_Theme
-            })
+            },
+            res = 100,
+            width = input$chisqperiodplotaverage_width,
+            height = (input$replicate * input$chisqperiodplotaverage_height)
+          )
+        })
+
+
+        observeEvent(input$show | input$chisqperiodplotallwithpeaks1_height | input$chisqperiodplotallwithpeaks1_width, {
+          withBusyIndicatorServer("show", {
+            l1 <- as.matrix(as.character(unique(per_xsq_dt_chi_sq$id)))
+            output$chisqperiodplotallwithpeaks1 <- renderPlot(
+              {
+                req(input$meta)
+                ggperio(per_xsq_dt_chi_sq[id == l1[input$ind]]) +
+                  geom_line(aes(group = id, colour = genotype), size = 1) +
+                  geom_peak(peak_rank = 1:2, col = "blue") +
+                  geom_line(aes(y = signif_threshold), colour = "red") +
+                  facet_wrap(~ genotype + uid, scales = "free_y") +
+                  scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+                  scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+                  My_Theme
+              },
+              res = 100,
+              width = input$chisqperiodplotallwithpeaks1_width,
+              height = input$chisqperiodplotallwithpeaks1_height
+            )
           })
         })
 
-        output$chisqperiodplotviolin <- renderPlot(
-          {
-            req(input$meta)
-            summary_dt <- rejoin(per_xsq_dt_chi_sq[peak == 1])
-            ggplot(summary_dt, aes(genotype, period, fill = genotype)) +
-              # geom_boxplot(outlier.colour = NA) +
-              geom_jitter(aes(size = power - signif_threshold), alpha = .5, position = position_jitter(0.15)) +
-              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
-              stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 3, shape = 23) +
-              stat_summary(aes(label = round((..y.. / 3600), 2), color = genotype), fun = mean, geom = "text", size = 5, vjust = -0.5) +
-              facet_wrap(~replicate, ncol = 1) +
-              scale_y_hours(name = "Period") +
-              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-              My_Theme
-          },
-          res = 100,
-          width = 800,
-          height = (input$replicate * 500)
-        )
+        observeEvent(input$chisqperiodplotviolin_height | input$chisqperiodplotviolin_width, {
+          output$chisqperiodplotviolin <- renderPlot(
+            {
+              req(input$meta)
+              summary_dt <- rejoin(per_xsq_dt_chi_sq[peak == 1])
+              ggplot(summary_dt, aes(genotype, period, fill = genotype)) +
+                # geom_boxplot(outlier.colour = NA) +    ##########if box plots needed
+                geom_point(aes(size = power - signif_threshold), alpha = .5, position = position_jitter(0.15)) +
+                geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+                stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 3, shape = 23) +
+                stat_summary(aes(label = round((..y.. / 3600), 2), color = genotype), fun = mean, geom = "text", size = 5, vjust = -0.5) +
+                facet_wrap(~replicate, ncol = 1) +
+                scale_y_hours(name = "Period") +
+                scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+                scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+                My_Theme
+            },
+            res = 100,
+            width = input$chisqperiodplotviolin_width,
+            height = (input$replicate * input$chisqperiodplotviolin_height)
+          )
+        })
 
-        output$perioddistrib <- renderPlot(
-          {
-            req(input$meta)
-            summary_dt <- rejoin(per_xsq_dt_chi_sq[peak == 1])
-            ggplot(summary_dt, aes((period / 3600), genotype, color = genotype, fill = genotype)) +
-              geom_density_ridges(
-                scale = 1, rel_min_height = 0.01, jittered_points = TRUE,
-                position = position_points_jitter(width = 0.2, height = 0),
-                point_shape = "|", point_size = 8, point_alpha = 1, alpha = .7
-              ) +
-              facet_wrap(~replicate, ncol = 1) +
-              scale_y_discrete(expand = c(0, 0)) + # will generally have to set the `expand` option
-              scale_x_continuous(expand = c(0, 0)) + # for both axes to remove unneeded padding
-              coord_cartesian(clip = "off") + # to avoid clipping of the very top of the top ridgeline
-              labs(x = "Period (h)", y = "Genotype") +
-              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-              My_Theme
-          },
-          res = 100,
-          width = 800,
-          height = (input$replicate * 500)
-        )
+        observeEvent(input$perioddistrib_height | input$perioddistrib_width, {
+          output$perioddistrib <- renderPlot(
+            {
+              req(input$meta)
+              summary_dt <- rejoin(per_xsq_dt_chi_sq[peak == 1])
+              ggplot(summary_dt, aes((period / 3600), genotype, color = genotype, fill = genotype)) +
+                geom_density_ridges(
+                  scale = 1, rel_min_height = 0.01, jittered_points = TRUE,
+                  position = position_points_jitter(width = 0.2, height = 0),
+                  point_shape = "|", point_size = 8, point_alpha = 1, alpha = .7
+                ) +
+                facet_wrap(~replicate, ncol = 1) +
+                scale_y_discrete(expand = c(0, 0)) + # will generally have to set the `expand` option
+                scale_x_continuous(expand = c(0, 0)) + # for both axes to remove unneeded padding
+                coord_cartesian(clip = "off") + # to avoid clipping of the very top of the top ridgeline
+                labs(x = "Period (h)", y = "Genotype") +
+                scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+                scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+                My_Theme
+            },
+            res = 100,
+            width = input$perioddistrib_width,
+            height = (input$replicate * input$perioddistrib_height)
+          )
+        })
         ###################################################################################
 
         #############
@@ -1529,7 +1551,7 @@ shinyServer(function(input, output, session) {
       # can happen when deployed).
       tempReport <- file.path(tempdir(), "report_smoothing.Rmd")
       file.copy("report_smoothing.Rmd", tempReport, overwrite = TRUE)
-      
+
       # Set up parameters to pass to Rmd document
       params <- list(
         raw_smooth = input$raw_smooth, startdatetime_smooth = input$startdatetime_smooth,
@@ -1537,14 +1559,14 @@ shinyServer(function(input, output, session) {
         bin_smooth = input$bin_smooth, bin_req_smooth = input$bin_req_smooth, n_smooth = input$n_smooth,
         W_smooth = input$W_smooth, b_smooth = input$b_smooth
       )
-      
+
       # Knit the document, passing in the `params` list, and eval it in a
       # child of the global environment (this isolates the code in the document
       # from the code in this app).
       rmarkdown::render(tempReport,
-                        output_file = file,
-                        params = params,
-                        envir = new.env(parent = globalenv())
+        output_file = file,
+        params = params,
+        envir = new.env(parent = globalenv())
       )
     }
   )
