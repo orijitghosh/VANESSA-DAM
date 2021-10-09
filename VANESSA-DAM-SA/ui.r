@@ -631,49 +631,6 @@ shinyUI <-
               plotOutput("act_index") %>% withLoader(type = "html", loader = "pacman")
             )
           ),
-          # ,
-          #   tabPanel(
-          #     "Sleep total"
-          #     %>%
-          #       helper(
-          #         type = "inline",
-          #         title = "",
-          #         content = c("Sleep total in minutes of different genotypes will be plotted as violin plots."),
-          #         size = "s",
-          #         buttonLabel = "Okay!",
-          #         easyClose = TRUE,
-          #         fade = TRUE
-          #       ),
-          #     mainPanel(
-          #       splitLayout(
-          #         numericInput("popplotwrapbox_total_height", "height", 700, 300, 2000, 50),
-          #         numericInput("popplotwrapbox_total_width", "width", 1000, 500, 10000, 50)
-          #       ),
-          #       tags$hr(),
-          #       plotOutput("popplotwrapbox_total") %>% withLoader(type = "html", loader = "pacman")
-          #     )
-          #   ),
-          #   tabPanel(
-          #     "Sleep total summary"
-          #     %>%
-          #       helper(
-          #         type = "inline",
-          #         title = "",
-          #         content = c("Sleep total in minutes in light and dark part of the day of different genotypes will be plotted as violin plots."),
-          #         size = "s",
-          #         buttonLabel = "Okay!",
-          #         easyClose = TRUE,
-          #         fade = TRUE
-          #       ),
-          #     mainPanel(
-          #       splitLayout(
-          #         numericInput("popplotwrapboxmelt_total_height", "height", 700, 300, 2000, 50),
-          #         numericInput("popplotwrapboxmelt_total_width", "width", 1000, 500, 10000, 50)
-          #       ),
-          #       tags$hr(),
-          #       plotOutput("popplotwrapboxmelt_total") %>% withLoader(type = "html", loader = "pacman")
-          #     )
-          #   ),
           widths = c(3, 9)
           # )
         )
