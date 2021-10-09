@@ -59,6 +59,7 @@ library(sleepr)
 library(behavr)
 library(dplyr)
 library(tidyr)
+library(ggforce)
 ```
 
 ### Do data pre-processing:
@@ -220,9 +221,8 @@ p <- ggperio(
 ```
 summary_dt <- rejoin(per_xsq_dt_chi_sq[peak == 1])
             p <- ggplot(summary_dt, aes(genotype, period, fill = genotype)) +
-              # geom_boxplot(outlier.colour = NA) +
-              geom_jitter(aes(size = power - signif_threshold), alpha = .5, position = position_jitter(0.15)) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              geom_sina(aes(color = genotype, size = power - signif_threshold,), alpha = .6) +
               stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 3, shape = 23) +
               stat_summary(aes(label = round((..y.. / 3600), 2), color = genotype), fun = mean, geom = "text", size = 5, vjust = -0.5) +
               facet_wrap(~replicate, ncol = 1) +

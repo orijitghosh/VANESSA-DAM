@@ -17,6 +17,7 @@ library(shinyWidgets)
 library(shinyhelper)
 library(shinyFiles)
 library(fs)
+library(ggforce)
 shinyServer(function(input, output, session) {
   shinyalert(
     title = "Visualization and ANalysis of timE SerieS dAta - Drosophila Activity Monitors (VANESSA-DAM) for circadian rhythm analysis!",
@@ -24,7 +25,6 @@ shinyServer(function(input, output, session) {
     closeOnEsc = TRUE,
     closeOnClickOutside = FALSE,
     html = TRUE,
-    # type = "info",
     showConfirmButton = TRUE,
     showCancelButton = FALSE,
     confirmButtonText = "Understood!",
@@ -375,15 +375,15 @@ shinyServer(function(input, output, session) {
         dt <- load_dam(metadata_proc)
         dt[, moving := activity > 0]
         dt_curated <- curate_dead_animals(dt)
+        dt_curated[, day := ceiling(t / days(1))]
+        dt_curated$day[dt_curated$day == 0] <- 1
+        setbehavr(dt_curated, metadata_proc)
         lifespan_dt <- dt_curated[, .(lifespan = max(t)), by = id]
         valid_ids <- lifespan_dt[lifespan > days(input$remove), id]
         dt_curated <- dt_curated[id %in% valid_ids]
-        dt_curated <- dt_curated[t %between% c(days(input$start), days(input$end))]
-        dt_curated <- dt_curated[, Day := (t / days(1)), by = id]
-        dt_curated$Day <- ceiling(dt_curated$Day)
-        dt_curated[, 5][dt_curated[, 5] == input$start] <- input$start + 1
-        setkey(dt_curated, Day, id)
-        dt_curated[, normact := (activity / sum(activity)) * 100, by = .(id, Day)]
+        dt_curated <- dt_curated[day %between% c(input$start, input$end)]
+        setkey(dt_curated, day, id)
+        dt_curated[, normact := (activity / sum(activity)) * 100, by = .(id, day)]
         setkey(dt_curated, id)
         setbehavr(dt_curated, metadata_proc)
         dt_curated[, uid := 1:.N, meta = T]
@@ -1193,10 +1193,16 @@ shinyServer(function(input, output, session) {
               summary_dt <- rejoin(per_xsq_dt_chi_sq[peak == 1])
               ggplot(summary_dt, aes(genotype, period, fill = genotype)) +
                 # geom_boxplot(outlier.colour = NA) +    ##########if box plots needed
-                geom_point(aes(size = power - signif_threshold), alpha = .5, position = position_jitter(0.15)) +
+                # geom_point(aes(size = power - signif_threshold, color = genotype, fill = genotype), alpha = .5, position = position_jitter(0.15)) +
+                scale_size_continuous(range = c(1, 3)) +
                 geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+                geom_sina(aes(color = genotype, size = power - signif_threshold, ), alpha = .6) +
                 stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 3, shape = 23) +
-                stat_summary(aes(label = round((..y.. / 3600), 2), color = genotype), fun = mean, geom = "text", size = 5, vjust = -0.5) +
+                {
+                  if (input$chisqperiodplotviolin_text == TRUE) {
+                    stat_summary(aes(label = round((..y.. / 3600), 2), color = genotype), fun = mean, geom = "text", size = 5, vjust = -0.5)
+                  }
+                } +
                 facet_wrap(~replicate, ncol = 1) +
                 scale_y_hours(name = "Period") +
                 scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +

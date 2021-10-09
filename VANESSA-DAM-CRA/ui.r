@@ -120,12 +120,12 @@ shinyUI <-
           numericInput(
             "start",
             "Starting day",
-            0, 1, 30
+            1, 1, 30
           ) %>%
             helper(
               type = "inline",
               title = "Starting day",
-              content = c("Subset your data, Starting day 1 will be 0. <i>leave out transition days</i>"),
+              content = c("Subset your data, Starting day 1 will be 1. <i>leave out transition days</i>"),
               size = "s",
               buttonLabel = "Okay!",
               easyClose = TRUE,
@@ -335,7 +335,12 @@ shinyUI <-
               mainPanel(
                 splitLayout(
                   numericInput("chisqperiodplotviolin_height", "height", 500, 300, 1500, 50),
-                  numericInput("chisqperiodplotviolin_width", "width", 800, 400, 3000, 50)
+                  numericInput("chisqperiodplotviolin_width", "width", 800, 400, 3000, 50),
+                  awesomeCheckbox(
+                    inputId = "chisqperiodplotviolin_text",
+                    label = "Print mean values on plot",
+                    value = TRUE
+                  )
                 ),
                 tags$hr(),
                 plotOutput(

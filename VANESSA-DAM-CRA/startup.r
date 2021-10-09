@@ -29,11 +29,14 @@ if (!require("lubridate")) install.packages("lubridate", dependencies = TRUE, IN
 if (!require("signal")) install.packages("signal", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
 if (!require("tidyr")) install.packages("tidyr", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
 if (!require("ggridges")) install.packages("ggridges", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
+if (!require("DT")) install.packages("DT", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
+if (!require("rmarkdown")) install.packages("rmarkdown", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
+if (!require("ggforce")) install.packages("ggforce", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
 
 if (is.installed("shiny") & is.installed("WaveletComp") & is.installed("ggetho") & is.installed("ggplot2") & is.installed("zeitgebr") & is.installed("readr") & is.installed("damr") & is.installed("Cairo") & is.installed("tidyr")
 & is.installed("sleepr") & is.installed("behavr") & is.installed("dplyr") & is.installed("shinyalert") & is.installed("colourpicker") & is.installed("beepr") & is.installed("showtext") & is.installed("data.table")
 & is.installed("shinydashboard") & is.installed("shinycustomloader") & is.installed("shinythemes") & is.installed("shinyWidgets") & is.installed("shinyhelper") & is.installed("shinyFiles") & is.installed("fs")
-& is.installed("signal") & is.installed("lubridate") & is.installed("pracma") & is.installed("ggridges")) {
+& is.installed("signal") & is.installed("lubridate") & is.installed("pracma") & is.installed("ggridges") & is.installed("DT") & is.installed("rmarkdown") & is.installed("ggforce")) {
   print(paste("Initialisation complete! VANESSA-DAM-CRA is now ready for use"), quote = F)
 } else {
   print(paste("Error: One or more packages may not have installed correctly"), quote = F)

@@ -41,11 +41,12 @@ library(data.table)
 library(ggplot2)
 library(dplyr)
 library(lubridate)
+library(pracma)
 ```
 
 ### Do data pre-processing:
 ```
-df <- read.delim("params$raw_smooth")
+df <- read.delim("params$raw_smooth", header = F)
 start_date_time <- lubridate::ymd_hms(params$startdatetime_smooth)
 end_date_time <- lubridate::ymd_hms(params$enddatetime_smooth)
 result_date_time_start <- lubridate::ymd_hms(params$resultdatetime_smooth)
@@ -149,6 +150,7 @@ pro_new_bf <- pro_sel_rowmean_bf[, c(1, ncol(pro_sel_rowmean_bf))]
           2:ncol(pro_sel_bf)
         )
       pro_sel_long_sorted_bf <- pro_sel_long_bf[order(pro_sel_long_bf$name), ]
+      plot_mean
 
       plot_all <- ggplot(pro_sel_long_sorted_bf, aes(x = pro_sel_long_sorted_bf$timestamp, y = pro_sel_long_sorted_bf$value)) +
         geom_line(color = pro_sel_long_sorted_bf$name, alpha = 0.8, size = 1) +
@@ -163,6 +165,7 @@ pro_new_bf <- pro_sel_rowmean_bf[, c(1, ncol(pro_sel_rowmean_bf))]
           colour = "black",
           fill = NA
         ))
+        plot_all
 write.csv(raw_new_smooth_bf, file = "smoothened_bf.csv", row.names = FALSE)
 ```
 ### For kernel smoothing:
@@ -202,6 +205,7 @@ pro_new_ks <- pro_sel_rowmean_ks[, c(1, ncol(pro_sel_rowmean_ks))]
           2:ncol(pro_sel_ks)
         )
       pro_sel_long_sorted_ks <- pro_sel_long_ks[order(pro_sel_long_ks$name), ]
+      plot_mean
 
       plot_all <- ggplot(pro_sel_long_sorted_ks, aes(x = pro_sel_long_sorted_ks$timestamp, y = pro_sel_long_sorted_ks$value)) +
         geom_line(color = pro_sel_long_sorted_ks$name, alpha = 0.8, size = 1) +
@@ -216,5 +220,6 @@ pro_new_ks <- pro_sel_rowmean_ks[, c(1, ncol(pro_sel_rowmean_ks))]
           colour = "black",
           fill = NA
         ))
+        plot_all
 write.csv(raw_new_smooth_ks, file = "smoothtened_ks.csv", row.names = FALSE)
 ```
