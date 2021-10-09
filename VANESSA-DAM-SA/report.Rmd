@@ -65,38 +65,65 @@ metadata <- fread("params$meta")
     dt <- load_dam(metadata_proc, FUN = sleepr::sleep_dam_annotation)
         dt[, moving := activity > 0]
         dt_curated <- curate_dead_animals(dt)
+        dt_curated[,day:=ceiling(t/days(1))]
+        dt_curated$day[dt_curated$day == 0] <- 1
+        dt_curated[,phase:=ifelse(t %% hours(params$ldperiod)>hours(params$light),"Dark","Light")]
+        dt_curated[,phase:=factor(phase, levels= c("Light","Dark"))]
+        setbehavr(dt_curated, metadata_proc)
         lifespan_dt <- dt_curated[, .(lifespan = max(t)), by = id]
         valid_ids <- lifespan_dt[lifespan > days(params$remove), id]
         dt_curated <- dt_curated[id %in% valid_ids]
-        dt_curated <- dt_curated[t %between% c(days(params$start), days(params$end))]
+        dt_curated <- dt_curated[day %between% c(params$start, params$end)]
         setbehavr(dt_curated, metadata_proc)
         dt_curated[, uid := 1:.N, meta = T]
         dt_curated[, .(id, uid), meta = T]
-        summary_dt <- rejoin(dt_curated[, .(sleep_fraction = mean(asleep)), by = id])
-        dt_curated[, phase := ifelse(t %% hours(params$ldperiod) < hours(params$light), "L", "D")]
-        summary_dt <- rejoin(dt_curated[, .(
+        summary_dt <- (dt_curated[, .(
           sleep_fraction_all = mean(asleep),
-          sleep_fraction_l = mean(asleep[phase == "L"]),
-          sleep_fraction_d = mean(asleep[phase == "D"])
-        ), by = id])
+          sleep_fraction_l = mean(asleep[phase == "Light"]),
+          sleep_fraction_d = mean(asleep[phase == "Dark"])
+        ), by = c("id", "day")])
+        summary_dt <- dt_curated[meta=T][summary_dt]
         summary_dt_melted <- melt(summary_dt,
-          measure.vars = patterns("sleep_fraction_"),
-          variable.name = "phase", value.name = "sleep_fraction"
+                                  measure.vars = patterns("sleep_fraction_"),
+                                  variable.name = "phase", value.name = "sleep_fraction"
         )
+
         bout_dt <- bout_analysis(asleep, dt_curated)
+        bout_dt[, day := ceiling(t / days(1))]
+        bout_dt$day[bout_dt$day == 0] <- 1
+        setbehavr(bout_dt, metadata_proc)
+        bout_dt_awake <- bout_dt[asleep == FALSE]
         bout_dt <- bout_dt[asleep == TRUE, -"asleep"]
-        bout_dt[, .(n_bouts = .N, mean_bout_length = mean(duration)), by = id]
         bout_summary <- bout_dt[, .(
-          latency = t[1], first_bout_length = duration[1],
+          latency = t[1] - ((day - 1) * 86400), first_bout_length = duration[1],
           latency_to_longest_bout = t[which.max(duration)], length_longest_bout = max(duration),
-          n_bouts = .N, mean_bout_length = mean(duration)
-        ), by = id]
-        bout_dt_new <- bout_dt[, phase_day := ifelse(t %% hours(params$ldperiod) < hours(params$light), "L", "D")]
-        bout_summary_phase <- bout_dt_new[, .(n_bouts = .N, mean_bout_length = mean(duration)),
-          by = c("id", "phase_day")
+          n_bouts = .N, mean_bout_length = mean(duration), total_bout_length = sum(duration)
+        ), by = c("id", "day")]
+        bout_summary <- bout_dt[meta=T][bout_summary]
+        bout_dt_new <- bout_dt[,phase:=ifelse(t %% hours(params$ldperiod)>hours(params$light),"Dark","Light")]
+        bout_dt_new[,phase:=factor(phase, levels= c("Light","Dark"))]
+        bout_summary_phase <- bout_dt_new[, .(n_bouts = .N, mean_bout_length = mean(duration),
+                                              total_bout_length = sum(duration), latency = t[1] - ((day - 1) * 86400)), by = c("id", "phase", "day")
         ]
-        overall_summary <- summary_dt[bout_summary]
-        overall_summary_new <- summary_dt[bout_summary_phase]
+        bout_summary_phase <- bout_dt_new[meta=T][bout_summary_phase]
+        bout_summary_awake <- bout_dt_awake[, .(
+          latency = t[1] - ((day - 1) * 86400), first_bout_length = duration[1],
+          latency_to_longest_bout = t[which.max(duration)], length_longest_bout = max(duration),
+          n_bouts = .N, mean_bout_length = mean(duration), total_bout_length = sum(duration)
+        ), by = c("id", "day")]
+        bout_summary_awake <- bout_dt_awake[meta=T][bout_summary_awake]
+        bout_dt_new_awake <- bout_dt_awake[,phase:=ifelse(t %% hours(params$ldperiod)>hours(params$light),"Dark","Light")]
+        bout_dt_new_awake[,phase:=factor(phase, levels= c("Light","Dark"))]
+        bout_summary_phase_awake <- bout_dt_new_awake[, .(n_bouts = .N, mean_bout_length = mean(duration),
+                                                          total_bout_length = sum(duration)), by = c("id", "phase", "day")
+        ]
+        bout_summary_phase_awake <- bout_dt_new_awake[meta=T][bout_summary_phase_awake]
+        activity_count_awake <- dt_curated[,. (
+          activity_count_awake = sum(activity[asleep == FALSE])
+        ), by = c("id", "day")]
+        activity_count_awake <- dt_curated[meta=T][activity_count_awake]
+        activity_index <- as.data.frame(bout_summary)
+        activity_index$activity_index <- (activity_index$total_bout_length / 60) / activity_count_awake$activity_count_awake
 ```
 
 ### Theme configuration for figures:
@@ -199,245 +226,448 @@ metadata <- fread("params$meta")
 ```
 ### Plot all ethograms:
 ```
-p <- ggetho(dt, aes(z = asleep)) +
-            stat_ld_annotations(height = 0.03, l_duration = hours(input$light), period = hours(input$ldperiod)) +
-            stat_tile_etho() +
-            scale_fill_distiller(palette = "Blues") +
-            My_Theme
-              ggsave(p, filename = "Plot all ethograms.png", type = "cairo",height = 30,
-       width = 10, dpi = 600, units = "in")    ###############height = 10*n where n is number of genotypes
-###############and width = 10
+p <- ggetho(dt, aes(z = asleep), summary_time_window = mins(params$min)) +
+              stat_ld_annotations(height = 0.03, l_duration = hours(params$light), period = hours(params$ldperiod)) +
+              stat_tile_etho() +
+              scale_fill_distiller(palette = "Blues", trans = "reverse") +
+              My_Theme
+              ggsave(p, filename = "Plot all ethograms.png", type = "cairo",height = 24,
+       width = 15, dpi = 600, units = "in")    ###############height = 8*n where n is number of monitors
 ```
 ### Plot curated ethograms:
 ```
-p <- ggetho(dt_curated, aes(z = asleep)) +
-            stat_ld_annotations(height = 0.03, l_duration = hours(input$light), period = hours(input$ldperiod)) +
-            stat_tile_etho() +
-            scale_fill_distiller(palette = "Blues") +
-            My_Theme
-              ggsave(p, filename = "Plot curated ethograms.png", type = "cairo",height = 5,
-       width = 10, dpi = 600, units = "in")    ###############height = 5*n where n is number of genotypes
-###############and width = 10
+p <- ggetho(dt_curated, aes(z = asleep), summary_time_window = mins(params$min)) +
+            ggetho(dt_curated, aes(z = asleep), summary_time_window = mins(params$min)) +
+              stat_ld_annotations(height = 0.03, l_duration = hours(params$light), period = hours(params$ldperiod)) +
+              stat_tile_etho() +
+              scale_fill_distiller(palette = "Blues", trans = "reverse") +
+              My_Theme
+              ggsave(p, filename = "Plot curated ethograms.png", type = "cairo",height = 24,
+       width = 15, dpi = 600, units = "in")    ###############height = 8*n where n is number of monitors
 ```
-### Plot Average plots over days individual:
+### Plot curated ethograms wrapped:
 ```
-p <- ggetho(dt_curated, aes(y = asleep, colour = genotype), summary_time_window = mins(input$min)) +
+p <- ggetho(dt_curated, aes(z = asleep), time_wrap = hours(params$modtau), summary_time_window = mins(params$min)) +
+            ggetho(dt_curated, aes(z = asleep), time_wrap = hours(params$modtau), summary_time_window = mins(params$min)) +
+              stat_ld_annotations(height = 0.03, l_duration = hours(params$light), period = hours(params$ldperiod)) +
+              stat_tile_etho() +
+              scale_fill_distiller(palette = "Blues", trans = "reverse") +
+              My_Theme
+              ggsave(p, filename = "Plot curated ethograms wrapped.png", type = "cairo",height = 24,
+       width = 7, dpi = 600, units = "in")    ###############height = 8*n where n is number of monitors
+```
+### Plot plots over days individual:
+```
+p <- ggetho(dt_curated, aes(y = asleep, colour = genotype), summary_time_window = mins(params$min)) +
               stat_pop_etho() +
-              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
-              scale_color_manual(values = c(input$col1, input$col2, input$col3)) +
-              scale_fill_manual(values = c(input$col1, input$col2, input$col3)) +
+              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(params$light), period = hours(params$ldperiod)) +
               My_Theme +
               facet_wrap(~ genotype + id + replicate, ncol = 1, scales = "free_y")
-              ggsave(p, filename = "Plot Average plots over days individual.png", type = "cairo",height = 40,
-       width = 10, dpi = 600, units = "in")    ###############height = 40*n where n is number of genotypes
-###############and width = 10
+              ggsave(p, filename = "Plot verage plots over days individual.png", type = "cairo",height = 12,
+       width = 3, dpi = 600, units = "in")    ###############height = 4*n where n is number of monitors
 ```
 ### Plot Average plot wrapped individual:
 ```
 p <- ggetho(dt_curated, aes(y = asleep, colour = genotype),
-              time_wrap = hours(input$modtau), summary_time_window = mins(input$min)
+              time_wrap = hours(params$modtau), summary_time_window = mins(params$min)
             ) +
               stat_pop_etho() +
-              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
-              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(params$light), period = hours(params$ldperiod)) +
               My_Theme +
               facet_wrap(~ genotype + id + replicate, ncol = 4, scales = "free_y")
-              ggsave(p, filename = "Plot Average plot wrapped individual.png", type = "cairo",height = 10,
-       width = 10, dpi = 600, units = "in")    ###############height = 10*n where n is number of genotypes
-###############and width = 10
+              ggsave(p, filename = "Plot Average plot wrapped individual.png", type = "cairo",height = 15,
+       width = 16, dpi = 600, units = "in")    ###############height = 5*n where n is number of monitors
 ```
 ### Plot Average plots over days:
 ```
-p <- ggetho(dt_curated, aes(y = asleep, colour = genotype), summary_time_window = mins(input$min)) +
+p <- ggetho(dt_curated, aes(y = asleep, colour = genotype), summary_time_window = mins(params$min)) +
               stat_pop_etho() +
-              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(params$light), period = hours(params$ldperiod)) +
               My_Theme +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
-              ggsave(p, filename = "Plot Average plots over days.png", type = "cairo",height = 2.5,
-       width = 10, dpi = 600, units = "in")    ###############height = 2.5*n where n is number of replicates
-###############and width = 10
+              facet_grid(~replicate,  scales = "free_y")
+              ggsave(p, filename = "Plot Plot Average plots over days.png", type = "cairo",height = 3,
+       width = 12, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
 ```
 ### Plot Average plot wrapped:
 ```
 p <- ggetho(dt_curated, aes(y = asleep, colour = genotype),
-              time_wrap = hours(input$modtau), summary_time_window = mins(input$min)
+              time_wrap = hours(params$modtau), summary_time_window = mins(params$min)
             ) +
               stat_pop_etho() +
-              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
-              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(params$light), period = hours(params$ldperiod)) +
               My_Theme +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
-          ggsave(p, filename = "Plot Average plot wrapped.png", type = "cairo",height = 3,
-       width = 10, dpi = 600, units = "in")    ###############height = 3*n where n is number of replicates
-###############and width = 10
+              facet_grid(~replicate,  scales = "free_y")
+              ggsave(p, filename = "Plot Average plot wrapped.png", type = "cairo",height = 3,
+       width = 10, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
 ```
 ### Plot Average plot wrapped polar:
 ```
 p <- ggetho(dt_curated, aes(y = asleep, colour = genotype),
-            time_wrap = hours(input$modtau), summary_time_window = mins(input$min)
-          ) +
-            stat_pop_etho(geom = "bar", alpha = 0.4) +
-            stat_ld_annotations(height = 1, alpha = .1, x_limits = c(0, hours(24)), outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
-            scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
-            My_Theme +
-            facet_wrap(~replicate, ncol = 1) +
-            coord_polar(clip = "off")
-          ggsave(p, filename = "Plot Average plot wrapped polar.png", type = "cairo",height = 10,
-       width = 10, dpi = 600, units = "in")    ###############height = 10*n where n is number of replicates
-###############and width = 10
+              time_wrap = hours(params$modtau), summary_time_window = mins(params$min)
+            ) +
+              stat_pop_etho(geom = "bar", alpha = 0.4) +
+              stat_ld_annotations(height = 1, alpha = .1, x_limits = c(0, hours(24)), outline = NA, l_duration = hours(params$light), period = hours(params$ldperiod)) +
+              scale_y_continuous(name = "Fraction of time sleeping") +
+              My_Theme +
+              facet_grid(~replicate) +
+              coord_polar(clip = "off")
+              ggsave(p, filename = "Plot Average plot wrapped polar.png", type = "cairo",height = 7,
+       width = 7, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
 ```
 ### Plot Sleep fraction:
 ```
-p <- ggplot(summary_dt_melted, aes(x = genotype, y = sleep_fraction, fill = genotype)) +
-              # geom_boxplot(outlier.colour = "red") +
-              geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
-              # geom_point(aes(color = genotype, fill = genotype), position = "jitter", alpha = 0.5, size =2) +
+p <- ggplot(summary_dt, aes(x = genotype, y = sleep_fraction_all, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +    ######if boxplot needed
+              geom_jitter(aes(colour = genotype), size = 2,  alpha = .5, position = position_jitter(height = .1, width = .1)) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
               stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 3, shape = 23) +
               stat_summary(aes(label = round((..y..), 2), color = genotype),
                 fun = mean, geom = "text",
                 size = 5, vjust = -0.5
               ) +
-              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              scale_y_continuous(name = "Fraction of time sleeping") +
               My_Theme_2 +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
-          ggsave(p, filename = "Plot Sleep fraction.png", type = "cairo",height = 7,
-       width = 10, dpi = 600, units = "in")    ###############height = 7*n where n is number of replicates
-###############and width = 10
+              facet_grid(day~replicate,  scales = "free_y")
+              ggsave(p, filename = "Plot Sleep fraction.png", type = "cairo",height = 7,
+       width = 10, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
 ```
 ### Plot Sleep fraction summary:
 ```
 p <- ggplot(summary_dt_melted, aes(x = phase, y = sleep_fraction, fill = genotype)) +
-              # geom_boxplot(outlier.colour = "red") +
-              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
-              # geom_point(aes(color = genotype, fill = genotype), position = "jitter", alpha = 0.5, size =2) +
+              # geom_boxplot(outlier.colour = "red") +  ##########if boxplot needed
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
-              stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 3, shape = 23) +
-              stat_summary(aes(label = round((..y..), 2), color = genotype),
-                fun = mean, geom = "text",
-                size = 5, vjust = -0.5
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 3, shape = 23
               ) +
-              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                fun = mean, geom = "text",
+                size = 5, vjust = -0.5, position = position_dodge(.9)
+              ) +
+              scale_y_continuous(name = "Fraction of time sleeping") +
               My_Theme_2 +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
-            ggsave(p, filename = "Plot Sleep fraction summary.png", type = "cairo",height = 7,
-       width = 10, dpi = 600, units = "in")    ###############height = 7*n where n is number of replicates
-###############and width = 10
+              facet_grid(day~replicate,  scales = "free_y")
+              ggsave(p, filename = "Plot Sleep fraction summary.png", type = "cairo",height = 7,
+       width = 10, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
+```
+### Plot Time spent sleeping:
+```
+p <- ggplot(bout_summary, aes(x = genotype, y = total_bout_length / 60, fill = genotype)) +
+        # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
+        geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+        geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+        stat_summary(
+          fun = mean, geom = "point", aes(color = genotype, group = genotype),
+          position = position_dodge(.9), size = 3, shape = 23
+        ) +
+        stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                     fun = mean, geom = "text",
+                     size = 5, vjust = -0.5, position = position_dodge(.9)
+        ) +
+        scale_x_discrete(name = "Genotype") +
+        scale_y_continuous(name = "Total time sleeping (m)") +
+          facet_grid(day~replicate,  scales = "free_y") +
+          My_Theme_2
+              ggsave(p, filename = "Plot Time spent sleeping.png", type = "cairo",height = 7,
+       width = 10, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
+```
+### Plot Time spent awake:
+```
+p <- ggplot(bout_summary_awake, aes(x = genotype, y = total_bout_length / 60, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 3, shape = 23
+              ) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                           fun = mean, geom = "text",
+                           size = 5, vjust = -0.5, position = position_dodge(.9)
+              ) +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Total time awake (m)") +
+              facet_grid(day~replicate,  scales = "free_y") +
+              My_Theme_2
+              ggsave(p, filename = "Plot Time spent awak.png", type = "cairo",height = 7,
+       width = 10, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
+```
+### Plot Time spent sleeping in day and night:
+```
+p <- ggplot(bout_summary_phase, aes(x = phase, y = total_bout_length / 60, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 3, shape = 23
+              ) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                           fun = mean, geom = "text",
+                           size = 5, vjust = -0.5, position = position_dodge(.9)
+              ) +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Total time sleeping (m)") +
+              facet_grid(day~replicate,  scales = "free_y") +
+              My_Theme_2
+              ggsave(p, filename = "Plot Time spent sleeping in day and night.png", type = "cairo",height = 7,
+       width = 10, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
+```
+### Plot Time spent awake in day and night:
+```
+p <- ggplot(bout_summary_phase, aes(x = phase, y = total_bout_length / 60, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 3, shape = 23
+              ) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                           fun = mean, geom = "text",
+                           size = 5, vjust = -0.5, position = position_dodge(.9)
+              ) +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Total time sleeping (m)") +
+              facet_grid(day~replicate,  scales = "free_y") +
+              My_Theme_2
+              ggsave(p, filename = "Plot Time spent awake in day and night.png", type = "cairo",height = 7,
+       width = 10, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
+```
+### Plot Activity Index:
+```
+p <- ggplot(activity_index, aes(x = genotype, y = activity_index, fill = genotype)) +
+        # geom_boxplot(outlier.colour = "red") +    ######if boxplot needed
+        geom_jitter(aes(colour = genotype), size = 2, alpha = .5, position = position_jitter(height = .1, width = .1)) +
+        geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+        stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 3, shape = 23) +
+        stat_summary(aes(label = round((..y..), 2), color = genotype),
+                     fun = mean, geom = "text",
+                     size = 5, vjust = -0.5
+        ) +
+        scale_y_continuous(name = "Activity index") +
+          My_Theme_2 +
+        facet_grid(day~replicate, scales = "free_y")
+              ggsave(p, filename = "Plot Activity Index.png", type = "cairo",height = 7,
+       width = 10, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
 ```
 ### Plot Bouts:
 ```
-p <- ggetho(bout_dt, aes(y = duration / 60, colour = genotype), time_wrap = hours(input$modtau), summary_time_window = mins(input$min)) +
+p <- ggetho(bout_dt, aes(y = duration / 60, colour = genotype), time_wrap = hours(params$modtau), summary_time_window = mins(params$min)) +
               stat_pop_etho() +
-              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(params$light), period = hours(params$ldperiod)) +
               scale_y_continuous(name = "Bout length (min)") +
               My_Theme_3 +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
-            ggsave(p, filename = "Plot Bouts.png", type = "cairo",height = 3,
-       width = 10, dpi = 600, units = "in")    ###############height = 3*n where n is number of replicates
-###############and width = 10
-```
-### Plot Bout summary:
-```
-p <- ggplot(rejoin(bout_summary), aes(n_bouts, mean_bout_length, colour = genotype)) +
-              geom_point(size = 4, alpha = 0.5) +
-              scale_x_continuous(name = "Number of bouts") +
-              scale_y_continuous(name = "Average bout duration (s)") +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
-            ggsave(p, filename = "Plot Bout summary.png", type = "cairo",height = 3,
-       width = 10, dpi = 600, units = "in")    ###############height = 3*n where n is number of replicates
-###############and width = 10
-```
-### Plot Mean bout length:
-```
-p <- ggplot(rejoin(bout_summary), aes(genotype, mean_bout_length/60, colour = genotype)) +
-              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
-              geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
-              stat_summary(fun = mean, geom = "point", aes(color = genotype, group = genotype),
-                           position=position_dodge(.9), size = 3, shape = 23) +
-              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
-                           fun = mean, geom = "text",
-                           size = 5, vjust = -0.5, position=position_dodge(.9)
-              ) +
-              scale_x_discrete(name = "Genotype") +
-              scale_y_continuous(name = "Mean bout length (m)") +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
-            ggsave(p, filename = "Plot Mean bout length", type = "cairo",height = 6,
-       width = 10, dpi = 600, units = "in")    ###############height = 6*n where n is number of replicates
-###############and width = 10
+              facet_grid(~replicate,  scales = "free_y")
+              ggsave(p, filename = "Plot Bouts.png", type = "cairo",height = 3,
+       width = 10, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
 ```
 ### Plot Number of bouts:
 ```
-p <- ggplot(rejoin(bout_summary), aes(genotype, n_bouts, colour = genotype)) +
+p <- ggplot(bout_summary, aes(genotype, n_bouts, colour = genotype)) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
               geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
-              stat_summary(fun = mean, geom = "point", aes(color = genotype, group = genotype),
-                           position=position_dodge(.9), size = 3, shape = 23) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 3, shape = 23
+              ) +
               stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
-                           fun = mean, geom = "text",
-                           size = 5, vjust = -0.5, position=position_dodge(.9)
+                fun = mean, geom = "text",
+                size = 5, vjust = -0.5, position = position_dodge(.9)
               ) +
               scale_x_discrete(name = "Genotype") +
               scale_y_continuous(name = "Number of bouts") +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
-              ggsave(p, filename = "Plot Number of bouts.png", type = "cairo",height = 6,
-       width = 10, dpi = 600, units = "in")    ###############height = 6*n where n is number of replicates
-###############and width = 10
+              facet_grid(day~replicate,  scales = "free_y") +
+              My_Theme_2
+              ggsave(p, filename = "Plot Number of bouts.png", type = "cairo",height = 5,
+       width = 7, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
 ```
-### Plot Mean bout length in light and dark:
+### Plot Number of awake bouts:
 ```
-p <- ggplot(rejoin(bout_summary), aes(genotype, mean_bout_length/60, colour = genotype)) +
+p <- ggplot(bout_summary_awake, aes(genotype, n_bouts, colour = genotype)) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
               geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
-              stat_summary(fun = mean, geom = "point", aes(color = genotype, group = genotype),
-                           position=position_dodge(.9), size = 3, shape = 23) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 3, shape = 23
+              ) +
               stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
                            fun = mean, geom = "text",
-                           size = 5, vjust = -0.5, position=position_dodge(.9)
+                           size = 5, vjust = -0.5, position = position_dodge(.9)
+              ) +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Number of awake bouts") +
+              facet_grid(day~replicate,  scales = "free_y") +
+              My_Theme_2
+              ggsave(p, filename = "Plot Number of awake bouts.png", type = "cairo",height = 5,
+       width = 7, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
+```
+### Plot Mean bout length:
+```
+p <- ggplot(bout_summary, aes(genotype, mean_bout_length / 60, colour = genotype)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 3, shape = 23
+              ) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                fun = mean, geom = "text",
+                size = 5, vjust = -0.5, position = position_dodge(.9)
               ) +
               scale_x_discrete(name = "Genotype") +
               scale_y_continuous(name = "Mean bout length (m)") +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
-            ggsave(p, filename = "Plot Mean bout length in light and dark.png", type = "cairo",height = 6,
-       width = 10, dpi = 600, units = "in")    ###############height = 6*n where n is number of replicates
-###############and width = 10
+              facet_grid(day~replicate,  scales = "free_y") +
+              My_Theme_2
+              ggsave(p, filename = "Plot Mean bout length.png", type = "cairo",height = 5,
+       width = 7, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
 ```
-### Plot Number of bouts in light and dark:
+### Plot Mean awake bout length:
 ```
-p <- ggplot(overall_summary_new, aes(x = phase_day, y = n_bouts, fill = genotype)) +
-             # geom_boxplot(outlier.colour = "red") +
-             geom_jitter(aes(colour = genotype), alpha = .5, position=position_dodge(.9)) +
-             # geom_point(aes(color = genotype, fill = genotype), position = "jitter", alpha = 0.5, size =2) +
-             geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
-             stat_summary(fun = mean, geom = "point", aes(color = genotype, group = genotype),
-                                 position=position_dodge(.9), size = 3, shape = 23) +
-             stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
-                                 fun = mean, geom = "text",
-                                 size = 5, vjust = -0.5, position=position_dodge(.9)
-                                 ) +
+p <- ggplot(bout_summary_awake, aes(genotype, mean_bout_length / 60, colour = genotype)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 3, shape = 23
+              ) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                           fun = mean, geom = "text",
+                           size = 5, vjust = -0.5, position = position_dodge(.9)
+              ) +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Mean awake bout length (m)") +
+              facet_grid(day~replicate,  scales = "free_y") +
+              My_Theme_2
+              ggsave(p, filename = "Plot Mean awake bout length.png", type = "cairo",height = 5,
+       width = 7, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
+```
+### Plot Number of bouts in light and dark phase:
+```
+p <- ggplot(bout_summary_phase, aes(x = phase, y = n_bouts, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +   #########if boxplots needed
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 3, shape = 23
+              ) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                fun = mean, geom = "text",
+                size = 5, vjust = -0.5, position = position_dodge(.9)
+              ) +
               scale_x_discrete(name = "Genotype") +
               scale_y_continuous(name = "Number of bouts") +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y") +
+              facet_grid(day~replicate,  scales = "free_y") +
               My_Theme_2
-              ggsave(p, filename = "Plot Number of bouts in light and dark.png", type = "cairo",height = 7,
-       width = 10, dpi = 600, units = "in")    ###############height = 7*n where n is number of replicates
-###############and width = 10
+              ggsave(p, filename = "Plot Number of bouts in light and dark phase.png", type = "cairo",height = 5,
+       width = 7, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
+```
+### Plot Mean bout length in light and dark phase:
+```
+p <- ggplot(bout_summary_phase, aes(x = phase, y = mean_bout_length / 60, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 3, shape = 23
+              ) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                fun = mean, geom = "text",
+                size = 5, vjust = -0.5, position = position_dodge(.9)
+              ) +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Mean bout length (m)") +
+              facet_grid(day~replicate,  scales = "free_y") +
+              My_Theme_2
+              ggsave(p, filename = "Plot  Mean bout length in light and dark phase.png", type = "cairo",height = 5,
+       width = 7, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
 ```
 ### Plot Mean bout length distribution:
 ```
-p <- ggplot(overall_summary, aes((mean_bout_length / 60), genotype, color = genotype, fill = genotype)) +
+p <- ggplot(bout_summary, aes((mean_bout_length / 60), genotype, color = genotype, fill = genotype)) +
               geom_density_ridges(
-              scale = 1, rel_min_height = 0.01, jittered_points = TRUE,
-              position = position_points_jitter(width = 0.2, height = 0),
-              point_shape = "|", point_size = 8, point_alpha = 1, alpha = .7
+                scale = 1, rel_min_height = 0.01, jittered_points = TRUE,
+                position = position_points_jitter(width = 0.2, height = 0),
+                point_shape = "|", point_size = 8, point_alpha = 1, alpha = .7
               ) +
-              facet_wrap(~replicate, ncol = 1) +
+              facet_wrap(day~replicate, ncol = 1) +
               scale_y_discrete(expand = c(0, 0)) + # will generally have to set the `expand` option
               scale_x_continuous(expand = c(0, 0)) + # for both axes to remove unneeded padding
               coord_cartesian(clip = "off") + # to avoid clipping of the very top of the top ridgeline
-              labs(x = "Period (h)", y = "Genotype") +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y") +
+              labs(x = "Mean bout length (m)", y = "Genotype") +
+              facet_grid(day~replicate,  scales = "free_y") +
               My_Theme_2
-            ggsave(p, filename = "Plot Mean bout length distribution.png", type = "cairo",height = 6,
-       width = 10, dpi = 600, units = "in")    ###############height = 6*n where n is number of replicates
-###############and width = 10
+              ggsave(p, filename = "Plot Mean bout length distribution.png", type = "cairo",height = 5,
+       width = 7, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
+```
+### Plot Latency to first bout:
+```
+p <- ggplot(bout_summary, aes(genotype, latency /  60, colour = genotype)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 3, shape = 23
+              ) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                           fun = mean, geom = "text",
+                           size = 5, vjust = -0.5, position = position_dodge(.9)
+              ) +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Latency (min)") +
+              facet_grid(day~replicate,  scales = "free_y") +
+              My_Theme_2
+              ggsave(p, filename = "Plot Latency to first bout.png", type = "cairo",height = 5,
+       width = 7, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
+```
+### Plot Latency to first bout in light and dark:
+```
+p <- ggplot(bout_summary_phase, aes(phase, latency /  60, colour = genotype)) +
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 3, shape = 23
+              ) +
+              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                           fun = mean, geom = "text",
+                           size = 5, vjust = -0.5, position = position_dodge(.9)
+              ) +
+              scale_x_discrete(name = "Phase") +
+              scale_y_continuous(name = "Latency (min)") +
+              facet_grid(day~replicate,  scales = "free_y") +
+              My_Theme_2
+              ggsave(p, filename = "Plot Latency to first bout in light and dark.png", type = "cairo",height = 5,
+       width = 7, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
+```
+### Plot Bout summary:
+```
+p <- ggplot(bout_summary, aes(n_bouts, mean_bout_length / 60, colour = genotype)) +
+              geom_point(size = 4, alpha = 0.5) +
+              scale_x_continuous(name = "Number of bouts") +
+              scale_y_continuous(name = "Average bout duration (m)") +
+              facet_grid(day~replicate,  scales = "free_y") +
+              My_Theme_2
+              ggsave(p, filename = "Plot Bout summary.png", type = "cairo",height = 5,
+       width = 10, dpi = 600, units = "in")    ###############height = 1*n where n is number of monitors
+```
+### Write summary tables:
+```
+pro_chi_sq <- bout_summary
+      pro_chi_sq_new <- bout_summary_phase
+      pro_chi_sq$latency <- pro_chi_sq$latency / 60
+      pro_chi_sq$first_bout_length <- pro_chi_sq$first_bout_length / 60
+      pro_chi_sq$latency_to_longest_bout <- pro_chi_sq$latency_to_longest_bout / 60
+      pro_chi_sq$length_longest_bout <- pro_chi_sq$length_longest_bout / 60
+      pro_chi_sq$mean_bout_length <- pro_chi_sq$mean_bout_length / 60
+      pro_chi_sq$mean_bout_length <- pro_chi_sq$total_bout_length / 60
+      pro_chi_sq <- as.matrix(pro_chi_sq)
+      pro_chi_sq_new$mean_bout_length <- pro_chi_sq_new$mean_bout_length / 60
+      pro_chi_sq_new$mean_bout_length <- pro_chi_sq_new$total_bout_length / 60
+      pro_chi_sq_new <- as.matrix(pro_chi_sq_new)
+      write.csv(pro_chi_sq, file = "all data.csv", row.names = FALSE)
+      write.csv(pro_chi_sq_new, file = "all data bout details.csv", row.names = FALSE)
 ```

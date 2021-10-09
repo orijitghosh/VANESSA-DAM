@@ -17,6 +17,7 @@ library(shinyWidgets)
 library(shinyhelper)
 library(shinyFiles)
 library(fs)
+library(ggforce)
 shinyServer(function(input, output, session) {
   shinyalert(
     title = "Visualization and ANalysis of timE SerieS dAta - Drosophila Activity Monitors (VANESSA-DAM) for sleep analysis!",
@@ -413,37 +414,129 @@ shinyServer(function(input, output, session) {
         dt <- load_dam(metadata_proc, FUN = sleepr::sleep_dam_annotation)
         dt[, moving := activity > 0]
         dt_curated <- curate_dead_animals(dt)
+        dt_curated[, day := ceiling(t / days(1))]
+        dt_curated$day[dt_curated$day == 0] <- 1
+        dt_curated[, phase := ifelse(t %% hours(input$ldperiod) > hours(input$light), "Dark", "Light")]
+        dt_curated[, phase := factor(phase, levels = c("Light", "Dark"))]
+        setbehavr(dt_curated, metadata_proc)
         lifespan_dt <- dt_curated[, .(lifespan = max(t)), by = id]
         valid_ids <- lifespan_dt[lifespan > days(input$remove), id]
         dt_curated <- dt_curated[id %in% valid_ids]
-        dt_curated <- dt_curated[t %between% c(days(input$start), days(input$end))]
+        dt_curated <- dt_curated[day %between% c(input$start, input$end)]
         setbehavr(dt_curated, metadata_proc)
         dt_curated[, uid := 1:.N, meta = T]
         dt_curated[, .(id, uid), meta = T]
-        summary_dt <- rejoin(dt_curated[, .(sleep_fraction = mean(asleep)), by = id])
-        dt_curated[, phase := ifelse(t %% hours(input$ldperiod) < hours(input$light), "L", "D")]
-        summary_dt <- rejoin(dt_curated[, .(
+        summary_dt <- (dt_curated[, .(
           sleep_fraction_all = mean(asleep),
-          sleep_fraction_l = mean(asleep[phase == "L"]),
-          sleep_fraction_d = mean(asleep[phase == "D"])
-        ), by = id])
+          sleep_fraction_l = mean(asleep[phase == "Light"]),
+          sleep_fraction_d = mean(asleep[phase == "Dark"])
+        ), by = c("id", "day")])
+        summary_dt <- dt_curated[meta = T][summary_dt]
         summary_dt_melted <- melt(summary_dt,
           measure.vars = patterns("sleep_fraction_"),
           variable.name = "phase", value.name = "sleep_fraction"
         )
+
         bout_dt <- bout_analysis(asleep, dt_curated)
+        bout_dt[, day := ceiling(t / days(1))]
+        bout_dt$day[bout_dt$day == 0] <- 1
+        setbehavr(bout_dt, metadata_proc)
+        bout_dt_awake <- bout_dt[asleep == FALSE]
         bout_dt <- bout_dt[asleep == TRUE, -"asleep"]
         bout_summary <- bout_dt[, .(
-          latency = t[1], first_bout_length = duration[1],
+          latency = t[1] - ((day - 1) * 86400), first_bout_length = duration[1],
           latency_to_longest_bout = t[which.max(duration)], length_longest_bout = max(duration),
-          n_bouts = .N, mean_bout_length = mean(duration)
-        ), by = id]
-        bout_dt_new <- bout_dt[, phase_day := ifelse(t %% hours(input$ldperiod) < hours(input$light), "L", "D")]
-        bout_summary_phase <- bout_dt_new[, .(n_bouts = .N, mean_bout_length = mean(duration)),
-          by = c("id", "phase_day")
-        ]
-        overall_summary <- summary_dt[bout_summary]
-        overall_summary_new <- summary_dt[bout_summary_phase]
+          n_bouts = .N, mean_bout_length = mean(duration), total_bout_length = sum(duration)
+        ), by = c("id", "day")]
+        bout_summary <- bout_dt[meta = T][bout_summary]
+        bout_dt_new <- bout_dt[, phase := ifelse(t %% hours(input$ldperiod) > hours(input$light), "Dark", "Light")]
+        bout_dt_new[, phase := factor(phase, levels = c("Light", "Dark"))]
+        bout_summary_phase <- bout_dt_new[, .(
+          n_bouts = .N, mean_bout_length = mean(duration),
+          total_bout_length = sum(duration), latency = t[1] - ((day - 1) * 86400)
+        ), by = c("id", "phase", "day")]
+        # bout_summary <- summary_dt[bout_summary]
+        # bout_summary_phase <- summary_dt[bout_summary_phase]
+        bout_summary_phase <- bout_dt_new[meta = T][bout_summary_phase]
+        bout_summary_awake <- bout_dt_awake[, .(
+          latency = t[1] - ((day - 1) * 86400), first_bout_length = duration[1],
+          latency_to_longest_bout = t[which.max(duration)], length_longest_bout = max(duration),
+          n_bouts = .N, mean_bout_length = mean(duration), total_bout_length = sum(duration)
+        ), by = c("id", "day")]
+        bout_summary_awake <- bout_dt_awake[meta = T][bout_summary_awake]
+        bout_dt_new_awake <- bout_dt_awake[, phase := ifelse(t %% hours(input$ldperiod) > hours(input$light), "Dark", "Light")]
+        bout_dt_new_awake[, phase := factor(phase, levels = c("Light", "Dark"))]
+        bout_summary_phase_awake <- bout_dt_new_awake[, .(
+          n_bouts = .N, mean_bout_length = mean(duration),
+          total_bout_length = sum(duration)
+        ), by = c("id", "phase", "day")]
+        bout_summary_phase_awake <- bout_dt_new_awake[meta = T][bout_summary_phase_awake]
+        # activity_count_awake <- dt_curated[,. (
+        #   activity_count_awake = sum(activity[asleep == FALSE])
+        # ), by = c("id", "day")]
+        # activity_count_awake <- dt_curated[meta=T][activity_count_awake]
+        # activity_index <- as.data.frame(bout_summary)
+        # activity_index$activity_index <- (activity_index$total_bout_length / 60) / activity_count_awake$activity_count_awake
+
+
+
+        # bout_summary_awake <- summary_dt[bout_summary_awake]
+        # bout_summary_phase_awake <- summary_dt[bout_summary_phase_awake]
+
+        # lifespan_dt <- dt_curated[, .(lifespan = max(t)), by = id]
+        # valid_ids <- lifespan_dt[lifespan > days(input$remove), id]
+        # dt_curated <- dt_curated[id %in% valid_ids]
+        # dt_curated <- dt_curated[t %between% c(days(input$start), days(input$end))]
+        # setbehavr(dt_curated, metadata_proc)
+        # dt_curated[, uid := 1:.N, meta = T]
+        # dt_curated[, .(id, uid), meta = T]
+        # summary_dt <- rejoin(dt_curated[, .(sleep_fraction = mean(asleep)), by = id])
+        # # summary_dt_sleep_total <- rejoin(dt_curated[, .(sleep_total = sum(asleep)), by = id])
+        # dt_curated[, phase := ifelse(t %% hours(input$ldperiod) < hours(input$light), "L", "D")]
+        # summary_dt <- rejoin(dt_curated[, .(
+        #   sleep_fraction_all = mean(asleep),
+        #   sleep_fraction_l = mean(asleep[phase == "L"]),
+        #   sleep_fraction_d = mean(asleep[phase == "D"])
+        # ), by = id])
+        # summary_dt_melted <- melt(summary_dt,
+        #   measure.vars = patterns("sleep_fraction_"),
+        #   variable.name = "phase", value.name = "sleep_fraction"
+        # )
+        # # summary_dt_sleep_total <- rejoin(dt_curated[, .(
+        # #   sleep_total_all = sum(asleep),
+        # #   sleep_total_l = sum(asleep[phase == "L"]),
+        # #   sleep_total_d = sum(asleep[phase == "D"])
+        # # ), by = id])
+        # # summary_dt_melted_sleep_total <- melt(summary_dt_sleep_total,
+        # #                           measure.vars = patterns("sleep_total_"),
+        # #                           variable.name = "phase", value.name = "sleep_total"
+        # # )
+        # bout_dt <- bout_analysis(asleep, dt_curated)
+        # bout_dt_awake <- bout_dt[asleep == FALSE]
+        # bout_dt <- bout_dt[asleep == TRUE, -"asleep"]
+        # bout_summary <- bout_dt[, .(
+        #   latency = t[1], first_bout_length = duration[1],
+        #   latency_to_longest_bout = t[which.max(duration)], length_longest_bout = max(duration),
+        #   n_bouts = .N, mean_bout_length = mean(duration)
+        # ), by = id]
+        # bout_dt_new <- bout_dt[, phase_day := ifelse(t %% hours(input$ldperiod) < hours(input$light), "L", "D")]
+        # bout_summary_phase <- bout_dt_new[, .(n_bouts = .N, mean_bout_length = mean(duration)),
+        #   by = c("id", "phase_day")
+        # ]
+        # bout_summary <- summary_dt[bout_summary]
+        # bout_summary_phase <- summary_dt[bout_summary_phase]
+        # # bout_dt_awake <- bout_dt[asleep == FALSE, -"asleep"]
+        # bout_summary_awake <- bout_dt_awake[, .(
+        #   latency = t[1], first_bout_length = duration[1],
+        #   latency_to_longest_bout = t[which.max(duration)], length_longest_bout = max(duration),
+        #   n_bouts = .N, mean_bout_length = mean(duration)
+        # ), by = id]
+        # bout_dt_new_awake <- bout_dt_awake[, phase_day := ifelse(t %% hours(input$ldperiod) < hours(input$light), "L", "D")]
+        # bout_summary_phase_awake <- bout_dt_new_awake[, .(n_bouts = .N, mean_bout_length = mean(duration)),
+        #                                   by = c("id", "phase_day")
+        # ]
+        # bout_summary_awake <- summary_dt[bout_summary_awake]
+        # bout_summary_phase_awake <- summary_dt[bout_summary_phase_awake]
         beepr::beep(sound = 10)
       })
 
@@ -451,10 +544,10 @@ shinyServer(function(input, output, session) {
         output$alletho <- renderPlot(
           {
             req(input$meta)
-            alletho <- ggetho(dt, aes(z = asleep)) +
+            alletho <- ggetho(dt, aes(z = asleep), summary_time_window = mins(input$min)) +
               stat_ld_annotations(height = 0.03, l_duration = hours(input$light), period = hours(input$ldperiod)) +
               stat_tile_etho() +
-              scale_fill_distiller(palette = "Blues") +
+              scale_fill_distiller(palette = "Blues", trans = "reverse") +
               My_Theme
             alletho
           },
@@ -468,15 +561,31 @@ shinyServer(function(input, output, session) {
         output$curatedetho <- renderPlot(
           {
             req(input$meta)
-            ggetho(dt_curated, aes(z = asleep)) +
+            ggetho(dt_curated, aes(z = asleep), summary_time_window = mins(input$min)) +
               stat_ld_annotations(height = 0.03, l_duration = hours(input$light), period = hours(input$ldperiod)) +
               stat_tile_etho() +
-              scale_fill_distiller(palette = "Blues") +
+              scale_fill_distiller(palette = "Blues", trans = "reverse") +
               My_Theme
           },
           res = 100,
           width = input$curatedetho_width,
           height = input$curatedtho_height
+        )
+      })
+
+      observeEvent(input$curatedetho_wrap_width | input$curatedtho_wrap_height, {
+        output$curatedetho_wrap <- renderPlot(
+          {
+            req(input$meta)
+            ggetho(dt_curated, aes(z = asleep), time_wrap = hours(input$modtau), summary_time_window = mins(input$min)) +
+              stat_ld_annotations(height = 0.03, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              stat_tile_etho() +
+              scale_fill_distiller(palette = "Blues", trans = "reverse") +
+              My_Theme
+          },
+          res = 100,
+          width = input$curatedetho_wrap_width,
+          height = input$curatedtho_wrap_height
         )
       })
 
@@ -507,7 +616,7 @@ shinyServer(function(input, output, session) {
             ) +
               stat_pop_etho() +
               stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
-              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              scale_y_continuous(name = "Fraction of time sleeping") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               My_Theme +
@@ -526,10 +635,11 @@ shinyServer(function(input, output, session) {
             ggetho(dt_curated, aes(y = asleep, colour = genotype), summary_time_window = mins(input$min)) +
               stat_pop_etho() +
               stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              scale_y_continuous(name = "Fraction of time sleeping") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               My_Theme +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+              facet_grid(~replicate, scales = "free_y")
           },
           res = 70,
           width = input$popplot1_width,
@@ -546,11 +656,11 @@ shinyServer(function(input, output, session) {
             ) +
               stat_pop_etho() +
               stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
-              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              scale_y_continuous(name = "Fraction of time sleeping") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               My_Theme +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+              facet_grid(~replicate, scales = "free_y")
           },
           res = 70,
           width = input$popplotwrap1_width,
@@ -567,11 +677,11 @@ shinyServer(function(input, output, session) {
             ) +
               stat_pop_etho(geom = "bar", alpha = 0.4) +
               stat_ld_annotations(height = 1, alpha = .1, x_limits = c(0, hours(24)), outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
-              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              scale_y_continuous(name = "Fraction of time sleeping") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               My_Theme +
-              facet_wrap(~replicate, ncol = 1) +
+              facet_grid(~replicate) +
               coord_polar(clip = "off")
           },
           res = 70,
@@ -586,18 +696,23 @@ shinyServer(function(input, output, session) {
             req(input$meta)
             ggplot(summary_dt, aes(x = genotype, y = sleep_fraction_all, fill = genotype)) +
               # geom_boxplot(outlier.colour = "red") +    ######if boxplot needed
-              geom_jitter(aes(colour = genotype, size = 2), alpha = .5, position = position_jitter(height = .1, width = .1)) +
+              # geom_jitter(aes(colour = genotype), size = 2,  alpha = .5, position = position_jitter(height = .1, width = .1)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
-              stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 3, shape = 23) +
-              stat_summary(aes(label = round((..y..), 2), color = genotype),
-                fun = mean, geom = "text",
-                size = 5, vjust = -0.5
-              ) +
-              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 4, shape = 23) +
+              {
+                if (input$popplotwrapbox_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5
+                  )
+                }
+              } +
+              scale_y_continuous(name = "Fraction of time sleeping") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               My_Theme_2 +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+              facet_grid(day ~ replicate, scales = "free_y")
           },
           res = 70,
           width = input$popplotwrapbox_width,
@@ -605,33 +720,91 @@ shinyServer(function(input, output, session) {
         )
       })
 
+      # observeEvent(input$popplotwrapbox_total_height | input$popplotwrapbox_total_width, {
+      #   output$popplotwrapbox_total <- renderPlot(
+      #     {
+      #       req(input$meta)
+      #       ggplot(summary_dt_sleep_total, aes(x = genotype, y = sleep_total_all, fill = genotype)) +
+      #         # geom_boxplot(outlier.colour = "red") +    ######if boxplot needed
+      #         geom_jitter(aes(colour = genotype, size = 2), alpha = .5, position = position_jitter(height = .1, width = .1)) +
+      #         geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+      #         stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 3, shape = 23) +
+      #         stat_summary(aes(label = round((..y..), 2), color = genotype),
+      #                      fun = mean, geom = "text",
+      #                      size = 5, vjust = -0.5
+      #         ) +
+      #         scale_y_continuous(name = "total time sleeping (min)") +
+      #         scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+      #         scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+      #         My_Theme_2 +
+      #         facet_grid(day~replicate,  scales = "free_y")
+      #     },
+      #     res = 70,
+      #     width = input$popplotwrapbox_total_width,
+      #     height = input$replicate * input$popplotwrapbox_total_height
+      #   )
+      # })
+
       observeEvent(input$popplotwrapboxmelt_height | input$popplotwrapboxmelt_width, {
         output$popplotwrapboxmelt <- renderPlot(
           {
             req(input$meta)
             ggplot(summary_dt_melted, aes(x = phase, y = sleep_fraction, fill = genotype)) +
               # geom_boxplot(outlier.colour = "red") +  ##########if boxplot needed
-              geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
               stat_summary(
                 fun = mean, geom = "point", aes(color = genotype, group = genotype),
-                position = position_dodge(.9), size = 3, shape = 23
+                position = position_dodge(.9), size = 4, shape = 23
               ) +
-              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
-                fun = mean, geom = "text",
-                size = 5, vjust = -0.5, position = position_dodge(.9)
-              ) +
-              scale_y_continuous(name = "Fraction of time sleeping", labels = scales::percent) +
+              {
+                if (input$popplotwrapboxmelt_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5, position = position_dodge(.9)
+                  )
+                }
+              } +
+              scale_y_continuous(name = "Fraction of time sleeping") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               My_Theme_2 +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+              facet_grid(day ~ replicate, scales = "free_y")
           },
           res = 70,
           width = input$popplotwrapboxmelt_width,
           height = input$replicate * input$popplotwrapboxmelt_height
         )
       })
+
+      # observeEvent(input$popplotwrapboxmelt_total_height | input$popplotwrapboxmelt_total_width, {
+      #   output$popplotwrapboxmelt_total <- renderPlot(
+      #     {
+      #       req(input$meta)
+      #       ggplot(summary_dt_melted_sleep_total, aes(x = phase, y = sleep_total, fill = genotype)) +
+      #         # geom_boxplot(outlier.colour = "red") +  ##########if boxplot needed
+      #         geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+      #         geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+      #         stat_summary(
+      #           fun = mean, geom = "point", aes(color = genotype, group = genotype),
+      #           position = position_dodge(.9), size = 3, shape = 23
+      #         ) +
+      #         stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+      #                      fun = mean, geom = "text",
+      #                      size = 5, vjust = -0.5, position = position_dodge(.9)
+      #         ) +
+      #         scale_y_continuous(name = "Total time sleeping (min)") +
+      #         scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+      #         scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+      #         My_Theme_2 +
+      #         facet_grid(day~replicate,  scales = "free_y")
+      #     },
+      #     res = 70,
+      #     width = input$popplotwrapboxmelt_total_width,
+      #     height = input$replicate * input$popplotwrapboxmelt_total_height
+      #   )
+      # })
 
       observeEvent(input$bout_height | input$bout_width, {
         output$bout <- renderPlot(
@@ -644,7 +817,7 @@ shinyServer(function(input, output, session) {
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               My_Theme_3 +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y")
+              facet_grid(~replicate, scales = "free_y")
           },
           res = 70,
           width = input$bout_width,
@@ -656,13 +829,13 @@ shinyServer(function(input, output, session) {
         output$boutsummary <- renderPlot(
           {
             req(input$meta)
-            ggplot(overall_summary, aes(n_bouts, mean_bout_length / 60, colour = genotype)) +
+            ggplot(bout_summary, aes(n_bouts, mean_bout_length / 60, colour = genotype, fill = genotype)) +
               geom_point(size = 4, alpha = 0.5) +
               scale_x_continuous(name = "Number of bouts") +
               scale_y_continuous(name = "Average bout duration (m)") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y") +
+              facet_grid(day ~ replicate, scales = "free_y") +
               My_Theme_2
           },
           res = 70,
@@ -675,22 +848,27 @@ shinyServer(function(input, output, session) {
         output$numbouts <- renderPlot(
           {
             req(input$meta)
-            ggplot(overall_summary, aes(genotype, n_bouts, colour = genotype)) +
+            ggplot(bout_summary, aes(genotype, n_bouts, colour = genotype, fill = genotype)) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
-              geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
               stat_summary(
                 fun = mean, geom = "point", aes(color = genotype, group = genotype),
-                position = position_dodge(.9), size = 3, shape = 23
+                position = position_dodge(.9), size = 4, shape = 23
               ) +
-              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
-                fun = mean, geom = "text",
-                size = 5, vjust = -0.5, position = position_dodge(.9)
-              ) +
+              {
+                if (input$numbouts_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5, position = position_dodge(.9)
+                  )
+                }
+              } +
               scale_x_discrete(name = "Genotype") +
               scale_y_continuous(name = "Number of bouts") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y") +
+              facet_grid(day ~ replicate, scales = "free_y") +
               My_Theme_2
           },
           res = 70,
@@ -699,26 +877,130 @@ shinyServer(function(input, output, session) {
         )
       })
 
+      observeEvent(input$latency_height | input$latency_width, {
+        output$latency <- renderPlot(
+          {
+            req(input$meta)
+            ggplot(bout_summary, aes(genotype, latency / 60, colour = genotype, fill = genotype)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 4, shape = 23
+              ) +
+              {
+                if (input$latency_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5, position = position_dodge(.9)
+                  )
+                }
+              } +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Latency (min)") +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              facet_grid(day ~ replicate, scales = "free_y") +
+              My_Theme_2
+          },
+          res = 70,
+          width = input$latency_width,
+          height = input$replicate * input$latency_height
+        )
+      })
+
+      observeEvent(input$latency_ld_height | input$latency_ld_width, {
+        output$latency_ld <- renderPlot(
+          {
+            req(input$meta)
+            ggplot(bout_summary_phase, aes(phase, latency / 60, colour = genotype, fill = genotype)) +
+              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 4, shape = 23
+              ) +
+              {
+                if (input$latency_ld_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5, position = position_dodge(.9)
+                  )
+                }
+              } +
+              scale_x_discrete(name = "Phase") +
+              scale_y_continuous(name = "Latency (min)") +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              facet_grid(day ~ replicate, scales = "free_y") +
+              My_Theme_2
+          },
+          res = 70,
+          width = input$latency_ld_width,
+          height = input$replicate * input$latency_ld_height
+        )
+      })
+
+      observeEvent(input$numbouts_awake_height | input$numbouts_awake_width, {
+        output$numbouts_awake <- renderPlot(
+          {
+            req(input$meta)
+            ggplot(bout_summary_awake, aes(genotype, n_bouts, colour = genotype, fill = genotype)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 4, shape = 23
+              ) +
+              {
+                if (input$numbouts_awake_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5, position = position_dodge(.9)
+                  )
+                }
+              } +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Number of awake bouts") +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              facet_grid(day ~ replicate, scales = "free_y") +
+              My_Theme_2
+          },
+          res = 70,
+          width = input$numbouts_awake_width,
+          height = input$replicate * input$numbouts_awake_height
+        )
+      })
+
       observeEvent(input$meanboutlength_height | input$meanboutlength_width, {
         output$meanboutlength <- renderPlot(
           {
             req(input$meta)
-            ggplot(overall_summary, aes(genotype, mean_bout_length / 60, colour = genotype)) +
+            ggplot(bout_summary, aes(genotype, mean_bout_length / 60, colour = genotype, fill = genotype)) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
-              geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
               stat_summary(
                 fun = mean, geom = "point", aes(color = genotype, group = genotype),
-                position = position_dodge(.9), size = 3, shape = 23
+                position = position_dodge(.9), size = 4, shape = 23
               ) +
-              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
-                fun = mean, geom = "text",
-                size = 5, vjust = -0.5, position = position_dodge(.9)
-              ) +
+              {
+                if (input$meanboutlength_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5, position = position_dodge(.9)
+                  )
+                }
+              } +
               scale_x_discrete(name = "Genotype") +
               scale_y_continuous(name = "Mean bout length (m)") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y") +
+              facet_grid(day ~ replicate, scales = "free_y") +
               My_Theme_2
           },
           res = 70,
@@ -727,27 +1009,65 @@ shinyServer(function(input, output, session) {
         )
       })
 
+      observeEvent(input$meanboutlength_awake_height | input$meanboutlength_awake_width, {
+        output$meanboutlength_awake <- renderPlot(
+          {
+            req(input$meta)
+            ggplot(bout_summary_awake, aes(genotype, mean_bout_length / 60, colour = genotype, fill = genotype)) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_jitter(height = .2, width = .2)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 4, shape = 23
+              ) +
+              {
+                if (input$meanboutlength_awake_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5, position = position_dodge(.9)
+                  )
+                }
+              } +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Mean awake bout length (m)") +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              facet_grid(day ~ replicate, scales = "free_y") +
+              My_Theme_2
+          },
+          res = 70,
+          width = input$meanboutlength_awake_width,
+          height = input$replicate * input$meanboutlength_awake_height
+        )
+      })
+
       observeEvent(input$numbouts_ld_height | input$numbouts_ld_width, {
         output$numbouts_ld <- renderPlot(
           {
             req(input$meta)
-            ggplot(overall_summary_new, aes(x = phase_day, y = n_bouts, fill = genotype)) +
+            ggplot(bout_summary_phase, aes(x = phase, y = n_bouts, fill = genotype)) +
               # geom_boxplot(outlier.colour = "red") +   #########if boxplots needed
-              geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
               stat_summary(
                 fun = mean, geom = "point", aes(color = genotype, group = genotype),
-                position = position_dodge(.9), size = 3, shape = 23
+                position = position_dodge(.9), size = 4, shape = 23
               ) +
-              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
-                fun = mean, geom = "text",
-                size = 5, vjust = -0.5, position = position_dodge(.9)
-              ) +
+              {
+                if (input$numbouts_ld_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5, position = position_dodge(.9)
+                  )
+                }
+              } +
               scale_x_discrete(name = "Genotype") +
               scale_y_continuous(name = "Number of bouts") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y") +
+              facet_grid(day ~ replicate, scales = "free_y") +
               My_Theme_2
           },
           res = 70,
@@ -760,23 +1080,28 @@ shinyServer(function(input, output, session) {
         output$meanboutlength_ld <- renderPlot(
           {
             req(input$meta)
-            ggplot(overall_summary_new, aes(x = phase_day, y = mean_bout_length / 60, fill = genotype)) +
+            ggplot(bout_summary_phase, aes(x = phase, y = mean_bout_length / 60, fill = genotype)) +
               # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
-              geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
               geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
               stat_summary(
                 fun = mean, geom = "point", aes(color = genotype, group = genotype),
-                position = position_dodge(.9), size = 3, shape = 23
+                position = position_dodge(.9), size = 4, shape = 23
               ) +
-              stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
-                fun = mean, geom = "text",
-                size = 5, vjust = -0.5, position = position_dodge(.9)
-              ) +
+              {
+                if (input$meanboutlength_ld_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5, position = position_dodge(.9)
+                  )
+                }
+              } +
               scale_x_discrete(name = "Genotype") +
               scale_y_continuous(name = "Mean bout length (m)") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y") +
+              facet_grid(day ~ replicate, scales = "free_y") +
               My_Theme_2
           },
           res = 70,
@@ -789,20 +1114,20 @@ shinyServer(function(input, output, session) {
         output$meanboutlength_distrib <- renderPlot(
           {
             req(input$meta)
-            ggplot(overall_summary, aes((mean_bout_length / 60), genotype, color = genotype, fill = genotype)) +
+            ggplot(bout_summary, aes((mean_bout_length / 60), genotype, color = genotype, fill = genotype)) +
               geom_density_ridges(
                 scale = 1, rel_min_height = 0.01, jittered_points = TRUE,
                 position = position_points_jitter(width = 0.2, height = 0),
                 point_shape = "|", point_size = 8, point_alpha = 1, alpha = .7
               ) +
-              facet_wrap(~replicate, ncol = 1) +
+              facet_wrap(day ~ replicate, ncol = 1) +
               scale_y_discrete(expand = c(0, 0)) + # will generally have to set the `expand` option
               scale_x_continuous(expand = c(0, 0)) + # for both axes to remove unneeded padding
               coord_cartesian(clip = "off") + # to avoid clipping of the very top of the top ridgeline
               labs(x = "Mean bout length (m)", y = "Genotype") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
-              facet_wrap(~replicate, ncol = 1, scales = "free_y") +
+              facet_grid(day ~ replicate, scales = "free_y") +
               My_Theme_2
           },
           res = 70,
@@ -811,16 +1136,191 @@ shinyServer(function(input, output, session) {
         )
       })
 
+      observeEvent(input$total_sleep_height | input$total_sleep_width, {
+        output$total_sleep <- renderPlot(
+          {
+            req(input$meta)
+            ggplot(bout_summary, aes(x = genotype, y = total_bout_length / 60, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
+              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 4, shape = 23
+              ) +
+              {
+                if (input$total_sleep_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5, position = position_dodge(.9)
+                  )
+                }
+              } +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Total time sleeping (m)") +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              facet_grid(day ~ replicate, scales = "free_y") +
+              My_Theme_2
+          },
+          res = 70,
+          width = input$total_sleep_width,
+          height = input$replicate * input$total_sleep_height
+        )
+      })
+
+      observeEvent(input$total_awake_height | input$total_awake_width, {
+        output$total_awake <- renderPlot(
+          {
+            req(input$meta)
+            ggplot(bout_summary_awake, aes(x = genotype, y = total_bout_length / 60, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
+              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 4, shape = 23
+              ) +
+              {
+                if (input$total_awake_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5, position = position_dodge(.9)
+                  )
+                }
+              } +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Total time awake (m)") +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              facet_grid(day ~ replicate, scales = "free_y") +
+              My_Theme_2
+          },
+          res = 70,
+          width = input$total_awake_width,
+          height = input$replicate * input$total_awake_height
+        )
+      })
+
+      observeEvent(input$total_sleep_phase_height | input$total_sleep_phase_width, {
+        output$total_sleep_phase <- renderPlot(
+          {
+            req(input$meta)
+            ggplot(bout_summary_phase, aes(x = phase, y = total_bout_length / 60, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
+              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 4, shape = 23
+              ) +
+              {
+                if (input$total_sleep_phase_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5, position = position_dodge(.9)
+                  )
+                }
+              } +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Total time sleeping (m)") +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              facet_grid(day ~ replicate, scales = "free_y") +
+              My_Theme_2
+          },
+          res = 70,
+          width = input$total_sleep_phase_width,
+          height = input$replicate * input$total_sleep_phase_height
+        )
+      })
+
+      observeEvent(input$total_awake_phase_height | input$total_awake_phase_width, {
+        output$total_awake_phase <- renderPlot(
+          {
+            req(input$meta)
+            ggplot(bout_summary_phase, aes(x = phase, y = total_bout_length / 60, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
+              # geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(
+                fun = mean, geom = "point", aes(color = genotype, group = genotype),
+                position = position_dodge(.9), size = 4, shape = 23
+              ) +
+              {
+                if (input$total_awake_phase_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype, group = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5, position = position_dodge(.9)
+                  )
+                }
+              } +
+              scale_x_discrete(name = "Genotype") +
+              scale_y_continuous(name = "Total time sleeping (m)") +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              facet_grid(day ~ replicate, scales = "free_y") +
+              My_Theme_2
+          },
+          res = 70,
+          width = input$total_awake_phase_width,
+          height = input$replicate * input$total_awake_phase_height
+        )
+      })
+
+      observeEvent(input$act_index_height | input$act_index_width, {
+        output$act_index <- renderPlot(
+          {
+            req(input$meta)
+            activity_count_awake <- dt_curated[, .(
+              activity_count_awake = sum(activity[asleep == FALSE])
+            ), by = c("id", "day")]
+            activity_count_awake <- dt_curated[meta = T][activity_count_awake]
+            activity_index <- as.data.frame(bout_summary)
+            activity_index$activity_index <- (activity_index$total_bout_length / 60) / activity_count_awake$activity_count_awake
+            ggplot(activity_index, aes(x = genotype, y = activity_index, fill = genotype)) +
+              # geom_boxplot(outlier.colour = "red") +    ######if boxplot needed
+              # geom_jitter(aes(colour = genotype), size = 2, alpha = .5, position = position_jitter(height = .1, width = .1)) +
+              geom_sina(aes(color = genotype), alpha = .6) +
+              geom_violin(aes(color = genotype, fill = genotype), trim = TRUE, alpha = 0.5) +
+              stat_summary(fun = mean, geom = "point", aes(color = genotype), size = 4, shape = 23) +
+              {
+                if (input$act_index_text == TRUE) {
+                  stat_summary(aes(label = round((..y..), 2), color = genotype),
+                    fun = mean, geom = "text",
+                    size = 5, vjust = -0.5
+                  )
+                }
+              } +
+              scale_y_continuous(name = "Activity index") +
+              scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
+              My_Theme_2 +
+              facet_grid(day ~ replicate, scales = "free_y")
+          },
+          res = 70,
+          width = input$act_index_width,
+          height = input$act_index_height
+        )
+      })
+
+
       ######################## for writing table#############################
-      pro_chi_sq <- overall_summary
-      pro_chi_sq_new <- overall_summary_new
+      pro_chi_sq <- bout_summary
+      pro_chi_sq_new <- bout_summary_phase
       pro_chi_sq$latency <- pro_chi_sq$latency / 60
       pro_chi_sq$first_bout_length <- pro_chi_sq$first_bout_length / 60
       pro_chi_sq$latency_to_longest_bout <- pro_chi_sq$latency_to_longest_bout / 60
       pro_chi_sq$length_longest_bout <- pro_chi_sq$length_longest_bout / 60
       pro_chi_sq$mean_bout_length <- pro_chi_sq$mean_bout_length / 60
+      pro_chi_sq$mean_bout_length <- pro_chi_sq$total_bout_length / 60
       pro_chi_sq <- as.matrix(pro_chi_sq)
       pro_chi_sq_new$mean_bout_length <- pro_chi_sq_new$mean_bout_length / 60
+      pro_chi_sq_new$mean_bout_length <- pro_chi_sq_new$total_bout_length / 60
       pro_chi_sq_new <- as.matrix(pro_chi_sq_new)
       ###########################
       output$periodpower <- DT::renderDataTable(

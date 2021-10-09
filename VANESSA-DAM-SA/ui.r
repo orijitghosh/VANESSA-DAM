@@ -147,12 +147,12 @@ shinyUI <-
           numericInput(
             "start",
             "Starting day",
-            0, 1, 30
+            1, 1, 30
           ) %>%
             helper(
               type = "inline",
               title = "Starting day",
-              content = c("Subset your data, Starting day 1 will be 0. <i>leave out transition days</i>"),
+              content = c("Subset your data, Starting day 1 will be 1. <i>leave out transition days</i>"),
               size = "s",
               buttonLabel = "Okay!",
               easyClose = TRUE,
@@ -276,7 +276,30 @@ shinyUI <-
               )
             ),
             tabPanel(
-              "Average plots over days individual"
+              "Curated ethograms wrapped"
+              %>%
+                helper(
+                  type = "inline",
+                  title = "",
+                  content = c("All curated sleep ethograms for all individuals for the chosen days averaged across days will be shown."),
+                  size = "s",
+                  buttonLabel = "Okay!",
+                  easyClose = TRUE,
+                  fade = TRUE
+                ),
+              mainPanel(
+                splitLayout(
+                  numericInput("curatedtho_wrap_height", "height", 2500, 500, 10000, 50),
+                  numericInput("curatedetho_wrap_width", "width", 1000, 500, 10000, 50)
+                ),
+                tags$hr(),
+                plotOutput(
+                  "curatedetho_wrap"
+                ) %>% withLoader(type = "html", loader = "pacman")
+              )
+            ),
+            tabPanel(
+              "Plots over days individual"
               %>%
                 helper(
                   type = "inline",
@@ -441,7 +464,12 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("popplotwrapbox_height", "height", 700, 300, 2000, 50),
-                numericInput("popplotwrapbox_width", "width", 1000, 500, 10000, 50)
+                numericInput("popplotwrapbox_width", "width", 1000, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "popplotwrapbox_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
               ),
               tags$hr(),
               plotOutput("popplotwrapbox") %>% withLoader(type = "html", loader = "pacman")
@@ -462,13 +490,192 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("popplotwrapboxmelt_height", "height", 700, 300, 2000, 50),
-                numericInput("popplotwrapboxmelt_width", "width", 1000, 500, 10000, 50)
+                numericInput("popplotwrapboxmelt_width", "width", 1000, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "popplotwrapboxmelt_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
               ),
               tags$hr(),
               plotOutput("popplotwrapboxmelt") %>% withLoader(type = "html", loader = "pacman")
             )
           ),
+          tabPanel(
+            "Time spent sleeping"
+            %>%
+              helper(
+                type = "inline",
+                title = "",
+                content = c("Total sleep in different days of different genotypes will be plotted as violin plots."),
+                size = "s",
+                buttonLabel = "Okay!",
+                easyClose = TRUE,
+                fade = TRUE
+              ),
+            mainPanel(
+              splitLayout(
+                numericInput("total_sleep_height", "height", 700, 300, 2000, 50),
+                numericInput("total_sleep_width", "width", 1000, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "total_sleep_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
+              ),
+              tags$hr(),
+              plotOutput("total_sleep") %>% withLoader(type = "html", loader = "pacman")
+            )
+          ),
+          tabPanel(
+            "Time spent awake"
+            %>%
+              helper(
+                type = "inline",
+                title = "",
+                content = c("Total awake time in different days of different genotypes will be plotted as violin plots."),
+                size = "s",
+                buttonLabel = "Okay!",
+                easyClose = TRUE,
+                fade = TRUE
+              ),
+            mainPanel(
+              splitLayout(
+                numericInput("total_awake_height", "height", 700, 300, 2000, 50),
+                numericInput("total_awake_width", "width", 1000, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "total_awake_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
+              ),
+              tags$hr(),
+              plotOutput("total_awake") %>% withLoader(type = "html", loader = "pacman")
+            )
+          ),
+          tabPanel(
+            "Time spent sleeping in day and night"
+            %>%
+              helper(
+                type = "inline",
+                title = "",
+                content = c("Total sleep time in light and day parts of different days of different genotypes will be plotted as violin plots."),
+                size = "s",
+                buttonLabel = "Okay!",
+                easyClose = TRUE,
+                fade = TRUE
+              ),
+            mainPanel(
+              splitLayout(
+                numericInput("total_sleep_phase_height", "height", 700, 300, 2000, 50),
+                numericInput("total_sleep_phase_width", "width", 1000, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "total_sleep_phase_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
+              ),
+              tags$hr(),
+              plotOutput("total_sleep_phase") %>% withLoader(type = "html", loader = "pacman")
+            )
+          ),
+          tabPanel(
+            "Time spent awake in day and night"
+            %>%
+              helper(
+                type = "inline",
+                title = "",
+                content = c("Total awake time in light and day parts of different days of different genotypes will be plotted as violin plots."),
+                size = "s",
+                buttonLabel = "Okay!",
+                easyClose = TRUE,
+                fade = TRUE
+              ),
+            mainPanel(
+              splitLayout(
+                numericInput("total_awake_phase_height", "height", 700, 300, 2000, 50),
+                numericInput("total_awake_phase_width", "width", 1000, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "total_awake_phase_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
+              ),
+              tags$hr(),
+              plotOutput("total_awake_phase") %>% withLoader(type = "html", loader = "pacman")
+            )
+          ),
+          tabPanel(
+            "Activity Index"
+            %>%
+              helper(
+                type = "inline",
+                title = "",
+                content = c("Activity index (total awake time activity counts/total awake minutes) of different days of different genotypes will be plotted as violin plots."),
+                size = "s",
+                buttonLabel = "Okay!",
+                easyClose = TRUE,
+                fade = TRUE
+              ),
+            mainPanel(
+              splitLayout(
+                numericInput("act_index_height", "height", 700, 300, 2000, 50),
+                numericInput("act_index_width", "width", 1000, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "act_index_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
+              ),
+              tags$hr(),
+              plotOutput("act_index") %>% withLoader(type = "html", loader = "pacman")
+            )
+          ),
+          # ,
+          #   tabPanel(
+          #     "Sleep total"
+          #     %>%
+          #       helper(
+          #         type = "inline",
+          #         title = "",
+          #         content = c("Sleep total in minutes of different genotypes will be plotted as violin plots."),
+          #         size = "s",
+          #         buttonLabel = "Okay!",
+          #         easyClose = TRUE,
+          #         fade = TRUE
+          #       ),
+          #     mainPanel(
+          #       splitLayout(
+          #         numericInput("popplotwrapbox_total_height", "height", 700, 300, 2000, 50),
+          #         numericInput("popplotwrapbox_total_width", "width", 1000, 500, 10000, 50)
+          #       ),
+          #       tags$hr(),
+          #       plotOutput("popplotwrapbox_total") %>% withLoader(type = "html", loader = "pacman")
+          #     )
+          #   ),
+          #   tabPanel(
+          #     "Sleep total summary"
+          #     %>%
+          #       helper(
+          #         type = "inline",
+          #         title = "",
+          #         content = c("Sleep total in minutes in light and dark part of the day of different genotypes will be plotted as violin plots."),
+          #         size = "s",
+          #         buttonLabel = "Okay!",
+          #         easyClose = TRUE,
+          #         fade = TRUE
+          #       ),
+          #     mainPanel(
+          #       splitLayout(
+          #         numericInput("popplotwrapboxmelt_total_height", "height", 700, 300, 2000, 50),
+          #         numericInput("popplotwrapboxmelt_total_width", "width", 1000, 500, 10000, 50)
+          #       ),
+          #       tags$hr(),
+          #       plotOutput("popplotwrapboxmelt_total") %>% withLoader(type = "html", loader = "pacman")
+          #     )
+          #   ),
           widths = c(3, 9)
+          # )
         )
       ),
       tabPanel("Bout analysis",
@@ -511,10 +718,41 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("numbouts_height", "height", 500, 300, 1000, 50),
-                numericInput("numbouts_width", "width", 700, 500, 10000, 50)
+                numericInput("numbouts_width", "width", 700, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "numbouts_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
               ),
               tags$hr(),
               plotOutput("numbouts") %>% withLoader(type = "html", loader = "pacman")
+            )
+          ),
+          tabPanel(
+            "Number of awake bouts"
+            %>%
+              helper(
+                type = "inline",
+                title = "",
+                content = c("Number of awake bouts of differemt genotypes will be plotted as violin plots."),
+                size = "s",
+                buttonLabel = "Okay!",
+                easyClose = TRUE,
+                fade = TRUE
+              ),
+            mainPanel(
+              splitLayout(
+                numericInput("numbouts_awake_height", "height", 500, 300, 1000, 50),
+                numericInput("numbouts_awake_width", "width", 700, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "numbouts_awake_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
+              ),
+              tags$hr(),
+              plotOutput("numbouts_awake") %>% withLoader(type = "html", loader = "pacman")
             )
           ),
           tabPanel(
@@ -532,10 +770,42 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("meanboutlength_height", "height", 500, 300, 2000, 50),
-                numericInput("meanboutlength_width", "width", 700, 500, 10000, 50)
+                numericInput("meanboutlength_width", "width", 700, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "meanboutlength_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
               ),
               tags$hr(),
               plotOutput("meanboutlength") %>% withLoader(type = "html", loader = "pacman")
+            )
+          ),
+
+          tabPanel(
+            "Mean awake bout length"
+            %>%
+              helper(
+                type = "inline",
+                title = "",
+                content = c("Mean lengths of awake bouts of differemt genotypes will be plotted as violin plots."),
+                size = "s",
+                buttonLabel = "Okay!",
+                easyClose = TRUE,
+                fade = TRUE
+              ),
+            mainPanel(
+              splitLayout(
+                numericInput("meanboutlength_awake_height", "height", 500, 300, 2000, 50),
+                numericInput("meanboutlength_awake_width", "width", 700, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "meanboutlength_awake_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
+              ),
+              tags$hr(),
+              plotOutput("meanboutlength_awake") %>% withLoader(type = "html", loader = "pacman")
             )
           ),
           tabPanel(
@@ -553,7 +823,12 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("numbouts_ld_height", "height", 500, 300, 2000, 50),
-                numericInput("numbouts_ld_width", "width", 700, 500, 10000, 50)
+                numericInput("numbouts_ld_width", "width", 700, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "numbouts_ld_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
               ),
               tags$hr(),
               plotOutput("numbouts_ld") %>% withLoader(type = "html", loader = "pacman")
@@ -574,7 +849,12 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("meanboutlength_ld_height", "height", 500, 300, 2000, 50),
-                numericInput("meanboutlength_ld_width", "width", 700, 500, 10000, 50)
+                numericInput("meanboutlength_ld_width", "width", 700, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "meanboutlength_ld_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
               ),
               tags$hr(),
               plotOutput("meanboutlength_ld") %>% withLoader(type = "html", loader = "pacman")
@@ -599,6 +879,58 @@ shinyUI <-
               ),
               tags$hr(),
               plotOutput("meanboutlength_distrib") %>% withLoader(type = "html", loader = "pacman")
+            )
+          ),
+          tabPanel(
+            "Latency to first bout"
+            %>%
+              helper(
+                type = "inline",
+                title = "",
+                content = c("Latency to first bout of differemt genotypes will be plotted as violin plots. Latency is calculated as minutes from ZT0. So, naturally the dark phase latency will be much larger, in case you want to calculate dark phase latency, substract total light hours in minutes from the reported dark phase latency value"),
+                size = "s",
+                buttonLabel = "Okay!",
+                easyClose = TRUE,
+                fade = TRUE
+              ),
+            mainPanel(
+              splitLayout(
+                numericInput("latency_height", "height", 500, 300, 1000, 50),
+                numericInput("latency_width", "width", 700, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "latency_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
+              ),
+              tags$hr(),
+              plotOutput("latency") %>% withLoader(type = "html", loader = "pacman")
+            )
+          ),
+          tabPanel(
+            "Latency to first bout in light and dark"
+            %>%
+              helper(
+                type = "inline",
+                title = "",
+                content = c("Latency to first bout of differemt genotypes in light and dark phases will be plotted as violin plots."),
+                size = "s",
+                buttonLabel = "Okay!",
+                easyClose = TRUE,
+                fade = TRUE
+              ),
+            mainPanel(
+              splitLayout(
+                numericInput("latency_ld_height", "height", 500, 300, 1000, 50),
+                numericInput("latency_ld_width", "width", 700, 500, 10000, 50),
+                awesomeCheckbox(
+                  inputId = "latency_ld_text",
+                  label = "Print mean values on plot",
+                  value = TRUE
+                )
+              ),
+              tags$hr(),
+              plotOutput("latency_ld") %>% withLoader(type = "html", loader = "pacman")
             )
           ),
           tabPanel(
