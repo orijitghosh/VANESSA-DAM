@@ -7,9 +7,9 @@
 
 VANESSA-DAM-CRA is dependent on [Quentin Geissmann](https://github.com/qgeissmann)'s [rethomics](https://github.com/rethomics) family of packages - [behavr](https://github.com/rethomics/behavr), [damr](https://github.com/rethomics/damr), [ggetho](https://github.com/rethomics/ggetho), [zeitgebr](https://github.com/rethomics/zeitgebr), for some analysis and visualization options. It offers several advantages over existing tools for circadian rhythm analysis from DAM systems, some mentionable ones are - 
 
-1. Analysis and visualization of multiple monitor files, genotypes, replicates together in a high-throughput manner.
+-1. Analysis and visualization of multiple monitor files, genotypes, replicates together in a high-throughput manner.
 
-2. Automatic period power detection through a range of periodogram methods.
+-2. Automatic period power detection through a range of periodogram methods.
 
 3. Producing high-resolution publication-quality figures with a plethora of customization.
 
