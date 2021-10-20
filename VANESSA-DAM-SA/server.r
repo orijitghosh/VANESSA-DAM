@@ -1199,6 +1199,7 @@ shinyServer(function(input, output, session) {
       pro_chi_sq <- as.matrix(pro_chi_sq)
       pro_chi_sq_new$mean_bout_length <- pro_chi_sq_new$mean_bout_length / 60
       pro_chi_sq_new$total_bout_length <- pro_chi_sq_new$total_bout_length / 60
+      pro_chi_sq_new$latency <- pro_chi_sq_new$latency / 60
       pro_chi_sq_new <- as.matrix(pro_chi_sq_new)
       ###########################
       output$periodpower <- DT::renderDataTable(
