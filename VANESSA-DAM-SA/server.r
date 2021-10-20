@@ -1120,7 +1120,7 @@ shinyServer(function(input, output, session) {
         output$total_awake_phase <- renderPlot(
           {
             req(input$meta)
-            ggplot(bout_summary_phase, aes(x = phase, y = total_bout_length / 60, fill = genotype)) +
+            ggplot(bout_summary_phase_awake, aes(x = phase, y = total_bout_length / 60, fill = genotype)) +
               # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
               # geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
               geom_sina(aes(color = genotype), alpha = .6) +
