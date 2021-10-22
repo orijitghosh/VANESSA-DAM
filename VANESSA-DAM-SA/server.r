@@ -1138,7 +1138,7 @@ shinyServer(function(input, output, session) {
                 }
               } +
               scale_x_discrete(name = "Genotype") +
-              scale_y_continuous(name = "Total time sleeping (m)") +
+              scale_y_continuous(name = "Total time awake (m)") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               facet_grid(day ~ replicate, scales = "free_y") +
