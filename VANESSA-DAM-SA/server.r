@@ -399,7 +399,7 @@ shinyServer(function(input, output, session) {
     })
     WD <- parseDirPath(volumes, input$folder)
     req(input$meta)
-    metadata <- fread(input$meta$datapath)
+    metadata <- read.csv(input$meta$datapath)
     metadata <- na.omit(metadata)
     metadata_proc <- link_dam_metadata(metadata, result_dir = WD)
     output$contents <- DT::renderDataTable(
