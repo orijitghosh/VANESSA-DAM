@@ -361,7 +361,7 @@ shinyServer(function(input, output, session) {
     })
     WD <- parseDirPath(volumes, input$folder)
     req(input$meta)
-    metadata <- fread(input$meta$datapath)
+    metadata <- read.csv(input$meta$datapath)
     metadata <- na.omit(metadata)
     metadata_proc <- link_dam_metadata(metadata, result_dir = WD)
     output$contents <- DT::renderDataTable(
@@ -837,7 +837,7 @@ shinyServer(function(input, output, session) {
               summary_time_window = mins(input$min)
             ) +
               stat_ld_annotations(
-                height = .3,
+                height = 1,
                 alpha = .1,
                 x_limits = c(0, hours(24)),
                 outline = NA,
