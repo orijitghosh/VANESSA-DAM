@@ -570,7 +570,7 @@ shinyServer(function(input, output, session) {
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               My_Theme +
-              facet_grid(~replicate, scales = "free_y")
+              facet_wrap(~ replicate, scales = "free_y")
           },
           res = 70,
           width = input$popplot1_width,
@@ -591,7 +591,7 @@ shinyServer(function(input, output, session) {
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               My_Theme +
-              facet_grid(~replicate, scales = "free_y")
+              facet_wrap(~ replicate, scales = "free_y")
           },
           res = 70,
           width = input$popplotwrap1_width,
@@ -612,7 +612,7 @@ shinyServer(function(input, output, session) {
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               My_Theme +
-              facet_grid(~replicate) +
+              facet_wrap(~ replicate) +
               coord_polar(clip = "off")
           },
           res = 70,
