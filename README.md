@@ -56,4 +56,4 @@ A short tutorial is provided (*Easy tutorial to start using VANESSA-DAM-SA.pdf*)
 #### Troubleshooting:
 1. Sometimes due to different settings in one's RStudio, packages may have been loaded in R when RStudio is initialized. These loaded packages may mask certain functions from the packages needed by VANESSA-DAM to work properly. To avoid this, please restart R and clear the global environment in RStudio by pressing **ctl+shift+F10** or by clicking on **Session > Restart R** from RStudio menu.
 2. While calculating **Activity Index**, in case you get an error, please consider reducing the number of days being analyzed. This problem arises due to death of one or more flies before the ending day.
-3. If your local R installation language settings are other than English, please set local language as English before starting the apps by running this command: ```Sys.setlocale("LC_ALL","English")```.
+3. If your local R installation language settings are other than **_English_**, please set local language as **_English_** before starting the apps by running this command: ```Sys.setlocale("LC_ALL","English")```.
