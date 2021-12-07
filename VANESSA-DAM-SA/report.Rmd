@@ -21,21 +21,53 @@ params:
   permethod: NA
   ul: NA
   ll: NA
-# Reproducible code report - VANESSA-DAM-CRA   
+# Reproducible code report - VANESSA-DAM-SA   
 ---
 
 ### All parameters used in the shiny app for analysis.
+##### Metadata file name
 ```{r}
 params$meta
+```
+##### Working directory (Use the directory where your metadata file and monitor files are saved)
+```{r}
 params$wd
+```
+##### Modulo-tau value for actograms in hours (generally used value = 24) 
+```{r}
 params$modtau
+```
+##### The total daylength in your experiment in hours (light + dark phase total, generally used value = 24)
+```{r}
 params$ldperiod
+```
+##### Summary time window in minutes (used in average profiles)
+```{r}
 params$min
+```
+##### Total light hours in hours (used for light-dark shading)
+```{r}
 params$light
+```
+##### Total number of monitors being analyzed
+```{r}
 params$genotype
+```
+##### If your analysis involves replicates (if no replicate used, keep value = 1)
+```{r}
 params$replicate
+```
+##### Number of days flies have to be alive to be included in analysis
+```{r}
 params$remove
+```
+##### Start day of analysis (keep 1 if you want to start from first day as mentioned in metadata file)
+```{r}
 params$start
+```
+##### End day of analysis (use value = N, where N is the last day you want to include in your analysis, e.g.: 
+##### if you want to use day 1 to day 5 of data in your analysis, use start day as 1 and end day as 5)
+```{r}
 params$end
 ```
 

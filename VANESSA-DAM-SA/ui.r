@@ -26,11 +26,17 @@ shinyUI <-
         useShinyalert(),
         sidebarPanel(
           width = 2,
-          shinyDirButton("folder", "Select folder with monitor files", "Please select a folder",
-            buttonType = "default",
-            icon = icon("folder-open")
+          fileInput(
+            "data",
+            "Choose Monitor Files",
+            multiple = TRUE,
+            accept = c(
+              "text/csv",
+              "text/comma-separated-values,text/plain",
+              ".csv"
+            )
           ),
-          tags$hr(),
+          # tags$hr(),
           fileInput(
             "meta",
             "Choose Metadata File",
@@ -172,6 +178,7 @@ shinyUI <-
               easyClose = TRUE,
               fade = TRUE
             ),
+          # submitButton("Update Values on all fields", icon("refresh"), width = "200px"),
           withBusyIndicatorUI(
             actionBttn(
               inputId = "cal",
@@ -206,6 +213,7 @@ shinyUI <-
           colourInput("col12", "Select colour", allowTransparent = TRUE, returnName = TRUE),
           width = 2
         ),
+        # submitButton("Update Values on all fields", icon("refresh"), width = "200px"),
         mainPanel(box(
           width = 12,
           div(
@@ -244,7 +252,14 @@ shinyUI <-
               mainPanel(
                 splitLayout(
                   numericInput("alletho_height", "height", 2500, 500, 10000, 50),
-                  numericInput("alletho_width", "width", 1500, 500, 10000, 50)
+                  numericInput("alletho_width", "width", 1500, 500, 10000, 50),
+                  actionBttn(
+                    inputId = "plotalletho",
+                    label = "Plot",
+                    style = "minimal",
+                    color = "primary",
+                    icon = icon("forward")
+                  )
                 ),
                 tags$hr(),
                 plotOutput(
@@ -266,8 +281,15 @@ shinyUI <-
                 ),
               mainPanel(
                 splitLayout(
-                  numericInput("curatedtho_height", "height", 2500, 500, 10000, 50),
-                  numericInput("curatedetho_width", "width", 1500, 500, 10000, 50)
+                  numericInput("curatedetho_height", "height", 2500, 500, 10000, 50),
+                  numericInput("curatedetho_width", "width", 1500, 500, 10000, 50),
+                  actionBttn(
+                    inputId = "plotcuratedetho",
+                    label = "Plot",
+                    style = "minimal",
+                    color = "primary",
+                    icon = icon("forward")
+                  )
                 ),
                 tags$hr(),
                 plotOutput(
@@ -289,8 +311,15 @@ shinyUI <-
                 ),
               mainPanel(
                 splitLayout(
-                  numericInput("curatedtho_wrap_height", "height", 2500, 500, 10000, 50),
-                  numericInput("curatedetho_wrap_width", "width", 1000, 500, 10000, 50)
+                  numericInput("curatedetho_wrap_height", "height", 2500, 500, 10000, 50),
+                  numericInput("curatedetho_wrap_width", "width", 1000, 500, 10000, 50),
+                  actionBttn(
+                    inputId = "plotcuratedetho_wrap",
+                    label = "Plot",
+                    style = "minimal",
+                    color = "primary",
+                    icon = icon("forward")
+                  )
                 ),
                 tags$hr(),
                 plotOutput(
@@ -313,7 +342,14 @@ shinyUI <-
               mainPanel(
                 splitLayout(
                   numericInput("popplot_height", "height", 6000, 3000, 10000, 50),
-                  numericInput("popplot_width", "width", 1500, 500, 10000, 50)
+                  numericInput("popplot_width", "width", 1500, 500, 10000, 50),
+                  actionBttn(
+                    inputId = "plotpopplot",
+                    label = "Plot",
+                    style = "minimal",
+                    color = "primary",
+                    icon = icon("forward")
+                  )
                 ),
                 tags$hr(),
                 plotOutput(
@@ -336,7 +372,14 @@ shinyUI <-
               mainPanel(
                 splitLayout(
                   numericInput("popplotwrap_height", "height", 1400, 800, 3000, 50),
-                  numericInput("popplotwrap_width", "width", 1500, 500, 10000, 50)
+                  numericInput("popplotwrap_width", "width", 1500, 500, 10000, 50),
+                  actionBttn(
+                    inputId = "plotpopplotwrap",
+                    label = "Plot",
+                    style = "minimal",
+                    color = "primary",
+                    icon = icon("forward")
+                  )
                 ),
                 tags$hr(),
                 plotOutput(
@@ -359,7 +402,14 @@ shinyUI <-
               mainPanel(
                 splitLayout(
                   numericInput("popplot1_height", "height", 300, 100, 1000, 50),
-                  numericInput("popplot1_width", "width", 1200, 500, 10000, 50)
+                  numericInput("popplot1_width", "width", 1200, 500, 10000, 50),
+                  actionBttn(
+                    inputId = "plotpopplot1",
+                    label = "Plot",
+                    style = "minimal",
+                    color = "primary",
+                    icon = icon("forward")
+                  )
                 ),
                 tags$hr(),
                 plotOutput(
@@ -382,7 +432,14 @@ shinyUI <-
               mainPanel(
                 splitLayout(
                   numericInput("popplotwrap1_height", "height", 300, 100, 1000, 50),
-                  numericInput("popplotwrap1_width", "width", 1000, 500, 10000, 50)
+                  numericInput("popplotwrap1_width", "width", 1000, 500, 10000, 50),
+                  actionBttn(
+                    inputId = "plotpopplotwrap1",
+                    label = "Plot",
+                    style = "minimal",
+                    color = "primary",
+                    icon = icon("forward")
+                  )
                 ),
                 tags$hr(),
                 plotOutput(
@@ -404,8 +461,15 @@ shinyUI <-
                 ),
               mainPanel(
                 splitLayout(
-                  numericInput("popplotwrap1polar_height", "height", 700, 300, 1500, 50),
-                  numericInput("popplotwrap1polar_width", "width", 700, 300, 1500, 50)
+                  numericInput("popplotwrap1polar_height", "height", 1000, 300, 1500, 50),
+                  numericInput("popplotwrap1polar_width", "width", 1000, 300, 1500, 50),
+                  actionBttn(
+                    inputId = "plotpopplotwrap1polar",
+                    label = "Plot",
+                    style = "minimal",
+                    color = "primary",
+                    icon = icon("forward")
+                  )
                 ),
                 tags$hr(),
                 plotOutput(
@@ -469,6 +533,13 @@ shinyUI <-
                   inputId = "popplotwrapbox_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plotpopplotwrapbox",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -495,6 +566,13 @@ shinyUI <-
                   inputId = "popplotwrapboxmelt_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plotpopplotwrapboxmelt",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -521,6 +599,13 @@ shinyUI <-
                   inputId = "total_sleep_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plottotal_sleep",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -547,6 +632,13 @@ shinyUI <-
                   inputId = "total_awake_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plottotal_awake",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -573,6 +665,13 @@ shinyUI <-
                   inputId = "total_sleep_phase_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plottotal_sleep_phase",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -599,6 +698,13 @@ shinyUI <-
                   inputId = "total_awake_phase_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plottotal_awake_phase",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -625,6 +731,13 @@ shinyUI <-
                   inputId = "act_index_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plotact_index",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -654,7 +767,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("bout_height", "height", 300, 100, 1000, 50),
-                numericInput("bout_width", "width", 1000, 500, 10000, 50)
+                numericInput("bout_width", "width", 1000, 500, 10000, 50),
+                actionBttn(
+                  inputId = "plotbout",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput("bout") %>% withLoader(type = "html", loader = "pacman")
@@ -680,6 +800,13 @@ shinyUI <-
                   inputId = "numbouts_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plotnumbouts",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -706,6 +833,13 @@ shinyUI <-
                   inputId = "numbouts_awake_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plotnumbouts_awake",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -732,6 +866,13 @@ shinyUI <-
                   inputId = "meanboutlength_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plotmeanboutlength",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -759,6 +900,13 @@ shinyUI <-
                   inputId = "meanboutlength_awake_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plotmeanboutlength_awake",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -785,6 +933,13 @@ shinyUI <-
                   inputId = "numbouts_ld_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plotnumbouts_ld",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -811,6 +966,13 @@ shinyUI <-
                   inputId = "meanboutlength_ld_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plotmeanboutlength_ld",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -832,7 +994,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("meanboutlength_distrib_height", "height", 500, 300, 2000, 50),
-                numericInput("meanboutlength_distrib_width", "width", 700, 500, 10000, 50)
+                numericInput("meanboutlength_distrib_width", "width", 700, 500, 10000, 50),
+                actionBttn(
+                  inputId = "plotmeanboutlength_distrib",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput("meanboutlength_distrib") %>% withLoader(type = "html", loader = "pacman")
@@ -858,6 +1027,13 @@ shinyUI <-
                   inputId = "latency_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plotlatency",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -884,6 +1060,13 @@ shinyUI <-
                   inputId = "latency_ld_text",
                   label = "Print mean values on plot",
                   value = TRUE
+                ),
+                actionBttn(
+                  inputId = "plotlatency_ld",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
                 )
               ),
               tags$hr(),
@@ -905,7 +1088,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("boutsummary_height", "height", 300, 100, 1000, 50),
-                numericInput("boutsummary_width", "width", 1000, 500, 10000, 50)
+                numericInput("boutsummary_width", "width", 1000, 500, 10000, 50),
+                actionBttn(
+                  inputId = "plotboutsummary",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput("boutsummary") %>% withLoader(type = "html", loader = "pacman")
@@ -1264,23 +1454,32 @@ shinyUI <-
           textInput("genotype12_4", label = "Genotype for channels 25-32", value = ""),
           textInput("replicate12_4", label = "Replicate for channels 25-32", value = ""),
           hr(),
-          withBusyIndicatorUI(
-            actionBttn(
-              inputId = "do",
-              label = "Write metadata file",
-              style = "minimal",
-              color = "primary",
-              icon = icon("pen-nib")
-            )
-          )
+          downloadBttn(
+            outputId = "downloadmetadata",
+            label = "Download metadata",
+            style = "minimal",
+            color = "primary"
+          ),
         ),
         mainPanel(box(
           width = 12,
           div(
             style = "overflow-x: scroll",
+            actionBttn(
+              inputId = "updatemeta",
+              label = "Update metadata",
+              style = "minimal",
+              color = "primary",
+              icon = icon("forward")
+            ),
             tableOutput("userdata") %>% withLoader(type = "html", loader = "pacman")
           )
         ))
+      ),
+      tabPanel(
+        "Documentation",
+        icon = icon("book-open"),
+        source("Documentation.R", local = TRUE)[1]
       )
     )
   )
