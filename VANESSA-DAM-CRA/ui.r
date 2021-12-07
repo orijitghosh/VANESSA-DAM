@@ -26,11 +26,17 @@ shinyUI <-
         useShinyalert(),
         sidebarPanel(
           width = 2,
-          shinyDirButton("folder", "Select folder with monitor files", "Please select a folder",
-            buttonType = "default",
-            icon = icon("folder-open")
+          fileInput(
+            "data",
+            "Choose Monitor Files",
+            multiple = TRUE,
+            accept = c(
+              "text/csv",
+              "text/comma-separated-values,text/plain",
+              ".csv"
+            )
           ),
-          tags$hr(),
+          # tags$hr(),
           fileInput(
             "meta",
             "Choose Metadata File",
@@ -289,7 +295,14 @@ shinyUI <-
               mainPanel(
                 splitLayout(
                   numericInput("chisqperiodplotallwithpeaks_height", "height", 50, 30, 100, 10),
-                  numericInput("chisqperiodplotallwithpeaks_width", "width", 1400, 900, 3000, 50)
+                  numericInput("chisqperiodplotallwithpeaks_width", "width", 1400, 900, 3000, 50),
+                  actionBttn(
+                    inputId = "plotchisqperiodplotallwithpeaks",
+                    label = "Plot",
+                    style = "minimal",
+                    color = "primary",
+                    icon = icon("forward")
+                  )
                 ),
                 tags$hr(),
                 plotOutput(
@@ -312,7 +325,14 @@ shinyUI <-
               mainPanel(
                 splitLayout(
                   numericInput("chisqperiodplotaverage_height", "height", 500, 300, 1500, 50),
-                  numericInput("chisqperiodplotaverage_width", "width", 1400, 900, 3000, 50)
+                  numericInput("chisqperiodplotaverage_width", "width", 1400, 900, 3000, 50),
+                  actionBttn(
+                    inputId = "plotchisqperiodplotaverage",
+                    label = "Plot",
+                    style = "minimal",
+                    color = "primary",
+                    icon = icon("forward")
+                  )
                 ),
                 tags$hr(),
                 plotOutput(
@@ -340,6 +360,13 @@ shinyUI <-
                     inputId = "chisqperiodplotviolin_text",
                     label = "Print mean values on plot",
                     value = TRUE
+                  ),
+                  actionBttn(
+                    inputId = "plotchisqperiodplotviolin",
+                    label = "Plot",
+                    style = "minimal",
+                    color = "primary",
+                    icon = icon("forward")
                   )
                 ),
                 tags$hr(),
@@ -363,7 +390,14 @@ shinyUI <-
               mainPanel(
                 splitLayout(
                   numericInput("perioddistrib_height", "height", 500, 300, 1500, 50),
-                  numericInput("perioddistrib_width", "width", 800, 400, 3000, 50)
+                  numericInput("perioddistrib_width", "width", 800, 400, 3000, 50),
+                  actionBttn(
+                    inputId = "plotperioddistrib",
+                    label = "Plot",
+                    style = "minimal",
+                    color = "primary",
+                    icon = icon("forward")
+                  )
                 ),
                 tags$hr(),
                 plotOutput(
@@ -416,7 +450,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("alletho_height", "height", 2500, 1000, 10000, 50),
-                numericInput("alletho_width", "width", 1500, 500, 5000, 50)
+                numericInput("alletho_width", "width", 1500, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotalletho",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput("alletho") %>% withLoader(type = "html", loader = "pacman")
@@ -437,7 +478,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("allacto_height", "height", 2500, 1000, 10000, 50),
-                numericInput("allacto_width", "width", 1500, 500, 5000, 50)
+                numericInput("allacto_width", "width", 1500, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotallacto",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput("allacto") %>% withLoader(type = "html", loader = "pacman")
@@ -458,7 +506,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("curatedetho_height", "height", 2500, 1000, 10000, 50),
-                numericInput("curatedetho_width", "width", 1500, 500, 5000, 50)
+                numericInput("curatedetho_width", "width", 1500, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotcuratedetho",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput("curatedetho") %>% withLoader(type = "html", loader = "pacman")
@@ -479,7 +534,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("curatedacto_height", "height", 2500, 1000, 10000, 50),
-                numericInput("curatedacto_width", "width", 1500, 500, 5000, 50)
+                numericInput("curatedacto_width", "width", 1500, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotcuratedacto",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput("curatedacto") %>% withLoader(type = "html", loader = "pacman")
@@ -501,7 +563,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("indiv_raw_height", "height", 600, 100, 1500, 50),
-                numericInput("indiv_raw_width", "width", 1000, 500, 5000, 50)
+                numericInput("indiv_raw_width", "width", 1000, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotindiv_raw",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               plotOutput(
                 "indiv_raw",
@@ -523,7 +592,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("indiv_avg_height", "height", 600, 100, 1500, 50),
-                numericInput("indiv_avg_width", "width", 1000, 500, 5000, 50)
+                numericInput("indiv_avg_width", "width", 1000, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotindiv_avg",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               plotOutput(
                 "indiv_avg",
@@ -546,7 +622,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("curatedactoraw_height", "height", 70, 50, 100, 10),
-                numericInput("curatedactoraw_width", "width", 1600, 500, 5000, 50)
+                numericInput("curatedactoraw_width", "width", 1600, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotcuratedactoraw",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput(
@@ -569,7 +652,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("curatedactoavg_height", "height", 70, 50, 100, 10),
-                numericInput("curatedactoavg_width", "width", 1600, 500, 5000, 50)
+                numericInput("curatedactoavg_width", "width", 1600, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotcuratedactoavg",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput(
@@ -593,7 +683,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("rawpro_height", "height", 50, 30, 100, 10),
-                numericInput("rawpro_width", "width", 1600, 500, 5000, 50)
+                numericInput("rawpro_width", "width", 1600, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotrawpro",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput(
@@ -616,7 +713,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("avgpro_height", "height", 50, 30, 100, 10),
-                numericInput("avgpro_width", "width", 1600, 500, 5000, 50)
+                numericInput("avgpro_width", "width", 1600, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotavgpro",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput(
@@ -640,7 +744,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("avgdaywisepro1_raw_height", "height", 500, 100, 1000, 50),
-                numericInput("avgdaywisepro1_raw_width", "width", 1500, 500, 5000, 50)
+                numericInput("avgdaywisepro1_raw_width", "width", 1500, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotavgdaywisepro1_raw",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput(
@@ -663,7 +774,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("avgdaywisepro1_height", "height", 500, 100, 1000, 50),
-                numericInput("avgdaywisepro1_width", "width", 1500, 500, 5000, 50)
+                numericInput("avgdaywisepro1_width", "width", 1500, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotavgdaywisepro1",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput(
@@ -687,7 +805,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("rawpro1_height", "height", 600, 100, 1500, 50),
-                numericInput("rawpro1_width", "width", 1500, 500, 5000, 50)
+                numericInput("rawpro1_width", "width", 1500, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotrawpro1",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput(
@@ -710,7 +835,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("avgpro1_height", "height", 600, 100, 1500, 50),
-                numericInput("avgpro1_width", "width", 1500, 500, 5000, 50)
+                numericInput("avgpro1_width", "width", 1500, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotavgpro1",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput(
@@ -733,7 +865,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("rawpro1all_height", "height", 500, 100, 1500, 50),
-                numericInput("rawpro1all_width", "width", 1500, 500, 5000, 50)
+                numericInput("rawpro1all_width", "width", 1500, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotrawpro1all",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput(
@@ -756,7 +895,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("avgpro1all_height", "height", 500, 100, 1500, 50),
-                numericInput("avgpro1all_width", "width", 1500, 500, 5000, 50)
+                numericInput("avgpro1all_width", "width", 1500, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotavgpro1all",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput(
@@ -780,7 +926,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("avgprocircular_height", "height", 700, 500, 5000, 50),
-                numericInput("avgprocircular_width", "width", 700, 500, 5000, 50)
+                numericInput("avgprocircular_width", "width", 700, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotavgprocircular",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput(
@@ -803,7 +956,14 @@ shinyUI <-
             mainPanel(
               splitLayout(
                 numericInput("avgprocircular_raw_height", "height", 700, 500, 5000, 50),
-                numericInput("avgprocircular_raw_width", "width", 700, 500, 5000, 50)
+                numericInput("avgprocircular_raw_width", "width", 700, 500, 5000, 50),
+                actionBttn(
+                  inputId = "plotavgprocircular_raw",
+                  label = "Plot",
+                  style = "minimal",
+                  color = "primary",
+                  icon = icon("forward")
+                )
               ),
               tags$hr(),
               plotOutput(
@@ -1212,20 +1372,24 @@ shinyUI <-
           textInput("genotype12_4", label = "Genotype for channels 25-32", value = ""),
           textInput("replicate12_4", label = "Replicate for channels 25-32", value = ""),
           hr(),
-          withBusyIndicatorUI(
-            actionBttn(
-              inputId = "do",
-              label = "Write metadata file",
+            downloadBttn(
+              outputId = "downloadmetadata",
+              label = "Download metadata",
               style = "minimal",
-              color = "primary",
-              icon = icon("pen-nib")
-            )
-          )
+              color = "primary"
+            ),
         ),
         mainPanel(box(
           width = 12,
           div(
             style = "overflow-x: scroll",
+            actionBttn(
+              inputId = "updatemeta",
+              label = "Update metadata",
+              style = "minimal",
+              color = "primary",
+              icon = icon("forward")
+            ),
             tableOutput("userdata") %>% withLoader(type = "html", loader = "pacman")
           )
         ))
@@ -1413,7 +1577,7 @@ shinyUI <-
           airDatepickerInput(
             inputId = "resultdatetime_smooth",
             value = Sys.Date(),
-            label = "Pick an arbitrary date for average profile, keep the time same as of start and end time of your data when subsetting:",
+            label = "Pick an arbitrary date for average profile, keep the time same as of start and end time of your data when subsetting.",
             timepicker = TRUE,
             timepickerOpts = timepickerOptions(timeFormat = "hh:ii:00"),
             update_on = "close",
@@ -1510,6 +1674,11 @@ shinyUI <-
             ) %>% withLoader(type = "html", loader = "pacman")
           )
         ))
+      ),
+      tabPanel(
+        "Documentation",
+        icon = icon("book-open"),
+        source("Documentation.R", local = TRUE)[1]
       )
     )
   )

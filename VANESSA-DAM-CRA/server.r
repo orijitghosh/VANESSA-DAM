@@ -15,8 +15,8 @@ library(colourpicker)
 library(beepr)
 library(shinyWidgets)
 library(shinyhelper)
-library(shinyFiles)
-library(fs)
+# library(shinyFiles)
+# library(fs)
 library(ggforce)
 shinyServer(function(input, output, session) {
   shinyalert(
@@ -30,7 +30,7 @@ shinyServer(function(input, output, session) {
     confirmButtonText = "Understood!",
     confirmButtonCol = "#AEDEF4",
     timer = 0,
-    imageUrl = "/VANESSA_hex.png",
+    imageUrl = "./VANESSA_hex.png",
     imageWidth = 200,
     imageHeight = 200,
     animation = TRUE,
@@ -94,276 +94,269 @@ shinyServer(function(input, output, session) {
   session$onSessionEnded(stopApp)
   observe_helpers(withMathJax = TRUE)
   observe({
-    userdata1 <- matrix(nrow = 32, ncol = 6)
-    userdata1[, 1] <- input$monitorname1 ### change monitor name
-    userdata1[, 2] <- as.character(input$startdatetime1) ### start date of recording time is ZT0
-    userdata1[, 3] <- as.character(input$enddatetime1) ### stop date
-    userdata1[(1:8), 5] <- input$genotype1_1 ### name of your genotype
-    userdata1[(9:16), 5] <- input$genotype1_2 ### name of your genotype
-    userdata1[(17:24), 5] <- input$genotype1_3 ### name of your genotype
-    userdata1[(25:32), 5] <- input$genotype1_4 ### name of your genotype
-    userdata1[, 4] <- seq(1, 32, by = 1)
-    userdata1[(1:8), 6] <- input$replicate1_1
-    userdata1[(9:16), 6] <- input$replicate1_2
-    userdata1[(17:24), 6] <- input$replicate1_3
-    userdata1[(25:32), 6] <- input$replicate1_4
+    req(
+      # input$modtau, input$ldperiod, input$min, input$light, input$ind_act_met
+      input$genotype, input$replicate, input$remove, input$start, input$end
+    )
+    observeEvent(input$updatemeta, {
+      userdata1 <- matrix(nrow = 32, ncol = 6)
+      userdata1[, 1] <- input$monitorname1 ### change monitor name
+      userdata1[, 2] <- as.character(input$startdatetime1) ### start date of recording time is ZT0
+      userdata1[, 3] <- as.character(input$enddatetime1) ### stop date
+      userdata1[(1:8), 5] <- input$genotype1_1 ### name of your genotype
+      userdata1[(9:16), 5] <- input$genotype1_2 ### name of your genotype
+      userdata1[(17:24), 5] <- input$genotype1_3 ### name of your genotype
+      userdata1[(25:32), 5] <- input$genotype1_4 ### name of your genotype
+      userdata1[, 4] <- seq(1, 32, by = 1)
+      userdata1[(1:8), 6] <- input$replicate1_1
+      userdata1[(9:16), 6] <- input$replicate1_2
+      userdata1[(17:24), 6] <- input$replicate1_3
+      userdata1[(25:32), 6] <- input$replicate1_4
 
-    userdata2 <- matrix(nrow = 32, ncol = 6)
-    userdata2[, 1] <- input$monitorname2 ### change monitor name
-    userdata2[, 2] <- as.character(input$startdatetime2) ### start date of recording time is ZT0
-    userdata2[, 3] <- as.character(input$enddatetime2) ### stop date
-    userdata2[(1:8), 5] <- input$genotype2_1 ### name of your genotype
-    userdata2[(9:16), 5] <- input$genotype2_2 ### name of your genotype
-    userdata2[(17:24), 5] <- input$genotype2_3 ### name of your genotype
-    userdata2[(25:32), 5] <- input$genotype2_4 ### name of your genotype
-    userdata2[, 4] <- seq(1, 32, by = 1)
-    userdata2[(1:8), 6] <- input$replicate2_1
-    userdata2[(9:16), 6] <- input$replicate2_2
-    userdata2[(17:24), 6] <- input$replicate2_3
-    userdata2[(25:32), 6] <- input$replicate2_4
+      userdata2 <- matrix(nrow = 32, ncol = 6)
+      userdata2[, 1] <- input$monitorname2 ### change monitor name
+      userdata2[, 2] <- as.character(input$startdatetime2) ### start date of recording time is ZT0
+      userdata2[, 3] <- as.character(input$enddatetime2) ### stop date
+      userdata2[(1:8), 5] <- input$genotype2_1 ### name of your genotype
+      userdata2[(9:16), 5] <- input$genotype2_2 ### name of your genotype
+      userdata2[(17:24), 5] <- input$genotype2_3 ### name of your genotype
+      userdata2[(25:32), 5] <- input$genotype2_4 ### name of your genotype
+      userdata2[, 4] <- seq(1, 32, by = 1)
+      userdata2[(1:8), 6] <- input$replicate2_1
+      userdata2[(9:16), 6] <- input$replicate2_2
+      userdata2[(17:24), 6] <- input$replicate2_3
+      userdata2[(25:32), 6] <- input$replicate2_4
 
-    userdata3 <- matrix(nrow = 32, ncol = 6)
-    userdata3[, 1] <- input$monitorname3 ### change monitor name
-    userdata3[, 2] <- as.character(input$startdatetime3) ### start date of recording time is ZT0
-    userdata3[, 3] <- as.character(input$enddatetime3) ### stop date
-    userdata3[(1:8), 5] <- input$genotype3_1 ### name of your genotype
-    userdata3[(9:16), 5] <- input$genotype3_2 ### name of your genotype
-    userdata3[(17:24), 5] <- input$genotype3_3 ### name of your genotype
-    userdata3[(25:32), 5] <- input$genotype3_4 ### name of your genotype
-    userdata3[, 4] <- seq(1, 32, by = 1)
-    userdata3[(1:8), 6] <- input$replicate3_1
-    userdata3[(9:16), 6] <- input$replicate3_2
-    userdata3[(17:24), 6] <- input$replicate3_3
-    userdata3[(25:32), 6] <- input$replicate3_4
+      userdata3 <- matrix(nrow = 32, ncol = 6)
+      userdata3[, 1] <- input$monitorname3 ### change monitor name
+      userdata3[, 2] <- as.character(input$startdatetime3) ### start date of recording time is ZT0
+      userdata3[, 3] <- as.character(input$enddatetime3) ### stop date
+      userdata3[(1:8), 5] <- input$genotype3_1 ### name of your genotype
+      userdata3[(9:16), 5] <- input$genotype3_2 ### name of your genotype
+      userdata3[(17:24), 5] <- input$genotype3_3 ### name of your genotype
+      userdata3[(25:32), 5] <- input$genotype3_4 ### name of your genotype
+      userdata3[, 4] <- seq(1, 32, by = 1)
+      userdata3[(1:8), 6] <- input$replicate3_1
+      userdata3[(9:16), 6] <- input$replicate3_2
+      userdata3[(17:24), 6] <- input$replicate3_3
+      userdata3[(25:32), 6] <- input$replicate3_4
 
-    userdata4 <- matrix(nrow = 32, ncol = 6)
-    userdata4[, 1] <- input$monitorname4 ### change monitor name
-    userdata4[, 2] <- as.character(input$startdatetime4) ### start date of recording time is ZT0
-    userdata4[, 3] <- as.character(input$enddatetime4) ### stop date
-    userdata4[(1:8), 5] <- input$genotype4_1 ### name of your genotype
-    userdata4[(9:16), 5] <- input$genotype4_2 ### name of your genotype
-    userdata4[(17:24), 5] <- input$genotype4_3 ### name of your genotype
-    userdata4[(25:32), 5] <- input$genotype4_4 ### name of your genotype
-    userdata4[, 4] <- seq(1, 32, by = 1)
-    userdata4[(1:8), 6] <- input$replicate4_1
-    userdata4[(9:16), 6] <- input$replicate4_2
-    userdata4[(17:24), 6] <- input$replicate4_3
-    userdata4[(25:32), 6] <- input$replicate4_4
+      userdata4 <- matrix(nrow = 32, ncol = 6)
+      userdata4[, 1] <- input$monitorname4 ### change monitor name
+      userdata4[, 2] <- as.character(input$startdatetime4) ### start date of recording time is ZT0
+      userdata4[, 3] <- as.character(input$enddatetime4) ### stop date
+      userdata4[(1:8), 5] <- input$genotype4_1 ### name of your genotype
+      userdata4[(9:16), 5] <- input$genotype4_2 ### name of your genotype
+      userdata4[(17:24), 5] <- input$genotype4_3 ### name of your genotype
+      userdata4[(25:32), 5] <- input$genotype4_4 ### name of your genotype
+      userdata4[, 4] <- seq(1, 32, by = 1)
+      userdata4[(1:8), 6] <- input$replicate4_1
+      userdata4[(9:16), 6] <- input$replicate4_2
+      userdata4[(17:24), 6] <- input$replicate4_3
+      userdata4[(25:32), 6] <- input$replicate4_4
 
-    userdata5 <- matrix(nrow = 32, ncol = 6)
-    userdata5[, 1] <- input$monitorname5 ### change monitor name
-    userdata5[, 2] <- as.character(input$startdatetime5) ### start date of recording time is ZT0
-    userdata5[, 3] <- as.character(input$enddatetime5) ### stop date
-    userdata5[(1:8), 5] <- input$genotype5_1 ### name of your genotype
-    userdata5[(9:16), 5] <- input$genotype5_2 ### name of your genotype
-    userdata5[(17:24), 5] <- input$genotype5_3 ### name of your genotype
-    userdata5[(25:32), 5] <- input$genotype5_4 ### name of your genotype
-    userdata5[, 4] <- seq(1, 32, by = 1)
-    userdata5[(1:8), 6] <- input$replicate5_1
-    userdata5[(9:16), 6] <- input$replicate5_2
-    userdata5[(17:24), 6] <- input$replicate5_3
-    userdata5[(25:32), 6] <- input$replicate5_4
+      userdata5 <- matrix(nrow = 32, ncol = 6)
+      userdata5[, 1] <- input$monitorname5 ### change monitor name
+      userdata5[, 2] <- as.character(input$startdatetime5) ### start date of recording time is ZT0
+      userdata5[, 3] <- as.character(input$enddatetime5) ### stop date
+      userdata5[(1:8), 5] <- input$genotype5_1 ### name of your genotype
+      userdata5[(9:16), 5] <- input$genotype5_2 ### name of your genotype
+      userdata5[(17:24), 5] <- input$genotype5_3 ### name of your genotype
+      userdata5[(25:32), 5] <- input$genotype5_4 ### name of your genotype
+      userdata5[, 4] <- seq(1, 32, by = 1)
+      userdata5[(1:8), 6] <- input$replicate5_1
+      userdata5[(9:16), 6] <- input$replicate5_2
+      userdata5[(17:24), 6] <- input$replicate5_3
+      userdata5[(25:32), 6] <- input$replicate5_4
 
-    userdata6 <- matrix(nrow = 32, ncol = 6)
-    userdata6[, 1] <- input$monitorname6 ### change monitor name
-    userdata6[, 2] <- as.character(input$startdatetime6) ### start date of recording time is ZT0
-    userdata6[, 3] <- as.character(input$enddatetime6) ### stop date
-    userdata6[(1:8), 5] <- input$genotype6_1 ### name of your genotype
-    userdata6[(9:16), 5] <- input$genotype6_2 ### name of your genotype
-    userdata6[(17:24), 5] <- input$genotype6_3 ### name of your genotype
-    userdata6[(25:32), 5] <- input$genotype6_4 ### name of your genotype
-    userdata6[, 4] <- seq(1, 32, by = 1)
-    userdata6[(1:8), 6] <- input$replicate6_1
-    userdata6[(9:16), 6] <- input$replicate6_2
-    userdata6[(17:24), 6] <- input$replicate6_3
-    userdata6[(25:32), 6] <- input$replicate6_4
+      userdata6 <- matrix(nrow = 32, ncol = 6)
+      userdata6[, 1] <- input$monitorname6 ### change monitor name
+      userdata6[, 2] <- as.character(input$startdatetime6) ### start date of recording time is ZT0
+      userdata6[, 3] <- as.character(input$enddatetime6) ### stop date
+      userdata6[(1:8), 5] <- input$genotype6_1 ### name of your genotype
+      userdata6[(9:16), 5] <- input$genotype6_2 ### name of your genotype
+      userdata6[(17:24), 5] <- input$genotype6_3 ### name of your genotype
+      userdata6[(25:32), 5] <- input$genotype6_4 ### name of your genotype
+      userdata6[, 4] <- seq(1, 32, by = 1)
+      userdata6[(1:8), 6] <- input$replicate6_1
+      userdata6[(9:16), 6] <- input$replicate6_2
+      userdata6[(17:24), 6] <- input$replicate6_3
+      userdata6[(25:32), 6] <- input$replicate6_4
 
-    userdata7 <- matrix(nrow = 32, ncol = 6)
-    userdata7[, 1] <- input$monitorname7 ### change monitor name
-    userdata7[, 2] <- as.character(input$startdatetime7) ### start date of recording time is ZT0
-    userdata7[, 3] <- as.character(input$enddatetime7) ### stop date
-    userdata7[(1:8), 5] <- input$genotype7_1 ### name of your genotype
-    userdata7[(9:16), 5] <- input$genotype7_2 ### name of your genotype
-    userdata7[(17:24), 5] <- input$genotype7_3 ### name of your genotype
-    userdata7[(25:32), 5] <- input$genotype7_4 ### name of your genotype
-    userdata7[, 4] <- seq(1, 32, by = 1)
-    userdata7[(1:8), 6] <- input$replicate7_1
-    userdata7[(9:16), 6] <- input$replicate7_2
-    userdata7[(17:24), 6] <- input$replicate7_3
-    userdata7[(25:32), 6] <- input$replicate7_4
+      userdata7 <- matrix(nrow = 32, ncol = 6)
+      userdata7[, 1] <- input$monitorname7 ### change monitor name
+      userdata7[, 2] <- as.character(input$startdatetime7) ### start date of recording time is ZT0
+      userdata7[, 3] <- as.character(input$enddatetime7) ### stop date
+      userdata7[(1:8), 5] <- input$genotype7_1 ### name of your genotype
+      userdata7[(9:16), 5] <- input$genotype7_2 ### name of your genotype
+      userdata7[(17:24), 5] <- input$genotype7_3 ### name of your genotype
+      userdata7[(25:32), 5] <- input$genotype7_4 ### name of your genotype
+      userdata7[, 4] <- seq(1, 32, by = 1)
+      userdata7[(1:8), 6] <- input$replicate7_1
+      userdata7[(9:16), 6] <- input$replicate7_2
+      userdata7[(17:24), 6] <- input$replicate7_3
+      userdata7[(25:32), 6] <- input$replicate7_4
 
-    userdata8 <- matrix(nrow = 32, ncol = 6)
-    userdata8[, 1] <- input$monitorname8 ### change monitor name
-    userdata8[, 2] <- as.character(input$startdatetime8) ### start date of recording time is ZT0
-    userdata8[, 3] <- as.character(input$enddatetime8) ### stop date
-    userdata8[(1:8), 5] <- input$genotype8_1 ### name of your genotype
-    userdata8[(9:16), 5] <- input$genotype8_2 ### name of your genotype
-    userdata8[(17:24), 5] <- input$genotype8_3 ### name of your genotype
-    userdata8[(25:32), 5] <- input$genotype8_4 ### name of your genotype
-    userdata8[, 4] <- seq(1, 32, by = 1)
-    userdata8[(1:8), 6] <- input$replicate8_1
-    userdata8[(9:16), 6] <- input$replicate8_2
-    userdata8[(17:24), 6] <- input$replicate8_3
-    userdata8[(25:32), 6] <- input$replicate8_4
+      userdata8 <- matrix(nrow = 32, ncol = 6)
+      userdata8[, 1] <- input$monitorname8 ### change monitor name
+      userdata8[, 2] <- as.character(input$startdatetime8) ### start date of recording time is ZT0
+      userdata8[, 3] <- as.character(input$enddatetime8) ### stop date
+      userdata8[(1:8), 5] <- input$genotype8_1 ### name of your genotype
+      userdata8[(9:16), 5] <- input$genotype8_2 ### name of your genotype
+      userdata8[(17:24), 5] <- input$genotype8_3 ### name of your genotype
+      userdata8[(25:32), 5] <- input$genotype8_4 ### name of your genotype
+      userdata8[, 4] <- seq(1, 32, by = 1)
+      userdata8[(1:8), 6] <- input$replicate8_1
+      userdata8[(9:16), 6] <- input$replicate8_2
+      userdata8[(17:24), 6] <- input$replicate8_3
+      userdata8[(25:32), 6] <- input$replicate8_4
 
-    userdata9 <- matrix(nrow = 32, ncol = 6)
-    userdata9[, 1] <- input$monitorname9 ### change monitor name
-    userdata9[, 2] <- as.character(input$startdatetime9) ### start date of recording time is ZT0
-    userdata9[, 3] <- as.character(input$enddatetime9) ### stop date
-    userdata9[(1:8), 5] <- input$genotype9_1 ### name of your genotype
-    userdata9[(9:16), 5] <- input$genotype9_2 ### name of your genotype
-    userdata9[(17:24), 5] <- input$genotype9_3 ### name of your genotype
-    userdata9[(25:32), 5] <- input$genotype9_4 ### name of your genotype
-    userdata9[, 4] <- seq(1, 32, by = 1)
-    userdata9[(1:8), 6] <- input$replicate9_1
-    userdata9[(9:16), 6] <- input$replicate9_2
-    userdata9[(17:24), 6] <- input$replicate9_3
-    userdata9[(25:32), 6] <- input$replicate9_4
+      userdata9 <- matrix(nrow = 32, ncol = 6)
+      userdata9[, 1] <- input$monitorname9 ### change monitor name
+      userdata9[, 2] <- as.character(input$startdatetime9) ### start date of recording time is ZT0
+      userdata9[, 3] <- as.character(input$enddatetime9) ### stop date
+      userdata9[(1:8), 5] <- input$genotype9_1 ### name of your genotype
+      userdata9[(9:16), 5] <- input$genotype9_2 ### name of your genotype
+      userdata9[(17:24), 5] <- input$genotype9_3 ### name of your genotype
+      userdata9[(25:32), 5] <- input$genotype9_4 ### name of your genotype
+      userdata9[, 4] <- seq(1, 32, by = 1)
+      userdata9[(1:8), 6] <- input$replicate9_1
+      userdata9[(9:16), 6] <- input$replicate9_2
+      userdata9[(17:24), 6] <- input$replicate9_3
+      userdata9[(25:32), 6] <- input$replicate9_4
 
-    userdata10 <- matrix(nrow = 32, ncol = 6)
-    userdata10[, 1] <- input$monitorname10 ### change monitor name
-    userdata10[, 2] <- as.character(input$startdatetime10) ### start date of recording time is ZT0
-    userdata10[, 3] <- as.character(input$enddatetime10) ### stop date
-    userdata10[(1:8), 5] <- input$genotype10_1 ### name of your genotype
-    userdata10[(9:16), 5] <- input$genotype10_2 ### name of your genotype
-    userdata10[(17:24), 5] <- input$genotype10_3 ### name of your genotype
-    userdata10[(25:32), 5] <- input$genotype10_4 ### name of your genotype
-    userdata10[, 4] <- seq(1, 32, by = 1)
-    userdata10[(1:8), 6] <- input$replicate10_1
-    userdata10[(9:16), 6] <- input$replicate10_2
-    userdata10[(17:24), 6] <- input$replicate10_3
-    userdata10[(25:32), 6] <- input$replicate10_4
+      userdata10 <- matrix(nrow = 32, ncol = 6)
+      userdata10[, 1] <- input$monitorname10 ### change monitor name
+      userdata10[, 2] <- as.character(input$startdatetime10) ### start date of recording time is ZT0
+      userdata10[, 3] <- as.character(input$enddatetime10) ### stop date
+      userdata10[(1:8), 5] <- input$genotype10_1 ### name of your genotype
+      userdata10[(9:16), 5] <- input$genotype10_2 ### name of your genotype
+      userdata10[(17:24), 5] <- input$genotype10_3 ### name of your genotype
+      userdata10[(25:32), 5] <- input$genotype10_4 ### name of your genotype
+      userdata10[, 4] <- seq(1, 32, by = 1)
+      userdata10[(1:8), 6] <- input$replicate10_1
+      userdata10[(9:16), 6] <- input$replicate10_2
+      userdata10[(17:24), 6] <- input$replicate10_3
+      userdata10[(25:32), 6] <- input$replicate10_4
 
-    userdata11 <- matrix(nrow = 32, ncol = 6)
-    userdata11[, 1] <- input$monitorname11 ### change monitor name
-    userdata11[, 2] <- as.character(input$startdatetime11) ### start date of recording time is ZT0
-    userdata11[, 3] <- as.character(input$enddatetime11) ### stop date
-    userdata11[(1:8), 5] <- input$genotype11_1 ### name of your genotype
-    userdata11[(9:16), 5] <- input$genotype11_2 ### name of your genotype
-    userdata11[(17:24), 5] <- input$genotype11_3 ### name of your genotype
-    userdata11[(25:32), 5] <- input$genotype11_4 ### name of your genotype
-    userdata11[, 4] <- seq(1, 32, by = 1)
-    userdata11[(1:8), 6] <- input$replicate11_1
-    userdata11[(9:16), 6] <- input$replicate11_2
-    userdata11[(17:24), 6] <- input$replicate11_3
-    userdata11[(25:32), 6] <- input$replicate11_4
+      userdata11 <- matrix(nrow = 32, ncol = 6)
+      userdata11[, 1] <- input$monitorname11 ### change monitor name
+      userdata11[, 2] <- as.character(input$startdatetime11) ### start date of recording time is ZT0
+      userdata11[, 3] <- as.character(input$enddatetime11) ### stop date
+      userdata11[(1:8), 5] <- input$genotype11_1 ### name of your genotype
+      userdata11[(9:16), 5] <- input$genotype11_2 ### name of your genotype
+      userdata11[(17:24), 5] <- input$genotype11_3 ### name of your genotype
+      userdata11[(25:32), 5] <- input$genotype11_4 ### name of your genotype
+      userdata11[, 4] <- seq(1, 32, by = 1)
+      userdata11[(1:8), 6] <- input$replicate11_1
+      userdata11[(9:16), 6] <- input$replicate11_2
+      userdata11[(17:24), 6] <- input$replicate11_3
+      userdata11[(25:32), 6] <- input$replicate11_4
 
-    userdata12 <- matrix(nrow = 32, ncol = 6)
-    userdata12[, 1] <- input$monitorname12 ### change monitor name
-    userdata12[, 2] <- as.character(input$startdatetime12) ### start date of recording time is ZT0
-    userdata12[, 3] <- as.character(input$enddatetime12) ### stop date
-    userdata12[(1:8), 5] <- input$genotype12_1 ### name of your genotype
-    userdata12[(9:16), 5] <- input$genotype12_2 ### name of your genotype
-    userdata12[(17:24), 5] <- input$genotype12_3 ### name of your genotype
-    userdata12[(25:32), 5] <- input$genotype12_4 ### name of your genotype
-    userdata12[, 4] <- seq(1, 32, by = 1)
-    userdata12[(1:8), 6] <- input$replicate12_1
-    userdata12[(9:16), 6] <- input$replicate12_2
-    userdata12[(17:24), 6] <- input$replicate12_3
-    userdata12[(25:32), 6] <- input$replicate12_4
+      userdata12 <- matrix(nrow = 32, ncol = 6)
+      userdata12[, 1] <- input$monitorname12 ### change monitor name
+      userdata12[, 2] <- as.character(input$startdatetime12) ### start date of recording time is ZT0
+      userdata12[, 3] <- as.character(input$enddatetime12) ### stop date
+      userdata12[(1:8), 5] <- input$genotype12_1 ### name of your genotype
+      userdata12[(9:16), 5] <- input$genotype12_2 ### name of your genotype
+      userdata12[(17:24), 5] <- input$genotype12_3 ### name of your genotype
+      userdata12[(25:32), 5] <- input$genotype12_4 ### name of your genotype
+      userdata12[, 4] <- seq(1, 32, by = 1)
+      userdata12[(1:8), 6] <- input$replicate12_1
+      userdata12[(9:16), 6] <- input$replicate12_2
+      userdata12[(17:24), 6] <- input$replicate12_3
+      userdata12[(25:32), 6] <- input$replicate12_4
 
-    userdata <- matrix(nrow = 384, ncol = 6)
-    if (input$genotype == 1) {
-      userdata <- rbind(userdata1)
-    } else if (input$genotype == 2) {
-      userdata <- rbind(userdata1, userdata2)
-    } else if (input$genotype == 3) {
-      userdata <- rbind(userdata1, userdata2, userdata3)
-    } else if (input$genotype == 4) {
-      userdata <- rbind(userdata1, userdata2, userdata3, userdata4)
-    } else if (input$genotype == 5) {
-      userdata <- rbind(userdata1, userdata2, userdata3, userdata4, userdata5)
-    } else if (input$genotype == 6) {
-      userdata <- rbind(userdata1, userdata2, userdata3, userdata4, userdata5, userdata6)
-    } else if (input$genotype == 7) {
-      userdata <- rbind(userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7)
-    } else if (input$genotype == 8) {
-      userdata <- rbind(userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata8)
-    } else if (input$genotype == 9) {
-      userdata <- rbind(userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata9)
-    } else if (input$genotype == 10) {
-      userdata <-
-        rbind(userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata8, userdata9, userdata10)
-    } else if (input$genotype == 11) {
-      userdata <-
-        rbind(
-          userdata1,
-          userdata2,
-          userdata3,
-          userdata4,
-          userdata5,
-          userdata6,
-          userdata7,
-          userdata8,
-          userdata9,
-          userdata10,
-          userdata11
+      userdata <- matrix(nrow = 384, ncol = 6)
+      if (input$genotype == 1) {
+        userdata <- rbind(userdata1)
+      } else if (input$genotype == 2) {
+        userdata <- rbind(userdata1, userdata2)
+      } else if (input$genotype == 3) {
+        userdata <- rbind(userdata1, userdata2, userdata3)
+      } else if (input$genotype == 4) {
+        userdata <- rbind(userdata1, userdata2, userdata3, userdata4)
+      } else if (input$genotype == 5) {
+        userdata <- rbind(userdata1, userdata2, userdata3, userdata4, userdata5)
+      } else if (input$genotype == 6) {
+        userdata <- rbind(userdata1, userdata2, userdata3, userdata4, userdata5, userdata6)
+      } else if (input$genotype == 7) {
+        userdata <- rbind(userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7)
+      } else if (input$genotype == 8) {
+        userdata <- rbind(userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata8)
+      } else if (input$genotype == 9) {
+        userdata <- rbind(userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata9)
+      } else if (input$genotype == 10) {
+        userdata <-
+          rbind(userdata1, userdata2, userdata3, userdata4, userdata5, userdata6, userdata7, userdata8, userdata9, userdata10)
+      } else if (input$genotype == 11) {
+        userdata <-
+          rbind(
+            userdata1,
+            userdata2,
+            userdata3,
+            userdata4,
+            userdata5,
+            userdata6,
+            userdata7,
+            userdata8,
+            userdata9,
+            userdata10,
+            userdata11
+          )
+      } else {
+        userdata <-
+          rbind(
+            userdata1,
+            userdata2,
+            userdata3,
+            userdata4,
+            userdata5,
+            userdata6,
+            userdata7,
+            userdata8,
+            userdata9,
+            userdata10,
+            userdata11,
+            userdata12
+          )
+      }
+
+      colnames(userdata) <-
+        c(
+          "file",
+          "start_datetime",
+          "stop_datetime",
+          "region_id",
+          "genotype",
+          "replicate"
         )
-    } else {
-      userdata <-
-        rbind(
-          userdata1,
-          userdata2,
-          userdata3,
-          userdata4,
-          userdata5,
-          userdata6,
-          userdata7,
-          userdata8,
-          userdata9,
-          userdata10,
-          userdata11,
-          userdata12
-        )
-    }
-
-    colnames(userdata) <-
-      c(
-        "file",
-        "start_datetime",
-        "stop_datetime",
-        "region_id",
-        "genotype",
-        "replicate"
-      )
-    output$userdata <- renderTable({
-      userdata
+      output$userdata <- renderTable({
+        userdata
+      })
+      userdataforprint <<- userdata
     })
 
     toscale1 <- input$genotype
 
     toscale2 <- input$replicate * input$genotype
 
-    observeEvent(input$do, {
-      withBusyIndicatorServer("do", {
-        write.csv(
-          userdata,
-          file = paste(
-            "Metadata",
-            input$monitorname1,
-            input$monitorname2,
-            input$monitorname3,
-            ".csv",
-            sep = ""
-          ),
-          append = F,
-          quote = F,
-          sep = ",",
-          col.names = T,
-          row.names = F
-        )
-      })
-    })
+    
+    output$downloadmetadata <- downloadHandler(
+      filename = function() {
+        paste("Metadata_user.csv", sep = "")
+      },
+      content = function(file) {
+        write.csv(userdataforprint, file, append = F, quote = F, sep = ",", col.names = T, row.names = F)
+      }
+    )
 
-    volumes <- c(Home = fs::path_home(), "R Installation" = R.home(), getVolumes()())
-    observe({
-      shinyDirChoose(input, "folder", roots = volumes, session = session, restrictions = system.file(package = "base"))
-    })
-    WD <- parseDirPath(volumes, input$folder)
+
     req(input$meta)
     metadata <- read.csv(input$meta$datapath)
     metadata <- na.omit(metadata)
-    metadata_proc <- link_dam_metadata(metadata, result_dir = WD)
+    file.copy(input$data$datapath, paste0(dirname(tempdir()), "\\", input$data$name), recursive = TRUE)
+    metadata_proc <- link_dam_metadata(metadata, result_dir = dirname(tempdir()))
     output$contents <- DT::renderDataTable(
       metadata,
       filter = list(position = "top", clear = FALSE, plain = TRUE)
@@ -391,7 +384,7 @@ shinyServer(function(input, output, session) {
         beepr::beep(sound = 10)
       })
 
-      observeEvent(input$alletho_height | input$alletho_width, {
+      observeEvent(input$plotalletho, {
         output$alletho <- renderPlot(
           {
             req(input$meta)
@@ -416,7 +409,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$allacto_height | input$allacto_width, {
+      observeEvent(input$plotallacto, {
         output$allacto <- renderPlot(
           {
             req(input$meta)
@@ -439,7 +432,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$curatedetho_height | input$curatedetho_width, {
+      observeEvent(input$plotcuratedetho, {
         output$curatedetho <- renderPlot(
           {
             req(input$meta)
@@ -462,7 +455,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$curatedacto_height | input$curatedacto_width, {
+      observeEvent(input$plotcuratedacto, {
         output$curatedacto <- renderPlot(
           {
             req(input$meta)
@@ -493,7 +486,7 @@ shinyServer(function(input, output, session) {
           dt_curated$id
         ))))
 
-      observeEvent(input$curatedactoraw_height | input$curatedactoraw_width, {
+      observeEvent(input$plotcuratedactoraw, {
         output$curatedactoraw <- renderPlot(
           {
             req(input$meta)
@@ -525,7 +518,7 @@ shinyServer(function(input, output, session) {
 
 
 
-      observeEvent(input$curatedactoavg_height | input$curatedactoavg_width, {
+      observeEvent(input$plotcuratedactoavg, {
         output$curatedactoavg <- renderPlot(
           {
             req(input$meta)
@@ -553,7 +546,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$rawpro_height | input$rawpro_width, {
+      observeEvent(input$plotrawpro, {
         output$rawpro <- renderPlot(
           {
             req(input$meta)
@@ -587,7 +580,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$avgpro_height | input$avgpro_width, {
+      observeEvent(input$plotavgpro, {
         output$avgpro <- renderPlot(
           {
             req(input$meta)
@@ -621,7 +614,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$avgdaywisepro1_height | input$avgdaywisepro1_width, {
+      observeEvent(input$plotavgdaywisepro1, {
         output$avgdaywisepro1 <- renderPlot(
           {
             req(input$meta)
@@ -654,7 +647,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$avgdaywisepro1_raw_height | input$avgdaywisepro1_raw_width, {
+      observeEvent(input$plotavgdaywisepro1_raw, {
         output$avgdaywisepro1_raw <- renderPlot(
           {
             req(input$meta)
@@ -687,7 +680,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$rawpro1_height | input$rawpro1_width, {
+      observeEvent(input$plotrawpro1, {
         output$rawpro1 <- renderPlot(
           {
             req(input$meta)
@@ -721,7 +714,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$avgpro1_height | input$avgpro1_width, {
+      observeEvent(input$plotavgpro1, {
         output$avgpro1 <- renderPlot(
           {
             req(input$meta)
@@ -755,7 +748,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$rawpro1all_height | input$rawpro1all_width, {
+      observeEvent(input$plotrawpro1all, {
         output$rawpro1all <- renderPlot(
           {
             req(input$meta)
@@ -788,7 +781,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$avgpro1all_height | input$avgpro1all_width, {
+      observeEvent(input$plotavgpro1all, {
         output$avgpro1all <- renderPlot(
           {
             req(input$meta)
@@ -822,7 +815,7 @@ shinyServer(function(input, output, session) {
       })
 
 
-      observeEvent(input$avgprocircular_height | input$avgprocircular_width, {
+      observeEvent(input$plotavgprocircular, {
         output$avgprocircular <- renderPlot(
           {
             req(input$meta)
@@ -857,7 +850,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$avgprocircular_raw_height | input$avgprocircular_raw_width, {
+      observeEvent(input$plotavgprocircular_raw, {
         output$avgprocircular_raw <- renderPlot(
           {
             req(input$meta)
@@ -892,7 +885,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$indiv_raw_height | input$indiv_raw_width, {
+      observeEvent(input$plotindiv_raw, {
         output$indiv_raw <- renderPlot(
           {
             req(input$meta)
@@ -920,7 +913,7 @@ shinyServer(function(input, output, session) {
         )
       })
 
-      observeEvent(input$indiv_avg_height | input$indiv_avg_width, {
+      observeEvent(input$plotindiv_avg, {
         output$indiv_avg <- renderPlot(
           {
             req(input$meta)
@@ -1005,53 +998,53 @@ shinyServer(function(input, output, session) {
         }
       })
 
-      observeEvent(input$show3, {
-        l <- as.matrix(as.character(unique(dt_curated$id)))
-        output$indiv1_avg <- renderPlot({
-          req(input$meta)
-          ggetho(
-            dt_curated[id == l[input$ind]],
-            aes(x = t, z = normact),
-            multiplot = 2,
-            multiplot_period = hours(input$modtau),
-            summary_time_window = mins(input$min)
-          ) + ### can change to activity if raw needed or keep it normact
-            stat_ld_annotations(
-              height = 1,
-              alpha = 0.05,
-              outline = NA,
-              l_duration = hours(input$light),
-              period = hours(input$ldperiod)
-            ) +
-            stat_bar_tile_etho() +
-            facet_wrap(~ genotype + uid, ncol = 1, scales = "free_y") +
-            My_Theme
-        })
-      })
-
-      observeEvent(input$show1, {
-        l <- as.matrix(as.character(unique(dt_curated$id)))
-        output$indiv1_norm <- renderPlot({
-          req(input$meta)
-          ggetho(
-            dt_curated[id == l[input$ind]],
-            aes(x = t, z = normact),
-            multiplot = 2,
-            multiplot_period = hours(input$modtau),
-            summary_time_window = mins(input$min)
-          ) + ### can change to activity if raw needed or keep it normact
-            stat_ld_annotations(
-              height = 1,
-              alpha = 0.05,
-              outline = NA,
-              l_duration = hours(input$light),
-              period = hours(input$ldperiod)
-            ) +
-            stat_bar_tile_etho() +
-            facet_wrap(~ genotype + uid, ncol = 1, scales = "free_y") +
-            My_Theme
-        })
-      })
+      # observeEvent(input$show3, {
+      #   l <- as.matrix(as.character(unique(dt_curated$id)))
+      #   output$indiv1_avg <- renderPlot({
+      #     req(input$meta)
+      #     ggetho(
+      #       dt_curated[id == l[input$ind]],
+      #       aes(x = t, z = normact),
+      #       multiplot = 2,
+      #       multiplot_period = hours(input$modtau),
+      #       summary_time_window = mins(input$min)
+      #     ) + ### can change to activity if raw needed or keep it normact
+      #       stat_ld_annotations(
+      #         height = 1,
+      #         alpha = 0.05,
+      #         outline = NA,
+      #         l_duration = hours(input$light),
+      #         period = hours(input$ldperiod)
+      #       ) +
+      #       stat_bar_tile_etho() +
+      #       facet_wrap(~ genotype + uid, ncol = 1, scales = "free_y") +
+      #       My_Theme
+      #   })
+      # })
+      #
+      # observeEvent(input$show1, {
+      #   l <- as.matrix(as.character(unique(dt_curated$id)))
+      #   output$indiv1_norm <- renderPlot({
+      #     req(input$meta)
+      #     ggetho(
+      #       dt_curated[id == l[input$ind]],
+      #       aes(x = t, z = normact),
+      #       multiplot = 2,
+      #       multiplot_period = hours(input$modtau),
+      #       summary_time_window = mins(input$min)
+      #     ) + ### can change to activity if raw needed or keep it normact
+      #       stat_ld_annotations(
+      #         height = 1,
+      #         alpha = 0.05,
+      #         outline = NA,
+      #         l_duration = hours(input$light),
+      #         period = hours(input$ldperiod)
+      #       ) +
+      #       stat_bar_tile_etho() +
+      #       facet_wrap(~ genotype + uid, ncol = 1, scales = "free_y") +
+      #       My_Theme
+      #   })
+      # })
 
 
 
@@ -1112,7 +1105,7 @@ shinyServer(function(input, output, session) {
           })
         })
 
-        observeEvent(input$chisqperiodplotallwithpeaks_height | input$chisqperiodplotallwithpeaks_width, {
+        observeEvent(input$plotchisqperiodplotallwithpeaks, {
           output$chisqperiodplotallwithpeaks <- renderPlot(
             {
               req(input$meta)
@@ -1143,7 +1136,7 @@ shinyServer(function(input, output, session) {
           filter = list(position = "top", clear = FALSE, plain = TRUE)
         )
         ###########################
-        observeEvent(input$chisqperiodplotaverage_height | input$chisqperiodplotaverage_width, {
+        observeEvent(input$plotchisqperiodplotaverage, {
           output$chisqperiodplotaverage <- renderPlot(
             {
               req(input$meta)
@@ -1186,7 +1179,7 @@ shinyServer(function(input, output, session) {
           })
         })
 
-        observeEvent(input$chisqperiodplotviolin_height | input$chisqperiodplotviolin_width, {
+        observeEvent(input$plotchisqperiodplotviolin, {
           output$chisqperiodplotviolin <- renderPlot(
             {
               req(input$meta)
@@ -1215,7 +1208,7 @@ shinyServer(function(input, output, session) {
           )
         })
 
-        observeEvent(input$perioddistrib_height | input$perioddistrib_width, {
+        observeEvent(input$plotperioddistrib, {
           output$perioddistrib <- renderPlot(
             {
               req(input$meta)

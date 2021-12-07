@@ -20,8 +20,6 @@ if (!require("shinycustomloader")) install.packages("shinycustomloader", depende
 if (!require("shinythemes")) install.packages("shinythemes", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
 if (!require("shinyWidgets")) install.packages("shinyWidgets", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
 if (!require("shinyhelper")) install.packages("shinyhelper", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
-if (!require("shinyFiles")) install.packages("shinyFiles", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
-if (!require("fs")) install.packages("fs", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
 if (!require("data.table")) install.packages("data.table", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
 if (!require("Cairo")) install.packages("Cairo", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
 if (!require("pracma")) install.packages("pracma", dependencies = TRUE, INSTALL_opts = "--no-multiarch")
@@ -35,7 +33,7 @@ if (!require("ggforce")) install.packages("ggforce", dependencies = TRUE, INSTAL
 
 if (is.installed("shiny") & is.installed("WaveletComp") & is.installed("ggetho") & is.installed("ggplot2") & is.installed("zeitgebr") & is.installed("readr") & is.installed("damr") & is.installed("Cairo") & is.installed("tidyr")
 & is.installed("sleepr") & is.installed("behavr") & is.installed("dplyr") & is.installed("shinyalert") & is.installed("colourpicker") & is.installed("beepr") & is.installed("showtext") & is.installed("data.table")
-& is.installed("shinydashboard") & is.installed("shinycustomloader") & is.installed("shinythemes") & is.installed("shinyWidgets") & is.installed("shinyhelper") & is.installed("shinyFiles") & is.installed("fs")
+& is.installed("shinydashboard") & is.installed("shinycustomloader") & is.installed("shinythemes") & is.installed("shinyWidgets") & is.installed("shinyhelper")
 & is.installed("signal") & is.installed("lubridate") & is.installed("pracma") & is.installed("ggridges") & is.installed("DT") & is.installed("rmarkdown") & is.installed("ggforce")) {
   print(paste("Initialisation complete! VANESSA-DAM-CRA is now ready for use"), quote = F)
 } else {

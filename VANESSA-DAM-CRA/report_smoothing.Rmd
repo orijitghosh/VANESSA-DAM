@@ -21,15 +21,40 @@ params:
 ---
 
 ### All parameters used in the shiny app for analysis.
+##### Input file name for smoothing
 ```{r}
 params$raw_smooth
+```
+##### Subsetting your data, use the first day you want to use for average profile. DO NOT USE 00:00:00 as time, else an error will be thrown
+```{r}
 params$startdatetime_smooth
+```
+##### Subsetting your data, use the last day you want to use for average profile. Please ensure you are choosing full cycles, i.e., in multiple of 24 hours (12 AM to 12 AM or 10 AM to 10 AM etc.). DO NOT USE 00:00:00 as time, else an error will be thrown.
+```{r}
 params$enddatetime_smooth
+```
+##### Pick an arbitrary date for average profile, keep the time same as of start and end time of your data when subsetting.
+```{r}
 params$resultdatetime_smooth
+```
+##### Original binning of your data in  minutes
+```{r}
 params$bin_smooth
+```
+##### Required binning of your data for average profile in minutes
+```{r}
 params$bin_req_smooth
+```
+##### Filter order or generic filter model (for butterworth filter)
+```{r}
 params$n_smooth
+```
+##### Critical frequencies of the filter (for butterworth filter)
+```{r}
 params$W_smooth
+```
+##### Kernel smoothing bandwith
+```{r}
 params$b_smooth
 ```
 
