@@ -6,3 +6,5 @@ importFrom(lubridate,dmy_hm)
 importFrom(lubridate,ymd)
 importFrom(lubridate,days)
 importFrom(lubridate,hours)
+importFrom(lubridate,minutes)
+
