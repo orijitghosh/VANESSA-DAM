@@ -3,3 +3,6 @@
 export(runVanessaDamCra)
 export(clocklab_to_DAM)
 importFrom(lubridate,dmy_hm)
+importFrom(lubridate,ymd)
+importFrom(lubridate,days)
+importFrom(lubridate,hours)
