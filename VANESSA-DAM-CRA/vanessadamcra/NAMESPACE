@@ -2,4 +2,4 @@
 
 export(runVanessaDamCra)
 export(clocklab_to_DAM)
-importFrom(hms,dmy_hm)
+importFrom(lubridate,dmy_hm)
