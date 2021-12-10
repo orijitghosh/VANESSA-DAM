@@ -5,8 +5,8 @@
 ## Install the packages for VANESSA-DAM-CRA and VANESSA-DAM-SA by using the following commands in your RStudio R console:
 ```
 if (!require("remotes")) install.packages("remotes")
-remotes::isnatll_github("orijitghosh/VANESSA-DAM", subdir = "VANESSA-DAM-CRA/vanessadamcra")
-remotes::isnatll_github("orijitghosh/VANESSA-DAM", subdir = "VANESSA-DAM-SA/vanessadamsa")
+remotes::install_github("orijitghosh/VANESSA-DAM", subdir = "VANESSA-DAM-CRA/vanessadamcra")
+remotes::install_github("orijitghosh/VANESSA-DAM", subdir = "VANESSA-DAM-SA/vanessadamsa")
 ```
 Then run the apps by using
 ```
