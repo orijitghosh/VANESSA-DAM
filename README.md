@@ -2,6 +2,8 @@
  [![DOI](https://zenodo.org/badge/326950938.svg)](https://zenodo.org/badge/latestdoi/326950938)&nbsp;
 **V**isualization and **AN**alysis of tim**E** **S**erie**S** d**A**ta - **D**rosophila **A**ctivity **M**onitors (**VANESSA-DAM**) is a collection of useful tools to visualize and analyze Time series data obtained from Drosophila Activity Monitors (https://www.trikinetics.com/). The first in the series of tools are two shiny apps for circadian rhythm and sleep analysis and visualization - VANESSA-DAM for circadian rhythm analysis (**VANESSA-DAM-CRA**) and sleep analysis (**VANESSA-DAM-SA**). For any suggestions, questions, troubleshooting or customization, please contact arijitghosh2009@gmail.com. The contents of this repository undergoes frequent changes, and versions with significant changes are archived on Zenodo. Click on [this](https://github.com/orijitghosh/VANESSA-DAM/archive/refs/heads/main.zip) link to download the apps in a zipped file.
 
+#### Tutorials are available as PDF files from respecive app's folder on GitHub, and from the Documentation tab of the apps. The Wiki page on GitHub hosts some good practices for data analysis.
+
 ## Install the packages for VANESSA-DAM-CRA and VANESSA-DAM-SA by using the following commands in your RStudio R console:
 ```
 if (!require("remotes")) install.packages("remotes")
@@ -11,12 +13,12 @@ remotes::install_github("orijitghosh/VANESSA-DAM", subdir = "VANESSA-DAM-SA/vane
 Then run the apps by using
 ```
 library(vanessadamcra)
-library(vanessadamsa)
 runVanessaDamCra()
+library(vanessadamsa)
 runVanessaDamSa()
 ```
 
-## **Please follow the tutorial once successfully before using your own data.**
+## Please follow the tutorial once successfully before using your own data.
 
 ### **VANESSA-DAM-CRA**
 
@@ -68,7 +70,7 @@ VANESSA-DAM-SA is dependent on [Quentin Geissmann](https://github.com/qgeissmann
 
 A short tutorial is provided (*Easy tutorial to start using VANESSA-DAM-SA.pdf*) which is self explanatory and should help beginners start using the app right away.
 
-#### Troubleshooting:
+### Troubleshooting:
 1. Sometimes due to different settings in one's RStudio, packages may have been loaded in R when RStudio is initialized. These loaded packages may mask certain functions from the packages needed by VANESSA-DAM to work properly. To avoid this, please restart R and clear the global environment in RStudio by pressing **ctl+shift+F10** or by clicking on **Session > Restart R** from RStudio menu.
 2. While calculating **Activity Index**, in case you get an error, please consider reducing the number of days being analyzed. This problem arises due to death of one or more flies before the ending day.
 3. If your local R installation language settings are other than **_English_**, please set local language as **_English_** before starting the apps by running this command: ```Sys.setlocale("LC_ALL","English")```.
