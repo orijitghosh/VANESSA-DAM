@@ -4,6 +4,8 @@
 
 #### Tutorials are available as PDF files from respecive app's folder on GitHub, and from the Documentation tab of the apps. The Wiki page on GitHub hosts some good practices for data analysis. Novice users can directly use the ```vanessadamcra``` and ```vanessadamsa``` packages to avoid installing packages and running the apps from RStudio R console.
 
+#### The apps are also hosted on shinyapps.io server. Access VANESSA-DAM-CRA at https://cryptodice.shinyapps.io/vanessa-dam-cra/ and VANESSA-DAM-SA at https://cryptodice.shinyapps.io/vanessa-dam-sa/. However, currently the apps are hosted on a free-tier account which restricts monthly usage to 25 hours. So, users familiar with R and RStudio should use the R packages for the apps locally.
+
 ## Install the packages for VANESSA-DAM-CRA and VANESSA-DAM-SA by using the following commands in your RStudio R console:
 ```
 if (!require("remotes")) install.packages("remotes")
