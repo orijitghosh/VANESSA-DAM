@@ -1,0 +1,250 @@
+---
+title: "Reproducible code report - VANESSA-DAM-CRA"
+author: "Produced with [VANESSA-DAM](https://github.com/orijitghosh/VANESSA-DAM) on `r Sys.Date()`"
+github: {user: orijitghosh, repo: VANESSA-DAM}
+output:
+  html_document:
+    theme: journal
+    highlight: haddock
+params:
+  raw_smooth: NA
+  startdatetime_smooth: NA
+  enddatetime_smooth: NA
+  resultdatetime_smooth:  NA
+  bin_smooth: NA
+  bin_req_smooth: NA
+  n_smooth: NA
+  W_smooth: NA
+  b_smooth: NA
+  
+# Reproducible code report - VANESSA-DAM-CRA   
+---
+
+### All parameters used in the shiny app for analysis.
+##### Input file name for smoothing
+```{r}
+params$raw_smooth
+```
+##### Subsetting your data, use the first day you want to use for average profile. DO NOT USE 00:00:00 as time, else an error will be thrown
+```{r}
+params$startdatetime_smooth
+```
+##### Subsetting your data, use the last day you want to use for average profile. Please ensure you are choosing full cycles, i.e., in multiple of 24 hours (12 AM to 12 AM or 10 AM to 10 AM etc.). DO NOT USE 00:00:00 as time, else an error will be thrown.
+```{r}
+params$enddatetime_smooth
+```
+##### Pick an arbitrary date for average profile, keep the time same as of start and end time of your data when subsetting.
+```{r}
+params$resultdatetime_smooth
+```
+##### Original binning of your data in  minutes
+```{r}
+params$bin_smooth
+```
+##### Required binning of your data for average profile in minutes
+```{r}
+params$bin_req_smooth
+```
+##### Filter order or generic filter model (for butterworth filter)
+```{r}
+params$n_smooth
+```
+##### Critical frequencies of the filter (for butterworth filter)
+```{r}
+params$W_smooth
+```
+##### Kernel smoothing bandwith
+```{r}
+params$b_smooth
+```
+
+### **Replace all params$XXXX with the values mentioned above (values you have used in the shiny app).**
+
+### Load all needed libraries:
+```
+library(data.table)
+library(ggplot2)
+library(dplyr)
+library(lubridate)
+library(pracma)
+```
+
+### Do data pre-processing:
+```
+df <- read.delim("params$raw_smooth", header = F)
+start_date_time <- lubridate::ymd_hms(params$startdatetime_smooth)
+end_date_time <- lubridate::ymd_hms(params$enddatetime_smooth)
+result_date_time_start <- lubridate::ymd_hms(params$resultdatetime_smooth)
+result_date_time_end <- result_date_time_start + lubridate::days(1)
+bin <- params$bin_smooth ################# bin of actual data
+bin1 <- params$bin_req_smooth #################### bin of wanted data aggregation step
+n <- params$n_smooth ################ filter order or generic filter model
+W <- params$W_smooth ################## critical frequencies of the filter. W must be a scalar for low-pass and high-pass filters, and W must be a two-element vector c(low, high) specifying the lower and upper bands. For digital filters, W must be between 0 and 1 where 1 is the Nyquist frequency
+bf <- signal::butter(n = n, W = W, type = "low", plane = "z") # order 2, 10 Hz low-pass filter
+ag <- data.frame(timestamp = seq(as.POSIXct(result_date_time_start), as.POSIXct(result_date_time_end), by = (bin1 * 60))) ########## change start time as your data
+all_nan <- function(x) any(!is.nan(x)) ############ define function to remove NaNs
+b <- params$b_smooth ################ kernel smoothing bandwith
+df$V2 <- lubridate::dmy(df$V2)
+df$V3 <- hms::as_hms(df$V3)
+lol <- paste(df$V2, df$V3, sep = " ")
+df_lol <- cbind(lol, df)
+df_lol$lol <- lubridate::ymd_hms(df_lol$lol)
+df_lol_new <- df_lol %>%
+dplyr::filter(between(df_lol$lol, start_date_time, end_date_time))
+ok1 <- as.numeric(rownames(df_lol_new))
+df_lol_new <- cbind(ok1, df_lol_new)
+df_lol_new1 <- df_lol_new[-nrow(df_lol_new), ]
+lol_new <- data.frame(timestamp = seq(as.POSIXct(start_date_time), as.POSIXct(end_date_time), by = (bin1 * 60))) ########## change start time as your data
+lol_new <- lol_new[-nrow(lol_new), ]
+df_lol_new <- subset(df_lol_new, select = -c(lol, V2, V3, V8))
+ok <- aggregate(df_lol_new, # the data frame
+      by = list(cut(df_lol_new$ok1, seq(1, nrow(df_lol_new), (bin1 / bin)))), # the bins in minutes (change to any number)
+      sum
+    )
+    df_lol_new <- ok
+    df <- df_lol_new
+    modulo_tau <- 24 ########### change modulo tau accordingly
+    s_per_day <- (60 / bin1) * modulo_tau
+    raw <- df[1:((floor(length(df[, 1]) / s_per_day)) * s_per_day), -c(1:9)]
+    # raw <- raw[,-c(1,2,3:14)] ##############uncomment and type the channels you want to remove, ONLY if you want to remove channels
+    raw_new <- cbind(lol_new, raw)
+    
+      My_Theme <- theme(
+    title = element_text(size = 10, face = "bold"),
+    axis.title.x = element_text(size = 10, face = "bold"),
+    axis.text.x = element_text(size = 8),
+    axis.title.y = element_text(size = 10, face = "bold"),
+    axis.text.y = element_text(size = 8),
+    legend.text = element_text(size = 8),
+    legend.position = "right",
+    panel.background = element_rect(fill = "white"),
+    panel.grid.major = element_line(
+      size = 0.125,
+      linetype = "solid",
+      colour = "grey"
+    ),
+    panel.grid.minor = element_line(
+      size = 0.0625,
+      linetype = "solid",
+      colour = "grey"
+    ),
+    strip.background = element_rect(fill = "white"),
+    strip.text = element_text(
+      colour = "black",
+      size = 8,
+      color = "black",
+      face = "bold"
+    ),
+  )
+```
+
+### For Butterworth filtering:
+```
+for_profile_bf <- matrix(0, nrow = s_per_day, ncol = length(raw[1, ]))
+raw_smooth_new_bf <- matrix(0, nrow = nrow(raw_new), ncol = (length(raw_new[1, ]) - 1))
+      for (i in 1:(length(raw_new[1, ])) - 1) {
+        raw_smooth <- signal::filtfilt(bf, raw_new[, 1 + i])
+        raw_smooth_new_bf[, i] <- raw_smooth
+      }
+raw_new_smooth_bf <- cbind(raw_new, raw_smooth_new_bf)
+raw_new_smooth_bf <- raw_new_smooth_bf[, -c(2:33)]
+colnames(raw_new_smooth_bf) <- c("local time (arbitrary date)")
+raw_new_smooth1_bf <- raw_new_smooth_bf[, -1]
+      for (i in 1:length(raw_new_smooth1_bf[1, ])) {
+        a <- pracma::Reshape(raw_new_smooth1_bf[, i], s_per_day)
+        mean_a <- as.matrix(rowMeans(a))
+        for_profile_bf[, i] <- mean_a
+      }
+pro_bf <<- for_profile_bf
+pro_bf <<- rbind(pro_bf, pro_bf[1, ])
+pro_bf <<- cbind(ag, pro_bf)
+pro_bf <<- pro_bf %>% select_if(all_nan)
+pro_sel_bf <- pro_bf[, colSums(pro_bf == 0) / nrow(pro_bf) < .9, drop = FALSE]
+pro_sel_rowmean_bf <- rowMeans(pro_sel_bf[, -1])
+pro_sel_rowmean_bf <- cbind(pro_sel_bf, pro_sel_rowmean_bf)
+pro_new_bf <- pro_sel_rowmean_bf[, c(1, ncol(pro_sel_rowmean_bf))]
+      plot_mean <- ggplot(pro_new_bf, aes(x = pro_new_bf$timestamp, y = pro_new_bf$pro_sel_rowmean_bf)) +
+        geom_line(color = "red", alpha = 0.8, size = 1) +
+        scale_x_datetime(date_labels = "%I:%M %p", date_breaks = "4 hour", expand = c(0, 0)) +
+        xlab("Time") +
+        ylab(paste0("Activity counts/", bin1, "minute", " (butterworth filter, low pass)")) +
+        My_Theme +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      pro_sel_long_bf <- pro_sel_bf %>%
+        tidyr::pivot_longer(
+          2:ncol(pro_sel_bf)
+        )
+      pro_sel_long_sorted_bf <- pro_sel_long_bf[order(pro_sel_long_bf$name), ]
+      plot_mean
+
+      plot_all <- ggplot(pro_sel_long_sorted_bf, aes(x = pro_sel_long_sorted_bf$timestamp, y = pro_sel_long_sorted_bf$value)) +
+        geom_line(color = pro_sel_long_sorted_bf$name, alpha = 0.8, size = 1) +
+        facet_wrap(~ pro_sel_long_sorted_bf$name, scales = "free_y") +
+        scale_x_datetime(date_labels = "%I:%M %p", date_breaks = "4 hour", expand = c(0, 0)) +
+        xlab("Time") +
+        ylab(paste0("Activity counts/", bin1, "minute", " (butterworth filter, low pass)")) +
+        scale_color_gradientn(colours = rainbow(32)) +
+        My_Theme +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+        theme(strip.background = element_rect(
+          colour = "black",
+          fill = NA
+        ))
+        plot_all
+write.csv(raw_new_smooth_bf, file = "smoothened_bf.csv", row.names = FALSE)
+```
+### For kernel smoothing:
+```
+for_profile_ks <- matrix(0, nrow = s_per_day, ncol = length(raw[1, ]))
+raw_smooth_new_ks <- matrix(0, nrow = nrow(raw_new), ncol = (length(raw_new[1, ]) - 1))
+      for (i in 1:(length(raw_new[1, ])) - 1) {
+        raw_smooth <- ksmooth(time(raw_new$lol_new), raw_new[, 1 + i], "normal", bandwidth = b)
+        raw_smooth_new_ks[, i] <- raw_smooth$y
+      }
+raw_new_smooth_ks <- cbind(raw_new, raw_smooth_new_ks)
+raw_new_smooth_ks <- raw_new_smooth_ks[, -c(2:33)]
+colnames(raw_new_smooth_ks) <- c("local time (arbitrary date)")
+raw_new_smooth1_ks <- raw_new_smooth_ks[, -1]
+      for (i in 1:length(raw_new_smooth1_ks[1, ])) {
+        a <- pracma::Reshape(raw_new_smooth1_ks[, i], s_per_day)
+        mean_a <- as.matrix(rowMeans(a))
+        for_profile_ks[, i] <- mean_a
+      }
+pro_ks <<- for_profile_ks
+pro_ks <<- rbind(pro_ks, pro_ks[1, ])
+pro_ks <<- cbind(ag, pro_ks)
+pro_ks <<- pro_ks %>% select_if(all_nan)
+pro_sel_ks <- pro_ks[, colSums(pro_ks == 0) / nrow(pro_ks) < .9, drop = FALSE]
+pro_sel_rowmean_ks <- rowMeans(pro_sel_ks[, -1])
+pro_sel_rowmean_ks <- cbind(pro_sel_ks, pro_sel_rowmean_ks)
+pro_new_ks <- pro_sel_rowmean_ks[, c(1, ncol(pro_sel_rowmean_ks))]
+      plot_mean <- ggplot(pro_new_ks, aes(x = pro_new_ks$timestamp, y = pro_new_ks$pro_sel_rowmean_ks)) +
+        geom_line(color = "red", alpha = 0.8, size = 1) +
+        scale_x_datetime(date_labels = "%I:%M %p", date_breaks = "4 hour", expand = c(0, 0)) +
+        xlab("Time") +
+        ylab(paste0("Activity counts/", bin1, "minute", " (KS bandwidth = ", b, ")")) +
+        My_Theme +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1))
+      pro_sel_long_ks <- pro_sel_ks %>%
+        tidyr::pivot_longer(
+          2:ncol(pro_sel_ks)
+        )
+      pro_sel_long_sorted_ks <- pro_sel_long_ks[order(pro_sel_long_ks$name), ]
+      plot_mean
+
+      plot_all <- ggplot(pro_sel_long_sorted_ks, aes(x = pro_sel_long_sorted_ks$timestamp, y = pro_sel_long_sorted_ks$value)) +
+        geom_line(color = pro_sel_long_sorted_ks$name, alpha = 0.8, size = 1) +
+        facet_wrap(~ pro_sel_long_sorted_ks$name, scales = "free_y") +
+        scale_x_datetime(date_labels = "%I:%M %p", date_breaks = "4 hour", expand = c(0, 0)) +
+        xlab("Time") +
+        ylab(paste0("Activity counts/", bin1, "minute", " (KS bandwidth = ", b, ")")) +
+        scale_color_gradientn(colours = rainbow(32)) +
+        My_Theme +
+        theme(axis.text.x = element_text(angle = 45, hjust = 1)) +
+        theme(strip.background = element_rect(
+          colour = "black",
+          fill = NA
+        ))
+        plot_all
+write.csv(raw_new_smooth_ks, file = "smoothtened_ks.csv", row.names = FALSE)
+```

@@ -1,0 +1,52 @@
+Package: vanessadamcra
+Title: Visual ANalysis of timE SerieS dAta - Drosophila Activity Monitors (VANESSA-DAM)
+Version: 1.0.0
+Authors@R: c(
+    person("Arijit", "Ghosh",
+        email = "arijitghosh2009@gmail.com",
+        role = c("aut", "cre"),
+        comment = c(ORCID="0000-0002-7910-3170"))
+    )
+Description: Visual ANalysis of timE SerieS dAta - Drosophila Activity Monitors (VANESSA-DAM)
+URL: https://github.com/orijitghosh/VANESSA-DAM/tree/main/VANESSA-DAM-CRA
+BugReports: https://github.com/orijitghosh/VANESSA-DAM/issues
+Depends:
+    R (>= 3.6.3)
+Imports:
+    data.table,
+    WaveletComp,
+    shiny (>= 1.0.4),
+    ggetho,
+    zeitgebr,
+    ggplot2,
+    ggridges,
+    readr,
+    damr,
+    sleepr,
+    behavr,
+    dplyr,
+    shinyalert,
+    colourpicker,
+    beepr,
+    showtext,
+    shinydashboard,
+    shinycustomloader,
+    shinythemes,
+    shinyWidgets,
+    shinyhelper,
+    Cairo,
+    pracma,
+    lubridate,
+    signal,
+    tidyr,
+    DT,
+    rmarkdown,
+    ggforce
+Suggests:
+    tidyverse
+
+License: MIT + file LICENSE
+LazyData: false
+Encoding: UTF-8
+RoxygenNote: 7.1.1
+Roxygen: list(markdown = TRUE)
