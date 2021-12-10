@@ -2,9 +2,10 @@
  [![DOI](https://zenodo.org/badge/326950938.svg)](https://zenodo.org/badge/latestdoi/326950938)&nbsp;
 **V**isualization and **AN**alysis of tim**E** **S**erie**S** d**A**ta - **D**rosophila **A**ctivity **M**onitors (**VANESSA-DAM**) is a collection of useful tools to visualize and analyze Time series data obtained from Drosophila Activity Monitors (https://www.trikinetics.com/). The first in the series of tools are two shiny apps for circadian rhythm and sleep analysis and visualization - VANESSA-DAM for circadian rhythm analysis (**VANESSA-DAM-CRA**) and sleep analysis (**VANESSA-DAM-SA**). For any suggestions, questions, troubleshooting or customization, please contact arijitghosh2009@gmail.com. The contents of this repository undergoes frequent changes, and versions with significant changes are archived on Zenodo. Click on [this](https://github.com/orijitghosh/VANESSA-DAM/archive/refs/heads/main.zip) link to download the apps in a zipped file.
 
-#### Tutorials are available as PDF files from respecive app's folder on GitHub, and from the Documentation tab of the apps. The Wiki page on GitHub hosts some good practices for data analysis. Novice users can directly use the ```vanessadamcra``` and ```vanessadamsa``` packages to avoid installing packages and running the apps from RStudio R console.
 
 #### The apps are also hosted on shinyapps.io server. Access VANESSA-DAM-CRA at https://cryptodice.shinyapps.io/vanessa-dam-cra/ and VANESSA-DAM-SA at https://cryptodice.shinyapps.io/vanessa-dam-sa/. However, currently the apps are hosted on a free-tier account which restricts monthly usage to 25 hours. So, users familiar with R and RStudio should use the R packages for the apps locally.
+
+#### Tutorials are available as PDF files from respecive app's folder on GitHub, and from the Documentation tab of the apps. The Wiki page on GitHub hosts some good practices for data analysis. Novice users can directly use the ```vanessadamcra``` and ```vanessadamsa``` packages to avoid installing packages and running the apps from RStudio R console.
 
 ## Install the packages for VANESSA-DAM-CRA and VANESSA-DAM-SA by using the following commands in your RStudio R console:
 ```
