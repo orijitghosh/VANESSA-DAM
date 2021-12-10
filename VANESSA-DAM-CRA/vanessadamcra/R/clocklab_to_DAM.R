@@ -1,4 +1,5 @@
 #' @export
+#' @importFrom hms
 clocklab_to_DAM <- function(bin = 5, file) {
   #' clocklab format to DAM2 converter
   #' 
