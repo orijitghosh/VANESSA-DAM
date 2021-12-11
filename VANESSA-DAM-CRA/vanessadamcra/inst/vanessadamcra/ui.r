@@ -8,7 +8,7 @@ library(shinyalert)
 library(colourpicker)
 library(shinyWidgets)
 library(shinyhelper)
-library(shinyFiles)
+#library(shinyFiles)
 library(ggplot2)
 source("helpers.R")
 shinyUI <-
