@@ -15,8 +15,6 @@ library(colourpicker)
 library(beepr)
 library(shinyWidgets)
 library(shinyhelper)
-library(shinyFiles)
-library(fs)
 library(ggforce)
 shinyServer(function(input, output, session) {
   shinyalert(
@@ -391,7 +389,7 @@ shinyServer(function(input, output, session) {
     req(input$meta, input$data)
     metadata <- read.csv(input$meta$datapath)
     metadata <- na.omit(metadata)
-    file.copy(input$data$datapath, paste0(dirname(tempdir()), "\\", input$data$name), recursive = TRUE)
+    file.copy(input$data$datapath, paste0(dirname(tempdir()), .Platform$file.sep, input$data$name), recursive = TRUE)
     metadata_proc <- link_dam_metadata(metadata, result_dir = dirname(tempdir()))
     output$contents <- DT::renderDataTable(
       metadata,
