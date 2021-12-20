@@ -353,8 +353,22 @@ shinyServer(function(input, output, session) {
     req(input$meta)
     metadata <- read.csv(input$meta$datapath)
     metadata <- na.omit(metadata)
-    file.copy(input$data$datapath, paste0(dirname(tempdir()), .Platform$file.sep, input$data$name), recursive = TRUE)
-    metadata_proc <- link_dam_metadata(metadata, result_dir = dirname(tempdir()))
+    #########From Dean Attali########
+    fixUploadedFilesNames <- function(x) {
+      if (is.null(x)) {
+        return()
+      }
+      
+      oldNames = x$datapath
+      newNames = file.path(dirname(x$datapath),
+                           x$name)
+      file.rename(from = oldNames, to = newNames)
+      x$datapath <- newNames
+      x
+    }
+    ###############
+    file.copy(fixUploadedFilesNames(input$data)$datapath, ".", recursive = TRUE)
+    metadata_proc <- link_dam_metadata(metadata, result_dir = ".")
     output$contents <- DT::renderDataTable(
       metadata,
       filter = list(position = "top", clear = FALSE, plain = TRUE)
