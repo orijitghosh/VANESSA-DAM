@@ -403,7 +403,7 @@ shinyServer(function(input, output, session) {
       x
     }
     ###############
-    file.copy(fixUploadedFilesNames(input$data)$datapath, ".", recursive = TRUE)
+    file.copy(fixUploadedFilesNames(input$data)$datapath, ".", recursive = TRUE, overwrite = TRUE)
     metadata_proc <- link_dam_metadata(metadata, result_dir = ".")
     output$contents <- DT::renderDataTable(
       metadata,
