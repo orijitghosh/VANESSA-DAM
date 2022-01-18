@@ -339,7 +339,7 @@ shinyServer(function(input, output, session) {
 
     toscale2 <- input$replicate * input$genotype
 
-    
+
     output$downloadmetadata <- downloadHandler(
       filename = function() {
         paste("Metadata_user.csv", sep = "")
@@ -353,15 +353,17 @@ shinyServer(function(input, output, session) {
     req(input$meta)
     metadata <- read.csv(input$meta$datapath)
     metadata <- na.omit(metadata)
-    #########From Dean Attali########
+    ######### From Dean Attali########
     fixUploadedFilesNames <- function(x) {
       if (is.null(x)) {
         return()
       }
-      
-      oldNames = x$datapath
-      newNames = file.path(dirname(x$datapath),
-                           x$name)
+
+      oldNames <- x$datapath
+      newNames <- file.path(
+        dirname(x$datapath),
+        x$name
+      )
       file.rename(from = oldNames, to = newNames)
       x$datapath <- newNames
       x
@@ -1071,7 +1073,10 @@ shinyServer(function(input, output, session) {
               alpha = input$alphasig,
               FUN = chi_sq_periodogram
             )
+            per_xsq_dt_chi_sq <- rejoin(per_xsq_dt_chi_sq)
+            per_xsq_dt_chi_sq <- per_xsq_dt_chi_sq[, c("file_info", "region_id", "experiment_id", "start_datetime", "stop_datetime") := NULL]
             per_xsq_dt_chi_sq <- find_peaks(per_xsq_dt_chi_sq)
+            setbehavr(per_xsq_dt_chi_sq, metadata_proc)
             # mf_chi_sq <- memoise(per_xsq_dt_chi_sq)
             beepr::beep(sound = 10)
           } else if (input$permethod == "Autocorrelation") {
@@ -1081,7 +1086,10 @@ shinyServer(function(input, output, session) {
               alpha = input$alphasig,
               FUN = ac_periodogram
             )
+            per_xsq_dt_chi_sq <- rejoin(per_xsq_dt_chi_sq)
+            per_xsq_dt_chi_sq <- per_xsq_dt_chi_sq[, c("file_info", "region_id", "experiment_id", "start_datetime", "stop_datetime") := NULL]
             per_xsq_dt_chi_sq <- find_peaks(per_xsq_dt_chi_sq)
+            setbehavr(per_xsq_dt_chi_sq, metadata_proc)
             # mf_ac <- memoise(per_xsq_dt_chi_sq)
             beepr::beep(sound = 10)
           } else if (input$permethod == "Lomb-Scargle") {
@@ -1091,7 +1099,10 @@ shinyServer(function(input, output, session) {
               alpha = input$alphasig,
               FUN = ls_periodogram
             )
+            per_xsq_dt_chi_sq <- rejoin(per_xsq_dt_chi_sq)
+            per_xsq_dt_chi_sq <- per_xsq_dt_chi_sq[, c("file_info", "region_id", "experiment_id", "start_datetime", "stop_datetime") := NULL]
             per_xsq_dt_chi_sq <- find_peaks(per_xsq_dt_chi_sq)
+            setbehavr(per_xsq_dt_chi_sq, metadata_proc)
             # mf_ls <- memoise(per_xsq_dt_chi_sq)
             beepr::beep(sound = 10)
           } else {
@@ -1101,7 +1112,10 @@ shinyServer(function(input, output, session) {
               alpha = input$alphasig,
               FUN = cwt_periodogram
             )
+            per_xsq_dt_chi_sq <- rejoin(per_xsq_dt_chi_sq)
+            per_xsq_dt_chi_sq <- per_xsq_dt_chi_sq[, c("file_info", "region_id", "experiment_id", "start_datetime", "stop_datetime") := NULL]
             per_xsq_dt_chi_sq <- find_peaks(per_xsq_dt_chi_sq)
+            setbehavr(per_xsq_dt_chi_sq, metadata_proc)
             # mf_cwt <- memoise(per_xsq_dt_chi_sq)
             beepr::beep(sound = 10)
           }
