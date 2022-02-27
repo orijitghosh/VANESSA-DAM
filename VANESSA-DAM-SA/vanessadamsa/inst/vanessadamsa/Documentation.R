@@ -41,9 +41,9 @@ shiny app from RStudio directly."),
 
     tags$br(),
     tags$div(
-      tags$p(strong("How to cite VANESSA-DAM-SA:"), "Arijit Ghosh and Vasu Sheeba, Chronobiology and Behavioural
-           Neurogenetics Laboratory, Neuroscience Unit, JNCASR, Bangalore, India
-                  (manuscript under review)"),
+      tags$p(strong("How to cite VANESSA-DAM-SA:"), "Ghosh, A. and Sheeba, V. (2022) 'VANESSA-Shiny Apps for 
+             Accelerated Time-series Analysis and Visualization of Drosophila Circadian Rhythm and Sleep Data', 
+             Journal of Biological Rhythms. doi: 10.1177/07487304221077662"),
       style = "font-size: 19px"
     ),
 
