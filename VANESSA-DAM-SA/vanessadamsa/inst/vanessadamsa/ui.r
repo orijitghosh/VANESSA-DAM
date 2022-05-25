@@ -514,7 +514,7 @@ shinyUI <-
                   color = "primary"
                 ),
                 tags$hr(),
-                DT::dataTableOutput("periodpower") %>% withLoader(type = "html", loader = "pacman")
+                DT::dataTableOutput("periodpower_new") %>% withLoader(type = "html", loader = "pacman")
               )
             )
           )
