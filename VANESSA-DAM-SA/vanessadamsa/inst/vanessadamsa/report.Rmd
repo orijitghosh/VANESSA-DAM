@@ -700,6 +700,21 @@ pro_chi_sq <- bout_summary
       pro_chi_sq_new$mean_bout_length <- pro_chi_sq_new$mean_bout_length / 60
       pro_chi_sq_new$mean_bout_length <- pro_chi_sq_new$total_bout_length / 60
       pro_chi_sq_new <- as.matrix(pro_chi_sq_new)
-      write.csv(pro_chi_sq, file = "all data.csv", row.names = FALSE)
-      write.csv(pro_chi_sq_new, file = "all data bout details.csv", row.names = FALSE)
+      wpopplot <- ggetho(dt_curated, aes(y = asleep, colour = genotype), summary_time_window = mins(15)) +
+        stat_pop_etho()
+      popplot_wrap <- ggetho(dt_curated, aes(y = asleep, colour = genotype), summary_time_window = mins(15),
+                             time_wrap = hours(24)) +
+        stat_pop_etho()
+      df_new <- ggplot_build(popplot)$plot$data   ##########works perfectly - individuals with each day profile
+      df_new <- df_new[, -c("file_info")]
+      # df_new <- as.data.table(df_new)
+      df_new_wrap <- ggplot_build(popplot_wrap)$plot$data  ###individuals wrapped over days
+      df_new_wrap_genotype <- as.data.table(df_new_wrap)
+      df_new_wrap_genotype_summary_replicate <- (df_new_wrap_genotype[, .(
+        sleep_fraction_genotype = mean(asleep)
+      ), by = c("genotype", "t", "replicate")])   ##########average profile over genotype replicates separate
+      write.csv(df_new, file = "individual sleep profiles.csv", row.names = FALSE)
+      write.csv(df_new_wrap_genotype_summary_replicate, file = "average sleep profiles.csv", row.names = FALSE)
+      write.csv(pro_chi_sq, file = "bout analysis data.csv", row.names = FALSE)
+      write.csv(pro_chi_sq_new, file = "bout analysis data with phase details.csv", row.names = FALSE)
 ```
