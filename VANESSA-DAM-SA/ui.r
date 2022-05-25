@@ -8,7 +8,6 @@ library(shinyalert)
 library(colourpicker)
 library(shinyWidgets)
 library(shinyhelper)
-library(shinyFiles)
 library(ggplot2)
 source("helpers.R")
 shinyUI <-
@@ -492,18 +491,30 @@ shinyUI <-
               mainPanel(
                 downloadBttn(
                   outputId = "downloadData_chi_sq",
-                  label = "Download data",
+                  label = "Download bout analysis data",
                   style = "minimal",
                   color = "primary"
                 ),
                 downloadBttn(
                   outputId = "downloadData_chi_sq_new",
-                  label = "Download data bout details",
+                  label = "Download bout analysis data with phase details",
+                  style = "minimal",
+                  color = "primary"
+                ),
+                downloadBttn(
+                  outputId = "downloadData_ind_sleep_pro",
+                  label = "Download individual sleep profiles",
+                  style = "minimal",
+                  color = "primary"
+                ),
+                downloadBttn(
+                  outputId = "downloadData_avg_sleep_pro",
+                  label = "Download average sleep profiles",
                   style = "minimal",
                   color = "primary"
                 ),
                 tags$hr(),
-                DT::dataTableOutput("periodpower") %>% withLoader(type = "html", loader = "pacman")
+                DT::dataTableOutput("periodpower_new") %>% withLoader(type = "html", loader = "pacman")
               )
             )
           )

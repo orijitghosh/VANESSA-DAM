@@ -1205,6 +1205,19 @@ shinyServer(function(input, output, session) {
       pro_chi_sq_new$total_bout_length <- pro_chi_sq_new$total_bout_length / 60
       pro_chi_sq_new$latency <- pro_chi_sq_new$latency / 60
       pro_chi_sq_new <- as.matrix(pro_chi_sq_new)
+      popplot <- ggetho(dt_curated, aes(y = asleep, colour = genotype), summary_time_window = mins(15)) +
+        stat_pop_etho()
+      popplot_wrap <- ggetho(dt_curated, aes(y = asleep, colour = genotype), summary_time_window = mins(15),
+                             time_wrap = hours(24)) +
+        stat_pop_etho()
+      df_new <- ggplot_build(popplot)$plot$data   ##########works perfectly - individuals with each day profile
+      df_new <- df_new[, -c("file_info")]
+      # df_new <- as.data.table(df_new)
+      df_new_wrap <- ggplot_build(popplot_wrap)$plot$data  ###individuals wrapped over days
+      df_new_wrap_genotype <- as.data.table(df_new_wrap)
+      df_new_wrap_genotype_summary_replicate <- (df_new_wrap_genotype[, .(
+        sleep_fraction_genotype = mean(asleep)
+      ), by = c("genotype", "t", "replicate")])   ##########average profile over genotype replicates separate
       ###########################
       output$periodpower <- DT::renderDataTable(
         pro_chi_sq,
@@ -1218,7 +1231,7 @@ shinyServer(function(input, output, session) {
       #############
       output$downloadData_chi_sq <- downloadHandler(
         filename = function() {
-          paste("all data.csv", sep = "")
+          paste("bout analysis data.csv", sep = "")
         },
         content = function(file) {
           write.csv(pro_chi_sq, file, row.names = FALSE)
@@ -1226,14 +1239,28 @@ shinyServer(function(input, output, session) {
       )
       output$downloadData_chi_sq_new <- downloadHandler(
         filename = function() {
-          paste("all data bout details.csv", sep = "")
+          paste("bout analysis data with phase details.csv", sep = "")
         },
         content = function(file) {
           write.csv(pro_chi_sq_new, file, row.names = FALSE)
         }
       )
-
-
+      output$downloadData_ind_sleep_pro <- downloadHandler(
+        filename = function() {
+          paste("individual sleep profiles.csv", sep = "")
+        },
+        content = function(file) {
+          write.csv(df_new, file, row.names = FALSE)
+        }
+      )
+      output$downloadData_avg_sleep_pro <- downloadHandler(
+        filename = function() {
+          paste("average sleep profiles.csv", sep = "")
+        },
+        content = function(file) {
+          write.csv(df_new_wrap_genotype_summary_replicate, file, row.names = FALSE)
+        }
+      )
       ################
     })
     output$report <- downloadHandler(
