@@ -1162,7 +1162,8 @@ shinyServer(function(input, output, session) {
               activity_count_awake = sum(activity[asleep == FALSE])
             ), by = c("id", "day")]
             activity_count_awake <- dt_curated[meta = T][activity_count_awake]
-            activity_index <- as.data.frame(bout_summary)
+            activity_count_awake <- activity_count_awake[bout_summary_awake, on = .(id=id,day=day)]
+            activity_index <- as.data.frame(bout_summary_awake)
             activity_index$activity_index <- (activity_index$total_bout_length / 60) / activity_count_awake$activity_count_awake
             ggplot(activity_index, aes(x = genotype, y = activity_index, fill = genotype)) +
               # geom_boxplot(outlier.colour = "red") +    ######if boxplot needed
