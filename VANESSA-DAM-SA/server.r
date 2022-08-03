@@ -569,7 +569,7 @@ shinyServer(function(input, output, session) {
             req(input$meta)
             ggetho(dt_curated, aes(y = asleep, colour = genotype), summary_time_window = mins(input$min)) +
               stat_pop_etho() +
-              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              stat_ld_annotations(dt_curated, inherit.aes = F, mapping = aes(x=t), height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
               scale_y_continuous(name = "Fraction of time sleeping") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
@@ -590,7 +590,7 @@ shinyServer(function(input, output, session) {
               time_wrap = hours(input$modtau), summary_time_window = mins(input$min)
             ) +
               stat_pop_etho() +
-              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              stat_ld_annotations(height = 1, alpha = 0.025, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
               scale_y_continuous(name = "Fraction of time sleeping") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
@@ -611,7 +611,7 @@ shinyServer(function(input, output, session) {
               time_wrap = hours(input$modtau), summary_time_window = mins(input$min)
             ) +
               stat_pop_etho(geom = "bar", alpha = 0.4) +
-              stat_ld_annotations(height = 1, alpha = .1, x_limits = c(0, hours(24)), outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              stat_ld_annotations(dt_curated, inherit.aes = F, mapping = aes(x=t), height = 1, alpha = .1, x_limits = c(0, hours(24)), outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
               scale_y_continuous(name = "Fraction of time sleeping") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
@@ -694,7 +694,7 @@ shinyServer(function(input, output, session) {
             req(input$meta)
             ggetho(bout_dt, aes(y = duration / 60, colour = genotype), time_wrap = hours(input$modtau), summary_time_window = mins(input$min)) +
               stat_pop_etho() +
-              stat_ld_annotations(height = 1, alpha = 0.1, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
+              stat_ld_annotations(height = 1, alpha = 0.025, outline = NA, l_duration = hours(input$light), period = hours(input$ldperiod)) +
               scale_y_continuous(name = "Bout length (min)") +
               scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
               scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
