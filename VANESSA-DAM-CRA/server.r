@@ -396,6 +396,8 @@ shinyServer(function(input, output, session) {
         dt_curated[, uid := 1:.N, meta = T]
         dt_curated[, .(id, uid), meta = T]
         beepr::beep(sound = 10)
+        slh <- max(dt_curated$activity/15)
+        slhn <- max(dt_curated$normact/60)
       })
 
       observeEvent(input$plotalletho, {
@@ -408,6 +410,7 @@ shinyServer(function(input, output, session) {
                 summary_time_window = mins(input$min)
               ) +
               stat_ld_annotations(
+                dt, inherit.aes = F, mapping = aes(x=t),
                 height = 0.01,
                 l_duration = hours(input$light),
                 period = hours(input$ldperiod)
@@ -430,6 +433,7 @@ shinyServer(function(input, output, session) {
             alletho <-
               ggetho(dt, aes(z = activity), summary_time_window = mins(input$min)) +
               stat_ld_annotations(
+                dt, inherit.aes = F, mapping = aes(x=t),
                 height = 0.005,
                 alpha = 0.05,
                 outline = NA,
@@ -455,6 +459,7 @@ shinyServer(function(input, output, session) {
               summary_time_window = mins(input$min)
             ) +
               stat_ld_annotations(
+                dt_curated, inherit.aes = F, mapping = aes(x=t),
                 height = 0.01,
                 l_duration = hours(input$light),
                 period = hours(input$ldperiod)
@@ -479,6 +484,7 @@ shinyServer(function(input, output, session) {
                 summary_time_window = mins(input$min)
               ) +
               stat_ld_annotations(
+                dt_curated, inherit.aes = F, mapping = aes(x=t),
                 height = 0.005,
                 alpha = 0.05,
                 outline = NA,
@@ -643,6 +649,7 @@ shinyServer(function(input, output, session) {
               time_offset = hours(6)
             ) +
               stat_ld_annotations(
+                dt_curated, inherit.aes = F, mapping = aes(x=t),
                 height = 1,
                 alpha = 0.1,
                 outline = NA,
@@ -676,6 +683,7 @@ shinyServer(function(input, output, session) {
               time_offset = hours(6)
             ) +
               stat_ld_annotations(
+                dt_curated, inherit.aes = F, mapping = aes(x=t),
                 height = 1,
                 alpha = 0.1,
                 outline = NA,
@@ -711,7 +719,7 @@ shinyServer(function(input, output, session) {
             ) +
               stat_ld_annotations(
                 height = 1,
-                alpha = 0.1,
+                alpha = 0.05,
                 outline = NA,
                 l_duration = hours(input$light),
                 period = hours(input$ldperiod)
@@ -745,7 +753,7 @@ shinyServer(function(input, output, session) {
             ) +
               stat_ld_annotations(
                 height = 1,
-                alpha = 0.1,
+                alpha = 0.05,
                 outline = NA,
                 l_duration = hours(input$light),
                 period = hours(input$ldperiod)
@@ -779,7 +787,7 @@ shinyServer(function(input, output, session) {
             ) +
               stat_ld_annotations(
                 height = 1,
-                alpha = 0.1,
+                alpha = 0.05,
                 outline = NA,
                 l_duration = hours(input$light),
                 period = hours(input$ldperiod)
@@ -812,7 +820,7 @@ shinyServer(function(input, output, session) {
             ) +
               stat_ld_annotations(
                 height = 1,
-                alpha = 0.1,
+                alpha = 0.05,
                 outline = NA,
                 l_duration = hours(input$light),
                 period = hours(input$ldperiod)
@@ -844,7 +852,7 @@ shinyServer(function(input, output, session) {
               summary_time_window = mins(input$min)
             ) +
               stat_ld_annotations(
-                height = 1,
+                height = slhn,
                 alpha = .1,
                 x_limits = c(0, hours(24)),
                 outline = NA,
@@ -879,7 +887,7 @@ shinyServer(function(input, output, session) {
               summary_time_window = mins(input$min)
             ) +
               stat_ld_annotations(
-                height = 3,
+                height = slh,
                 alpha = .1,
                 x_limits = c(0, hours(24)),
                 outline = NA,
@@ -1222,7 +1230,7 @@ shinyServer(function(input, output, session) {
                     stat_summary(aes(label = round((..y.. / 3600), 2), color = genotype), fun = mean, geom = "text", size = 5, vjust = -0.5)
                   }
                 } +
-                facet_wrap(~replicate, ncol = 1) +
+                facet_wrap(~replicate, ncol = 1, scales = "free_y") +
                 scale_y_hours(name = "Period") +
                 scale_color_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
                 scale_fill_manual(values = c(input$col1, input$col2, input$col3, input$col4, input$col5, input$col6, input$col7, input$col8, input$col9, input$col10, input$col11, input$col12)) +
@@ -1245,7 +1253,7 @@ shinyServer(function(input, output, session) {
                   position = position_points_jitter(width = 0.2, height = 0),
                   point_shape = "|", point_size = 8, point_alpha = 1, alpha = .7
                 ) +
-                facet_wrap(~replicate, ncol = 1) +
+                facet_wrap(~replicate, ncol = 1, scales = "free_y") +
                 scale_y_discrete(expand = c(0, 0)) + # will generally have to set the `expand` option
                 scale_x_continuous(expand = c(0, 0)) + # for both axes to remove unneeded padding
                 coord_cartesian(clip = "off") + # to avoid clipping of the very top of the top ridgeline
