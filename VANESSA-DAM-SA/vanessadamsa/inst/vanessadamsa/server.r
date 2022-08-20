@@ -425,9 +425,23 @@ shinyServer(function(input, output, session) {
         valid_ids <- lifespan_dt[lifespan > days(input$remove), id]
         dt_curated <- dt_curated[id %in% valid_ids]
         dt_curated <- dt_curated[day %between% c(input$start, input$end)]
+        dt_curated[, genotype:=xmv(genotype)]
+        dt_curated[, replicate:=xmv(replicate)]
         setbehavr(dt_curated, metadata_proc)
         dt_curated[, uid := 1:.N, meta = T]
         dt_curated[, .(id, uid), meta = T]
+        summary_sleep_phase <- dt_curated[,.(
+          time_spent_sleeping = length(asleep[asleep==TRUE])
+        ), by=c("id", "phase", "day", "genotype", "replicate")]
+        summary_sleep_whole_day <- dt_curated[,.(
+          time_spent_sleeping = length(asleep[asleep==TRUE])
+        ), by=c("id", "day", "genotype", "replicate")]
+        summary_awake_phase <- dt_curated[,.(
+          time_spent_awake = length(asleep[asleep==FALSE])
+        ), by=c("id", "phase", "day", "genotype", "replicate")]
+        summary_awake_whole_day <- dt_curated[,.(
+          time_spent_awake = length(asleep[asleep==FALSE])
+        ), by=c("id", "day", "genotype", "replicate")]
         summary_dt <- (dt_curated[, .(
           sleep_fraction_all = mean(asleep),
           sleep_fraction_l = mean(asleep[phase == "Light"]),
@@ -1022,7 +1036,7 @@ shinyServer(function(input, output, session) {
         output$total_sleep <- renderPlot(
           {
             req(input$meta)
-            ggplot(bout_summary, aes(x = genotype, y = total_bout_length / 60, fill = genotype)) +
+            ggplot(summary_sleep_whole_day, aes(x = genotype, y = time_spent_sleeping, fill = genotype)) +
               # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
               # geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
               geom_sina(aes(color = genotype), alpha = .6) +
@@ -1056,7 +1070,7 @@ shinyServer(function(input, output, session) {
         output$total_awake <- renderPlot(
           {
             req(input$meta)
-            ggplot(bout_summary_awake, aes(x = genotype, y = total_bout_length / 60, fill = genotype)) +
+            ggplot(summary_awake_whole_day, aes(x = genotype, y = time_spent_awake, fill = genotype)) +
               # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
               # geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
               geom_sina(aes(color = genotype), alpha = .6) +
@@ -1090,7 +1104,7 @@ shinyServer(function(input, output, session) {
         output$total_sleep_phase <- renderPlot(
           {
             req(input$meta)
-            ggplot(bout_summary_phase, aes(x = phase, y = total_bout_length / 60, fill = genotype)) +
+            ggplot(summary_sleep_phase, aes(x = phase, y = time_spent_sleeping, fill = genotype)) +
               # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
               # geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
               geom_sina(aes(color = genotype), alpha = .6) +
@@ -1124,7 +1138,7 @@ shinyServer(function(input, output, session) {
         output$total_awake_phase <- renderPlot(
           {
             req(input$meta)
-            ggplot(bout_summary_phase_awake, aes(x = phase, y = total_bout_length / 60, fill = genotype)) +
+            ggplot(summary_awake_phase, aes(x = phase, y = time_spent_awake, fill = genotype)) +
               # geom_boxplot(outlier.colour = "red") +  #######if boxplot needed
               # geom_jitter(aes(colour = genotype), alpha = .5, position = position_dodge(.9)) +
               geom_sina(aes(color = genotype), alpha = .6) +
@@ -1219,6 +1233,8 @@ shinyServer(function(input, output, session) {
       df_new_wrap_genotype_summary_replicate <- (df_new_wrap_genotype[, .(
         sleep_fraction_genotype = mean(asleep)
       ), by = c("genotype", "t", "replicate")])   ##########average profile over genotype replicates separate
+      df_sleep_phase <- summary_sleep_phase
+      df_awake_phase <- summary_awake_phase
       ###########################
       output$periodpower <- DT::renderDataTable(
         pro_chi_sq,
@@ -1260,6 +1276,22 @@ shinyServer(function(input, output, session) {
         },
         content = function(file) {
           write.csv(df_new_wrap_genotype_summary_replicate, file, row.names = FALSE)
+        }
+      )
+      output$downloadData_sleep_phase <- downloadHandler(
+        filename = function() {
+          paste("sleep time in minutes phase-wise.csv", sep = "")
+        },
+        content = function(file) {
+          write.csv(df_sleep_phase, file, row.names = FALSE)
+        }
+      )
+      output$downloadData_awake_phase <- downloadHandler(
+        filename = function() {
+          paste("awake time in minutes phase-wise.csv", sep = "")
+        },
+        content = function(file) {
+          write.csv(df_awake_phase, file, row.names = FALSE)
         }
       )
       ################

@@ -513,6 +513,18 @@ shinyUI <-
                   style = "minimal",
                   color = "primary"
                 ),
+                downloadBttn(
+                  outputId = "downloadData_sleep_phase",
+                  label = "Download sleep time in different phases",
+                  style = "minimal",
+                  color = "primary"
+                ),
+                downloadBttn(
+                  outputId = "downloadData_awake_phase",
+                  label = "Download awake time in different phases",
+                  style = "minimal",
+                  color = "primary"
+                ),
                 tags$hr(),
                 DT::dataTableOutput("periodpower_new") %>% withLoader(type = "html", loader = "pacman")
               )
