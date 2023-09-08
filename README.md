@@ -26,7 +26,7 @@ runVanessaDamSa()
 
 ### **VANESSA-DAM-CRA**
 
-VANESSA-DAM-CRA is dependent on [Quentin Geissmann](https://github.com/qgeissmann)'s [rethomics](https://github.com/rethomics) family of packages - [behavr](https://github.com/rethomics/behavr), [damr](https://github.com/rethomics/damr), [ggetho](https://github.com/rethomics/ggetho), [zeitgebr](https://github.com/rethomics/zeitgebr), for some analysis and visualization options. It offers several advantages over existing tools for circadian rhythm analysis from DAM systems, some mentionable ones are - 
+VANESSA-DAM-CRA offers several advantages over existing tools for circadian rhythm analysis from DAM systems, some mentionable ones are - 
 
 1. Analysis and visualization of multiple monitor files, genotypes, replicates together in a high-throughput manner.
 
@@ -52,7 +52,7 @@ A short tutorial is provided (*Easy tutorial to start using VANESSA-DAM-CRA.pdf*
 
 ### **VANESSA-DAM-SA**
 
-VANESSA-DAM-SA is dependent on [Quentin Geissmann](https://github.com/qgeissmann)'s [rethomics](https://github.com/rethomics) family of packages - [behavr](https://github.com/rethomics/behavr), [damr](https://github.com/rethomics/damr), [ggetho](https://github.com/rethomics/ggetho), [sleepr](https://github.com/rethomics/sleepr), for some analysis and visualization options. It offers several advantages over existing tools for sleep analysis from DAM systems, some mentionable ones are - 
+VANESSA-DAM-SA offers several advantages over existing tools for sleep analysis from DAM systems, some mentionable ones are - 
 
 1. Analysis and visualization of multiple monitor files, genotypes, replicates together in a high-throughput manner.
 
